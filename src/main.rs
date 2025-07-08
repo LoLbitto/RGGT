@@ -140,6 +140,19 @@ impl Renderer {
         self.draw_with_clear_color(0.1, 0.1, 0.1, 0.9)
     }
 
+    pub fn update(&self) {
+        unsafe {
+        self.gl.BufferSubData(
+            gl::ARRAY_BUFFER,
+            0,
+            (VERTEX_DATA.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
+            [1.0, 1.0, -0.5, 0.0, 0.0,
+            -1.0, -1.0, 1.0, 0.0, 0.5,
+            0.5, -0.5, 1.0, 0.5, 1.0].as_ptr() as *const _,
+            );
+        }
+    }
+
     pub fn draw_with_clear_color(
         &self,
         red: GLfloat,
@@ -392,9 +405,13 @@ impl ApplicationHandler for App {
                 println!("Fechando");
                 event_loop.exit();
             },
+            WindowEvent::KeyboardInput {
+                event: KeyEvent { logical_key: Key::Named(NamedKey::ArrowUp), .. },
+                ..
+            } => self.renderer.as_ref().unwrap().update(),
 
             WindowEvent::RedrawRequested => { 
-
+                self.renderer.as_ref().unwrap().draw();
                 self.state.as_ref().unwrap().window.request_redraw();
             }
             _ => (),
