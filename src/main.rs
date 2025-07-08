@@ -1,17 +1,54 @@
-extern crate gl;
+use std::error::Error;
+use std::ffi::{CStr, CString};
+use std::num::NonZeroU32;
+use std::ops::Deref;
 
-use winit::event_loop::{EventLoop, ActiveEventLoop, ControlFlow};
-use winit::window::{Window, WindowId};
+use gl::types::GLfloat;
+use raw_window_handle::HasWindowHandle;
 use winit::application::ApplicationHandler;
-use winit::event::WindowEvent;
-
-use raw_window_handle::*;
+use winit::event::{KeyEvent, WindowEvent};
+use winit::event_loop::ActiveEventLoop;
+use winit::keyboard::{Key, NamedKey};
+use winit::window::{Window, WindowAttributes};
 
 use glutin::config::{Config, ConfigTemplateBuilder, GetGlConfig};
 use glutin::context::{
     ContextApi, ContextAttributesBuilder, NotCurrentContext, PossiblyCurrentContext, Version,
 };
+use glutin::display::GetGlDisplay;
+use glutin::prelude::*;
+use glutin::surface::{Surface, SwapInterval, WindowSurface};
+
 use glutin_winit::{DisplayBuilder, GlWindow};
+
+use winit::event_loop::EventLoop;
+//use std::ops::ControlFlow;
+use winit::event_loop::ControlFlow;
+use winit::window::WindowId;
+
+pub mod gl {
+    #![allow(clippy::all)]
+    include!(concat!(env!("OUT_DIR"), "/gl_bindings.rs"));
+
+    pub use Gles2 as Gl;
+}
+
+fn main() {
+    
+    let event_loop = EventLoop::new().unwrap();
+
+    event_loop.set_control_flow(ControlFlow::Poll);
+
+    event_loop.set_control_flow(ControlFlow::Wait);
+
+    let template =
+        ConfigTemplateBuilder::new().with_alpha_size(8).with_transparency(cfg!(cgl_backend));
+
+    let display_builder = DisplayBuilder::new().with_window_attributes(Some(window_attributes()));
+
+    let mut app = App::new(template, display_builder);
+    event_loop.run_app(&mut app);
+}
 
 pub struct Renderer {
     program: gl::types::GLuint,
@@ -147,6 +184,57 @@ impl Drop for Renderer {
     }
 }
 
+unsafe fn create_shader(
+    gl: &gl::Gl,
+    shader: gl::types::GLenum,
+    source: &[u8],
+) -> gl::types::GLuint {
+    let shader = gl.CreateShader(shader);
+    gl.ShaderSource(shader, 1, [source.as_ptr().cast()].as_ptr(), std::ptr::null());
+    gl.CompileShader(shader);
+    shader
+}
+
+fn get_gl_string(gl: &gl::Gl, variant: gl::types::GLenum) -> Option<&'static CStr> {
+    unsafe {
+        let s = gl.GetString(variant);
+        (!s.is_null()).then(|| CStr::from_ptr(s.cast()))
+    }
+}
+
+#[rustfmt::skip]
+static VERTEX_DATA: [f32; 15] = [
+    -0.5, -0.5,  1.0,  0.0,  0.0,
+     0.0,  0.5,  0.0,  1.0,  0.0,
+     0.5, -0.5,  0.0,  0.0,  1.0,
+];
+
+const VERTEX_SHADER_SOURCE: &[u8] = b"
+#version 100
+precision mediump float;
+
+attribute vec2 position;
+attribute vec3 color;
+
+varying vec3 v_color;
+
+void main() {
+    gl_Position = vec4(position, 0.0, 1.0);
+    v_color = color;
+}
+\0";
+
+const FRAGMENT_SHADER_SOURCE: &[u8] = b"
+#version 100
+precision mediump float;
+
+varying vec3 v_color;
+
+void main() {
+    gl_FragColor = vec4(v_color, 1.0);
+}
+\0";
+
 enum GlDisplayCreationState {
     /// The display was not build yet.
     Builder(DisplayBuilder),
@@ -164,7 +252,21 @@ struct App {
     exit_state: Result<(), Box<dyn Error>>,
 }
 
+impl App {
+    fn new(template: ConfigTemplateBuilder, display_builder: DisplayBuilder) -> Self {
+        Self {
+            template,
+            gl_display: GlDisplayCreationState::Builder(display_builder),
+            exit_state: Ok(()),
+            gl_context: None,
+            state: None,
+            renderer: None,
+        }
+    }
+}
+
 struct AppState {
+    gl_surface: Surface<WindowSurface>,
     window: Window
 }
 
@@ -293,7 +395,7 @@ impl ApplicationHandler for App {
 
             WindowEvent::RedrawRequested => { 
 
-                self.window.as_ref().unwrap().request_redraw();
+                self.state.as_ref().unwrap().window.request_redraw();
             }
             _ => (),
         }
@@ -326,15 +428,44 @@ impl ApplicationHandler for App {
     }
 }
 
-fn main() {
-    println!("Hello, window!");
-    
-    let event_loop = EventLoop::new().unwrap();
+fn create_gl_context(window: &Window, gl_config: &Config) -> NotCurrentContext {
+    let raw_window_handle = window.window_handle().ok().map(|wh| wh.as_raw());
 
-    event_loop.set_control_flow(ControlFlow::Poll);
+    // The context creation part.
+    let context_attributes = ContextAttributesBuilder::new().build(raw_window_handle);
 
-    event_loop.set_control_flow(ControlFlow::Wait);
+    // Since glutin by default tries to create OpenGL core context, which may not be
+    // present we should try gles.
+    let fallback_context_attributes = ContextAttributesBuilder::new()
+        .with_context_api(ContextApi::Gles(None))
+        .build(raw_window_handle);
 
-    let mut app = App::default();
-    event_loop.run_app(&mut app);
+    // There are also some old devices that support neither modern OpenGL nor GLES.
+    // To support these we can try and create a 2.1 context.
+    let legacy_context_attributes = ContextAttributesBuilder::new()
+        .with_context_api(ContextApi::OpenGl(Some(Version::new(2, 1))))
+        .build(raw_window_handle);
+
+    // Reuse the uncurrented context from a suspended() call if it exists, otherwise
+    // this is the first time resumed() is called, where the context still
+    // has to be created.
+    let gl_display = gl_config.display();
+
+    unsafe {
+        gl_display.create_context(gl_config, &context_attributes).unwrap_or_else(|_| {
+            gl_display.create_context(gl_config, &fallback_context_attributes).unwrap_or_else(
+                |_| {
+                    gl_display
+                        .create_context(gl_config, &legacy_context_attributes)
+                        .expect("failed to create context")
+                },
+            )
+        })
+    }
+}
+
+fn window_attributes() -> WindowAttributes {
+    Window::default_attributes()
+        .with_transparent(true)
+        .with_title("Glutin triangle gradient example (press Escape to exit)")
 }

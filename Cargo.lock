@@ -1168,7 +1168,9 @@ dependencies = [
 name = "teste"
 version = "0.1.0"
 dependencies = [
+ "cfg_aliases",
  "gl",
+ "gl_generator",
  "glutin",
  "glutin-winit",
  "raw-window-handle",
