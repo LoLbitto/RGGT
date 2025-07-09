@@ -61,10 +61,13 @@ pub struct Renderer {
 
     // comunicador com o opengl ou coisa parecida
     gl: gl::Gl,
+
+    vertices: [f32; 15],
 }
 
 impl Renderer {
     pub fn new<D: GlDisplay>(gl_display: &D) -> Self {
+        let vertices: [f32; 15] = VERTEX_DATA;
         unsafe {
             let gl = gl::Gl::load_with(|symbol| {
                 let symbol = CString::new(symbol).unwrap();
@@ -132,7 +135,7 @@ impl Renderer {
             gl.EnableVertexAttribArray(pos_attrib as gl::types::GLuint);
             gl.EnableVertexAttribArray(color_attrib as gl::types::GLuint);
 
-            Self { program, vao, vbo, gl }
+            Self { program, vao, vbo, gl, vertices }
         }
     }
 
@@ -140,15 +143,14 @@ impl Renderer {
         self.draw_with_clear_color(0.1, 0.1, 0.1, 0.9)
     }
 
-    pub fn update(&self) {
+    pub fn update(&mut self, mut x: f32) {
+        self.vertices[2] += x;
         unsafe {
         self.gl.BufferSubData(
             gl::ARRAY_BUFFER,
             0,
             (VERTEX_DATA.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
-            [1.0, 1.0, -0.5, 0.0, 0.0,
-            -1.0, -1.0, 1.0, 0.0, 0.5,
-            0.5, -0.5, 1.0, 0.5, 1.0].as_ptr() as *const _,
+            self.vertices.as_ptr() as *const _,
             );
         }
     }
@@ -408,7 +410,12 @@ impl ApplicationHandler for App {
             WindowEvent::KeyboardInput {
                 event: KeyEvent { logical_key: Key::Named(NamedKey::ArrowUp), .. },
                 ..
-            } => self.renderer.as_ref().unwrap().update(),
+            } => self.renderer.as_mut().unwrap().update(1.0),
+
+             WindowEvent::KeyboardInput {
+                event: KeyEvent { logical_key: Key::Named(NamedKey::ArrowDown), .. },
+                ..
+            } => self.renderer.as_mut().unwrap().update(-1.0),
 
             WindowEvent::RedrawRequested => { 
                 self.renderer.as_ref().unwrap().draw();
