@@ -23,12 +23,12 @@ pub struct Renderer {
     // comunicador com o opengl ou coisa parecida
     gl: gl::Gl,
 
-    vertices: [f32; 15],
+    vertices: [f32; 30],
 }
 
 impl Renderer {
     pub fn new<D: GlDisplay>(gl_display: &D) -> Self {
-        let vertices: [f32; 15] = VERTEX_DATA;
+        let vertices: [f32; 30] = VERTEX_DATA;
         unsafe {
             let gl = gl::Gl::load_with(|symbol| {
                 let symbol = CString::new(symbol).unwrap();
@@ -101,7 +101,7 @@ impl Renderer {
     }
 
     pub fn draw(&self) {
-        self.draw_with_clear_color(0.1, 0.1, 0.1, 0.9)
+        self.draw_with_clear_color(0.1, 0.1, 0.1, 1.0)
     }
 
     pub fn update(&mut self, mut x: f32) {
@@ -131,7 +131,9 @@ impl Renderer {
 
             self.gl.ClearColor(red, green, blue, alpha);
             self.gl.Clear(gl::COLOR_BUFFER_BIT);
-            self.gl.DrawArrays(gl::TRIANGLES, 0, 3);
+            
+            self.gl.DrawArrays(gl::TRIANGLES, 0, 6);
+            
         }
     }
 
@@ -179,10 +181,13 @@ fn get_gl_string(gl: &gl::Gl, variant: gl::types::GLenum) -> Option<&'static CSt
 }
 
 #[rustfmt::skip]
-static VERTEX_DATA: [f32; 15] = [
-    -0.5, -0.5,  1.0,  0.0,  0.0,
-     0.0,  0.5,  0.0,  1.0,  0.0,
-     0.5, -0.5,  0.0,  0.0,  1.0,
+static VERTEX_DATA: [f32; 30] = [
+     0.5,  0.5,  1.0,  0.0,  0.0, // ponta vermelha [x, y, r, g, b]
+    -0.5, -0.5,  0.0,  1.0,  0.0, // ponta verde [//]
+     0.5, -0.5,  0.0,  0.0,  1.0, // ponta azul [//]
+    -0.5,  0.5,  0.5,  0.5,  0.0, // ponta amarela [//]
+     0.5,  0.5,  1.0,  0.0,  0.0, // ponta do triângulo amarelo
+    -0.5, -0.5,  0.0,  1.0,  0.0,
 ];
 
 const VERTEX_SHADER_SOURCE: &[u8] = b"
