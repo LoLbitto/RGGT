@@ -13,3 +13,9 @@
    O programa está assim:
 
    <img src = "images/primeira.png">
+
+## 10/07/2025
+    
+   Brinquei um pouco tentando fazer um quadrado, primeiro tentei passar do glDrawArrays para o glDrawElements, fato que não consegui realizar, parte por minha ignorancia em opengl, parte por minha preguiça de realmente procurar um guia bem produzido, enfim, o resultado final foi esse:
+
+   <img src = "images/quadrado.png">
