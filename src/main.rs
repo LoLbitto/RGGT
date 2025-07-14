@@ -1,5 +1,7 @@
 mod app;
 mod renderer;
+mod object;
+
 use crate::app::App;
 use crate::app::window_attributes;
 
@@ -18,8 +20,7 @@ fn main() {
 
     event_loop.set_control_flow(ControlFlow::Wait);
 
-    let template =
-        ConfigTemplateBuilder::new().with_alpha_size(8).with_transparency(cfg!(cgl_backend));
+    let template = ConfigTemplateBuilder::new().with_alpha_size(8).with_transparency(cfg!(cgl_backend));
 
     let display_builder = DisplayBuilder::new().with_window_attributes(Some(window_attributes()));
 

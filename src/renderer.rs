@@ -4,6 +4,8 @@ use std::ffi::CString;
 use std::ops::Deref;
 use std::ffi::CStr;
 
+use crate::object::visualrep::Visual;
+
 pub mod gl {
     #![allow(clippy::all)]
     include!(concat!(env!("OUT_DIR"), "/gl_bindings.rs"));
@@ -23,12 +25,24 @@ pub struct Renderer {
     // comunicador com o opengl ou coisa parecida
     gl: gl::Gl,
 
-    vertices: [f32; 30],
+    objetos: Vec<Visual>,
 }
 
 impl Renderer {
     pub fn new<D: GlDisplay>(gl_display: &D) -> Self {
-        let vertices: [f32; 30] = VERTEX_DATA;
+        let mut objetos = Vec::new();
+        let visual1 = Visual::new(vec![-1.0, -1.0, 1.0, 0.0, 0.0,
+                                      -1.0,  0.0, 0.0, 0.0, 1.0,
+                                       0.0, -1.0, 0.0, 1.0, 0.0],
+                                 gl::TRIANGLES);
+        let visual2 = Visual::new(vec![1.0,  1.0, 1.0, 0.0, 0.0,
+                                       1.0,  0.0, 0.0, 0.0, 1.0,
+                                       0.0,  1.0, 0.0, 1.0, 0.0],
+                                 gl::TRIANGLES);
+
+        objetos.push(visual1);
+        objetos.push(visual2);
+
         unsafe {
             let gl = gl::Gl::load_with(|symbol| {
                 let symbol = CString::new(symbol).unwrap();
@@ -68,10 +82,19 @@ impl Renderer {
             let mut vbo = std::mem::zeroed();
             gl.GenBuffers(1, &mut vbo);
             gl.BindBuffer(gl::ARRAY_BUFFER, vbo);
+
+            let mut len = 0;
+            let mut vetores = Vec::new();
+
+            for i in 0..objetos.len() {
+                len += objetos[i].vertex.len();
+                vetores.extend(objetos[i].vertex.iter().cloned());
+            }
+
             gl.BufferData(
                 gl::ARRAY_BUFFER,
-                (VERTEX_DATA.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
-                VERTEX_DATA.as_ptr() as *const _,
+                (len * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
+                vetores.as_ptr() as *const _,
                 gl::STATIC_DRAW,
             );
 
@@ -96,7 +119,7 @@ impl Renderer {
             gl.EnableVertexAttribArray(pos_attrib as gl::types::GLuint);
             gl.EnableVertexAttribArray(color_attrib as gl::types::GLuint);
 
-            Self { program, vao, vbo, gl, vertices }
+            Self { program, vao, vbo, gl, objetos }
         }
     }
 
@@ -105,7 +128,7 @@ impl Renderer {
     }
 
     pub fn update(&mut self, mut x: f32) {
-        self.vertices[2] += x;
+        /*
         unsafe {
         self.gl.BufferSubData(
             gl::ARRAY_BUFFER,
@@ -113,7 +136,8 @@ impl Renderer {
             (VERTEX_DATA.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
             self.vertices.as_ptr() as *const _,
             );
-        }
+        }*/
+        println!("tentou ne {x}");
     }
 
     pub fn draw_with_clear_color(
@@ -179,16 +203,6 @@ fn get_gl_string(gl: &gl::Gl, variant: gl::types::GLenum) -> Option<&'static CSt
         (!s.is_null()).then(|| CStr::from_ptr(s.cast()))
     }
 }
-
-#[rustfmt::skip]
-static VERTEX_DATA: [f32; 30] = [
-     0.5,  0.5,  1.0,  0.0,  0.0, // ponta vermelha [x, y, r, g, b]
-    -0.5, -0.5,  0.0,  1.0,  0.0, // ponta verde [//]
-     0.5, -0.5,  0.0,  0.0,  1.0, // ponta azul [//]
-    -0.5,  0.5,  0.5,  0.5,  0.0, // ponta amarela [//]
-     0.5,  0.5,  1.0,  0.0,  0.0, // ponta do triângulo amarelo
-    -0.5, -0.5,  0.0,  1.0,  0.0,
-];
 
 const VERTEX_SHADER_SOURCE: &[u8] = b"
 #version 100
