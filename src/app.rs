@@ -178,19 +178,23 @@ impl ApplicationHandler for App {
                 println!("Fechando");
                 event_loop.exit();
             },
+
             WindowEvent::KeyboardInput {
                 event: KeyEvent { logical_key: Key::Named(NamedKey::ArrowUp), .. },
                 ..
             } => self.renderer.as_mut().unwrap().update(1.0),
 
-             WindowEvent::KeyboardInput {
+            WindowEvent::KeyboardInput {
                 event: KeyEvent { logical_key: Key::Named(NamedKey::ArrowDown), .. },
                 ..
             } => self.renderer.as_mut().unwrap().update(-1.0),
 
+            WindowEvent::Resized(size) => {
+                self.renderer.as_mut().unwrap().resize(size.width as i32, size.height as i32);
+            },
+
             WindowEvent::RedrawRequested => { 
                 self.renderer.as_ref().unwrap().draw();
-                self.state.as_ref().unwrap().window.request_redraw();
             }
             _ => (),
         }
@@ -215,9 +219,8 @@ impl ApplicationHandler for App {
         if let Some(AppState { gl_surface, window }) = self.state.as_ref() {
             let gl_context = self.gl_context.as_ref().unwrap();
             let renderer = self.renderer.as_ref().unwrap();
-            renderer.draw();
             window.request_redraw();
-
+            //println!("teste");
             gl_surface.swap_buffers(gl_context).unwrap();
         }
     }
