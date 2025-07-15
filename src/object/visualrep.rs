@@ -2,7 +2,7 @@ use ::gl::types::*;
 
 pub struct Visual {
     pub vertex: Vec<f32>,
-    tipo:  GLenum,
+    pub tipo:  GLenum,
 }
 
 impl Visual {

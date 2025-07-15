@@ -156,7 +156,15 @@ impl Renderer {
             self.gl.ClearColor(red, green, blue, alpha);
             self.gl.Clear(gl::COLOR_BUFFER_BIT);
             
-            self.gl.DrawArrays(gl::TRIANGLES, 0, 6);
+            let mut lastSize = 0;
+
+            for i in 0..self.objetos.len() {
+
+                let size = self.objetos[i].vertex.len() as i32 / 5; 
+                self.gl.DrawArrays(self.objetos[i].tipo, lastSize, size as i32);
+                lastSize = size ;
+
+            }
             
         }
     }
