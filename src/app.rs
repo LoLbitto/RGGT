@@ -180,14 +180,24 @@ impl ApplicationHandler for App {
             },
 
             WindowEvent::KeyboardInput {
+                event: KeyEvent { logical_key: Key::Named(NamedKey::ArrowRight), .. },
+                ..
+            } => self.renderer.as_mut().unwrap().update(1.0, 0.0),
+
+            WindowEvent::KeyboardInput {
+                event: KeyEvent { logical_key: Key::Named(NamedKey::ArrowLeft), .. },
+                ..
+            } => self.renderer.as_mut().unwrap().update(-1.0, 0.0),
+
+            WindowEvent::KeyboardInput {
                 event: KeyEvent { logical_key: Key::Named(NamedKey::ArrowUp), .. },
                 ..
-            } => self.renderer.as_mut().unwrap().update(0.1),
+            } => self.renderer.as_mut().unwrap().update(0.0, 1.0),
 
             WindowEvent::KeyboardInput {
                 event: KeyEvent { logical_key: Key::Named(NamedKey::ArrowDown), .. },
                 ..
-            } => self.renderer.as_mut().unwrap().update(-0.1),
+            } => self.renderer.as_mut().unwrap().update(0.0, -1.0),
 
             WindowEvent::Resized(size) => {
                 self.renderer.as_mut().unwrap().resize(size.width as i32, size.height as i32);

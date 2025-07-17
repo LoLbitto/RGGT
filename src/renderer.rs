@@ -31,21 +31,29 @@ pub struct Renderer {
 impl Renderer {
     pub fn new<D: GlDisplay>(gl_display: &D) -> Self {
         let mut objetos = Vec::new();
-        let visual1 = Visual::new(vec![ 0.0,  0.5,  0.0,  1.0, 0.0, 0.0,
+        let visual1 = Visual::new(vec![ 0.0,  0.5,  0.0,  0.0, 0.0, 1.0,
                                        -0.5, -0.5,  0.5,  0.0, 0.0, 1.0,
-                                        0.5, -0.5,  0.5,  0.0, 1.0, 0.0,
+                                        0.5, -0.5,  0.5,  0.0, 0.0, 0.0,
 
-                                        0.0,  0.5,  0.0,  1.0, 0.0, 0.0,
+                                        0.0,  0.5,  0.0,  0.0, 1.0, 0.0,
                                        -0.5, -0.5, -0.5,  0.0, 1.0, 0.0,
-                                        0.5, -0.5, -0.5,  0.0, 0.0, 1.0,
+                                        0.5, -0.5, -0.5,  0.0, 1.0, 0.0,
 
                                         0.0,  0.5,  0.0,  1.0, 0.0, 0.0,
-                                       -0.5, -0.5, -0.5,  0.0, 1.0, 0.0,
-                                       -0.5, -0.5,  0.5,  0.0, 0.0, 1.0,
+                                       -0.5, -0.5, -0.5,  1.0, 0.0, 0.0,
+                                       -0.5, -0.5,  0.5,  1.0, 0.0, 0.0,
 
-                                        0.0,  0.5,  0.0,  1.0, 0.0, 0.0,
-                                        0.5, -0.5, -0.5,  0.0, 0.0, 1.0,
-                                        0.5, -0.5,  0.5,  0.0, 1.0, 0.0,
+                                        0.0,  0.5,  0.0,  0.0, 1.0, 1.0,
+                                        0.5, -0.5, -0.5,  0.0, 1.0, 1.0,
+                                        0.5, -0.5,  0.5,  0.0, 1.0, 1.0,
+
+                                       -0.5, -0.5,  0.5,   1.0, 0.5, 0.7,
+                                        0.5, -0.5,  0.5,   1.0, 0.5, 0.7,
+                                       -0.5, -0.5, -0.5,   1.0, 0.5, 0.7,
+
+                                       -0.5, -0.5, -0.5,   1.0, 0.5, 0.7,
+                                        0.5, -0.5, -0.5,   1.0, 0.5, 0.7,
+                                        0.5, -0.5,  0.5,   1.0, 0.5, 0.7,
                                       ],
                                  gl::TRIANGLES);
         
@@ -127,6 +135,7 @@ impl Renderer {
             gl.EnableVertexAttribArray(pos_attrib as gl::types::GLuint);
             gl.EnableVertexAttribArray(color_attrib as gl::types::GLuint);
 
+            gl.Enable(gl::DEPTH_TEST);
             Self { program, vao, vbo, gl, objetos }
         }
     }
@@ -135,17 +144,18 @@ impl Renderer {
         self.draw_with_clear_color(0.1, 0.1, 0.1, 1.0)
     }
 
-    pub fn update(&mut self, mut x: f32) {
-        for i in 0..self.objetos.len() {
-            self.objetos[i].rotateX(1.0);
-        }
-        
+    pub fn update(&mut self, x: f32, y: f32) {        
         unsafe {
-        self.gl.BufferSubData(
-            gl::ARRAY_BUFFER,
-            0,
-            (self.objetos[0].vertex.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
-            self.objetos[0].vertex.as_ptr() as *const _,
+            for i in 0..self.objetos.len() {
+                self.objetos[i].rotateX(x);
+                self.objetos[i].rotateY(y);
+            }
+
+            self.gl.BufferSubData(
+                gl::ARRAY_BUFFER,
+                0,
+                (self.objetos[0].vertex.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
+                self.objetos[0].vertex.as_ptr() as *const _,
             );
         }
         println!("tentou ne {x}");
@@ -159,6 +169,7 @@ impl Renderer {
         alpha: GLfloat,
     ) {
         unsafe {
+            self.gl.Clear(gl::DEPTH_BUFFER_BIT);
             self.gl.UseProgram(self.program);
 
             self.gl.BindVertexArray(self.vao);
