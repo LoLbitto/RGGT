@@ -31,7 +31,7 @@
    Fiz a movimentação 3D de uma pirâmide, mas não está 100% funcionando, existe algum erro
 
    1° Versão:
-   <video src='https://media.discordapp.net/attachments/1105627560995459203/1395393568037802084/Glutin_triangle_gradient_example_press_Escape_to_exit_2025-07-17_10-14-59.mp4?ex=687a4907&is=6878f787&hm=e498f184d768a38df8939c08d1ae95ab0b00397803f7c2becb5eaabd16e2e1c0&format=webp&width=583&height=438' width=180/>
+   *Olhar na pasta assetsLog/videos*
    
    2° Versão com alguns erros arrumados:
    *Olhar na pasta assetsLog/videos*
