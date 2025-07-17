@@ -30,6 +30,11 @@
 
    Fiz a movimentação 3D de uma pirâmide, mas não está 100% funcionando, existe algum erro
 
-   [](assetsLog/videos/1.mp4)
-   [](assetsLog/videos/2.mp4)
-   [](assetsLog/videos/3.mp4)
+   1° Versão:
+   <video src='assetsLog/videos/1.mp4' width=180/>
+   
+   2° Versão com alguns erros arrumados:
+   <video src='assetsLog/videos/2.mp4' width=180/>
+
+   3° Versão quase 100% certa
+   <video src='assetsLog/videos/3.mp4' width=180/>
