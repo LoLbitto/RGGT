@@ -84,9 +84,9 @@ impl Visual {
             newX = libm::cosf(angFinal) * raio;
             newZ = libm::sinf(angFinal) * raio;
 
-            if ((newZ * 1000000.0).round() == 0.0) {
-                newZ *= -1.0;
-            }
+            //if ((newZ * 1000000.0).round() == 0.0) {
+            //    newZ *= -1.0;
+            //}
 
             self.vertex[index] = newX;
             self.vertex[index+2] = newZ;
@@ -121,9 +121,9 @@ impl Visual {
             newY = libm::sinf(angFinal) * raio;
             newZ = libm::cosf(angFinal) * raio;
 
-            if ((newZ * 1000000.0).round() == 0.0) {
-                newZ *= -1.0;
-            }
+            //if ((newZ * 1000000.0).round() == 0.0) {
+            //    newZ *= -1.0;
+            //}
 
             self.vertex[index+1] = newY;
             self.vertex[index+2] = newZ;
