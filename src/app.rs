@@ -182,12 +182,12 @@ impl ApplicationHandler for App {
             WindowEvent::KeyboardInput {
                 event: KeyEvent { logical_key: Key::Named(NamedKey::ArrowUp), .. },
                 ..
-            } => self.renderer.as_mut().unwrap().update(1.0),
+            } => self.renderer.as_mut().unwrap().update(0.1),
 
             WindowEvent::KeyboardInput {
                 event: KeyEvent { logical_key: Key::Named(NamedKey::ArrowDown), .. },
                 ..
-            } => self.renderer.as_mut().unwrap().update(-1.0),
+            } => self.renderer.as_mut().unwrap().update(-0.1),
 
             WindowEvent::Resized(size) => {
                 self.renderer.as_mut().unwrap().resize(size.width as i32, size.height as i32);
@@ -264,6 +264,6 @@ fn create_gl_context(window: &Window, gl_config: &Config) -> NotCurrentContext {
 
 pub fn window_attributes() -> WindowAttributes {
     Window::default_attributes()
-        .with_transparent(true)
-        .with_title("Glutin triangle gradient example (press Escape to exit)")
+        //.with_transparent(true)
+        .with_title("Pirâmide poggers")
 }

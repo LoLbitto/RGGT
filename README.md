@@ -12,16 +12,24 @@
    Não fiz muita coisa, apenas consegui terminar um controle das vértices do triângulo vermelho, o que me deu certa dor de cabeça por não ter experiência com o sistema de variáveis do rust.
    O programa está assim:
 
-   <img src = "images/primeira.png">
+   <img src = "assetsLog/primeira.png">
 
 ## 10/07/2025
     
    Brinquei um pouco tentando fazer um quadrado, primeiro tentei passar do glDrawArrays para o glDrawElements, fato que não consegui realizar, parte por minha ignorancia em opengl, parte por minha preguiça de realmente procurar um guia bem produzido, enfim, o resultado final foi esse:
 
-   <img src = "images/quadrado.png">
+   <img src = "assetsLog/quadrado.png">
 
 ## 14-15/07/2025
    
    Ok, fiz uma abstração no código, criando uma struct de objeto visual (Visual), e implementei um vetor de visuais no renderizador. Isso vai ajudar no futuro pois o código ficou menos engessado e mais dinâmico.
 
-   <img src = "images/dois.png">
+   <img src = "assetsLog/dois.png">
+
+## 17/07/2025
+
+   Fiz a movimentação 3D de uma pirâmide, mas não está 100% funcionando, existe algum erro
+
+   assetsLog/videos/1.mp4
+   assetsLog/videos/2.mp4
+   assetsLog/videos/3.mp4

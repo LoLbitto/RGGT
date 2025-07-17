@@ -31,17 +31,25 @@ pub struct Renderer {
 impl Renderer {
     pub fn new<D: GlDisplay>(gl_display: &D) -> Self {
         let mut objetos = Vec::new();
-        let visual1 = Visual::new(vec![-1.0, -1.0, 1.0, 0.0, 0.0,
-                                      -1.0,  0.0, 0.0, 0.0, 1.0,
-                                       0.0, -1.0, 0.0, 1.0, 0.0],
-                                 gl::TRIANGLES);
-        let visual2 = Visual::new(vec![1.0,  1.0, 1.0, 0.0, 0.0,
-                                       1.0,  0.0, 0.0, 0.0, 1.0,
-                                       0.0,  1.0, 0.0, 1.0, 0.0],
-                                 gl::TRIANGLES);
+        let visual1 = Visual::new(vec![ 0.0,  0.5,  0.0,  1.0, 0.0, 0.0,
+                                       -0.5, -0.5,  0.5,  0.0, 0.0, 1.0,
+                                        0.5, -0.5,  0.5,  0.0, 1.0, 0.0,
 
+                                        0.0,  0.5,  0.0,  1.0, 0.0, 0.0,
+                                       -0.5, -0.5, -0.5,  0.0, 1.0, 0.0,
+                                        0.5, -0.5, -0.5,  0.0, 0.0, 1.0,
+
+                                        0.0,  0.5,  0.0,  1.0, 0.0, 0.0,
+                                       -0.5, -0.5, -0.5,  0.0, 1.0, 0.0,
+                                       -0.5, -0.5,  0.5,  0.0, 0.0, 1.0,
+
+                                        0.0,  0.5,  0.0,  1.0, 0.0, 0.0,
+                                        0.5, -0.5, -0.5,  0.0, 0.0, 1.0,
+                                        0.5, -0.5,  0.5,  0.0, 1.0, 0.0,
+                                      ],
+                                 gl::TRIANGLES);
+        
         objetos.push(visual1);
-        objetos.push(visual2);
 
         unsafe {
             let gl = gl::Gl::load_with(|symbol| {
@@ -102,10 +110,10 @@ impl Renderer {
             let color_attrib = gl.GetAttribLocation(program, b"color\0".as_ptr() as *const _);
             gl.VertexAttribPointer(
                 pos_attrib as gl::types::GLuint,
-                2,
+                3,
                 gl::FLOAT,
                 0,
-                5 * std::mem::size_of::<f32>() as gl::types::GLsizei,
+                6 * std::mem::size_of::<f32>() as gl::types::GLsizei,
                 std::ptr::null(),
             );
             gl.VertexAttribPointer(
@@ -113,8 +121,8 @@ impl Renderer {
                 3,
                 gl::FLOAT,
                 0,
-                5 * std::mem::size_of::<f32>() as gl::types::GLsizei,
-                (2 * std::mem::size_of::<f32>()) as *const () as *const _,
+                6 * std::mem::size_of::<f32>() as gl::types::GLsizei,
+                (3 * std::mem::size_of::<f32>()) as *const () as *const _,
             );
             gl.EnableVertexAttribArray(pos_attrib as gl::types::GLuint);
             gl.EnableVertexAttribArray(color_attrib as gl::types::GLuint);
@@ -128,15 +136,18 @@ impl Renderer {
     }
 
     pub fn update(&mut self, mut x: f32) {
-        /*
+        for i in 0..self.objetos.len() {
+            self.objetos[i].rotateX(1.0);
+        }
+        
         unsafe {
         self.gl.BufferSubData(
             gl::ARRAY_BUFFER,
             0,
-            (VERTEX_DATA.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
-            self.vertices.as_ptr() as *const _,
+            (self.objetos[0].vertex.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
+            self.objetos[0].vertex.as_ptr() as *const _,
             );
-        }*/
+        }
         println!("tentou ne {x}");
     }
 
@@ -160,7 +171,7 @@ impl Renderer {
 
             for i in 0..self.objetos.len() {
 
-                let size = self.objetos[i].vertex.len() as i32 / 5; 
+                let size = self.objetos[i].vertex.len() as i32 / 6; 
                 self.gl.DrawArrays(self.objetos[i].tipo, lastSize, size as i32);
                 lastSize = size ;
 
@@ -216,13 +227,13 @@ const VERTEX_SHADER_SOURCE: &[u8] = b"
 #version 100
 precision mediump float;
 
-attribute vec2 position;
+attribute vec3 position;
 attribute vec3 color;
 
 varying vec3 v_color;
 
 void main() {
-    gl_Position = vec4(position, 0.0, 1.0);
+    gl_Position = vec4(position, 1.0);
     v_color = color;
 }
 \0";
