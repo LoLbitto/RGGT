@@ -6,6 +6,7 @@ use std::ffi::CStr;
 
 use crate::graphic::visualrep::Visual;
 use crate::entity::object::Object;
+use crate::entity::player::Player;
 
 pub mod gl {
     #![allow(clippy::all)]
@@ -26,39 +27,45 @@ pub struct Renderer {
     // comunicador com o opengl ou coisa parecida
     gl: gl::Gl,
 
-    objetos: Vec<Visual>,
+    objetos: Vec<Object>,
+
+    player: Player,
 }
 
 impl Renderer {
     pub fn new<D: GlDisplay>(gl_display: &D) -> Self {
         let mut objetos = Vec::new();
-        let visual1 = Visual::new(vec![ 0.0,  0.5,  0.0,  0.0, 0.0, 1.0,
-                                       -0.5, -0.5,  0.5,  0.0, 0.0, 1.0,
-                                        0.5, -0.5,  0.5,  0.0, 0.0, 0.0,
+        let mut objeto = Object::new();
 
-                                        0.0,  0.5,  0.0,  0.0, 1.0, 0.0,
-                                       -0.5, -0.5, -0.5,  0.0, 1.0, 0.0,
-                                        0.5, -0.5, -0.5,  0.0, 1.0, 0.0,
+        objetos.push(objeto);
 
-                                        0.0,  0.5,  0.0,  1.0, 0.0, 0.0,
-                                       -0.5, -0.5, -0.5,  1.0, 0.0, 0.0,
-                                       -0.5, -0.5,  0.5,  1.0, 0.0, 0.0,
+        //let visual1 = Visual::new(vec![ 0.0,  0.5,  0.0,  0.0, 0.0, 1.0,
+        //                               -0.5, -0.5,  0.5,  0.0, 0.0, 1.0,
+        //                                0.5, -0.5,  0.5,  0.0, 0.0, 0.0,
 
-                                        0.0,  0.5,  0.0,  0.0, 1.0, 1.0,
-                                        0.5, -0.5, -0.5,  0.0, 1.0, 1.0,
-                                        0.5, -0.5,  0.5,  0.0, 1.0, 1.0,
+        //                                0.0,  0.5,  0.0,  0.0, 1.0, 0.0,
+        //                              -0.5, -0.5, -0.5,  0.0, 1.0, 0.0,
+        //                                0.5, -0.5, -0.5,  0.0, 1.0, 0.0,
 
-                                       -0.5, -0.5,  0.5,   1.0, 0.5, 0.7,
-                                        0.5, -0.5,  0.5,   1.0, 0.5, 0.7,
-                                       -0.5, -0.5, -0.5,   1.0, 0.5, 0.7,
+        //                                0.0,  0.5,  0.0,  1.0, 0.0, 0.0,
+        //                               -0.5, -0.5, -0.5,  1.0, 0.0, 0.0,
+        //                               -0.5, -0.5,  0.5,  1.0, 0.0, 0.0,
 
-                                       -0.5, -0.5, -0.5,   1.0, 0.5, 0.7,
-                                        0.5, -0.5, -0.5,   1.0, 0.5, 0.7,
-                                        0.5, -0.5,  0.5,   1.0, 0.5, 0.7,
-                                      ],
-                                 gl::TRIANGLES);
+        //                                0.0,  0.5,  0.0,  0.0, 1.0, 1.0,
+        //                                0.5, -0.5, -0.5,  0.0, 1.0, 1.0,
+        //                                0.5, -0.5,  0.5,  0.0, 1.0, 1.0,
+
+        //                               -0.5, -0.5,  0.5,   1.0, 0.5, 0.7,
+        //                                0.5, -0.5,  0.5,   1.0, 0.5, 0.7,
+        //                               -0.5, -0.5, -0.5,   1.0, 0.5, 0.7,
+
+        //                               -0.5, -0.5, -0.5,   1.0, 0.5, 0.7,
+        //                                0.5, -0.5, -0.5,   1.0, 0.5, 0.7,
+        //                                0.5, -0.5,  0.5,   1.0, 0.5, 0.7,
+        //                              ],
+        //                         gl::TRIANGLES);
         
-        objetos.push(visual1);
+        //objetos.push(visual1);
 
         unsafe {
             let gl = gl::Gl::load_with(|symbol| {
@@ -100,20 +107,20 @@ impl Renderer {
             gl.GenBuffers(1, &mut vbo);
             gl.BindBuffer(gl::ARRAY_BUFFER, vbo);
 
-            let mut len = 0;
-            let mut vetores = Vec::new();
+            //let mut len = 0;
+            // let mut vetores = Vec::new();
 
-            for i in 0..objetos.len() {
-                len += objetos[i].vertex.len();
-                vetores.extend(objetos[i].vertex.iter().cloned());
-            }
+            //for i in 0..objetos.len() {
+            //    len += objetos[i].vertex.len();
+            //    vetores.extend(objetos[i].vertex.iter().cloned());
+            //}
 
-            gl.BufferData(
-                gl::ARRAY_BUFFER,
-                (len * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
-                vetores.as_ptr() as *const _,
-                gl::STATIC_DRAW,
-            );
+            //gl.BufferData(
+            //    gl::ARRAY_BUFFER,
+            //    (len * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
+            //    vetores.as_ptr() as *const _,
+            //    gl::STATIC_DRAW,
+            //);
 
             let pos_attrib = gl.GetAttribLocation(program, b"position\0".as_ptr() as *const _);
             let color_attrib = gl.GetAttribLocation(program, b"color\0".as_ptr() as *const _);
@@ -137,7 +144,10 @@ impl Renderer {
             gl.EnableVertexAttribArray(color_attrib as gl::types::GLuint);
 
             gl.Enable(gl::DEPTH_TEST);
-            Self { program, vao, vbo, gl, objetos }
+
+            let player = Player::new();
+            
+            Self { program, vao, vbo, gl, objetos, player}
         }
     }
 
@@ -147,19 +157,16 @@ impl Renderer {
 
     pub fn update(&mut self, x: f32, y: f32) {        
         unsafe {
-            for i in 0..self.objetos.len() {
-                self.objetos[i].rotateX(x);
-                self.objetos[i].rotateY(y);
-            }
+            let mut objects_shown = Vec::<u32>::new();
 
-            self.gl.BufferSubData(
-                gl::ARRAY_BUFFER,
-                0,
-                (self.objetos[0].vertex.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
-                self.objetos[0].vertex.as_ptr() as *const _,
-            );
+            for i in 0..self.objetos.len() {
+             
+                if self.objetos[i].verifyOnScreen(self.player.position, self.player.mira) {
+                    objects_shown.push(i as u32);
+                }
+            }
         }
-        // println!("tentou ne {x}");
+        println!("tentou ne {x}");
     }
 
     pub fn draw_with_clear_color(
@@ -178,16 +185,6 @@ impl Renderer {
 
             self.gl.ClearColor(red, green, blue, alpha);
             self.gl.Clear(gl::COLOR_BUFFER_BIT);
-            
-            let mut lastSize = 0;
-
-            for i in 0..self.objetos.len() {
-
-                let size = self.objetos[i].vertex.len() as i32 / 6; 
-                self.gl.DrawArrays(self.objetos[i].tipo, lastSize, size as i32);
-                lastSize = size ;
-
-            }
             
         }
     }

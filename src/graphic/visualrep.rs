@@ -9,6 +9,8 @@ pub struct Visual {
     mainAxisZ:  f32,
 }
 
+// impl Copy for Visual { }
+
 impl Visual {
     pub fn new (vertex: Vec<f32>, tipo: GLenum) -> Self {
         
