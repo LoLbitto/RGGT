@@ -30,11 +30,13 @@
 
    Fiz a movimentação 3D de uma pirâmide, mas não está 100% funcionando, existe algum erro
 
-   1° Versão:
-   *Olhar na pasta assetsLog/videos*
+   1° Versão: *Olhar na pasta assetsLog/videos*
    
-   2° Versão com alguns erros arrumados:
-   *Olhar na pasta assetsLog/videos*
+   2° Versão com alguns erros arrumados: *Olhar na pasta assetsLog/videos*
 
-   3° Versão quase 100% certa
-   *Olhar na pasta assetsLog/videos*
+   3° Versão quase 100% certa: *Olhar na pasta assetsLog/videos*
+
+## 18/07/2025
+
+   Hoje fiz bastante coisa, esqueci de comentar mas arrumei a "giração" (rotação) da pirâmide ontem em casa, agora ela gira nos 2 eixos yey.
+   Bem, o trabalho de hoje foi iniciar a programação do player e dos objetos, finalmente criando um "mundo" matematicamente falando, mas por enquanto está só nos números e não implementei praticamente nem o player, nem os objetos. Também dei uma organizada nas pastas.

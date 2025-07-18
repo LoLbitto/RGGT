@@ -52,7 +52,7 @@ impl Visual {
         let mainAxisY = (bigY + smallY) / 2.0;
         let mainAxisZ = (bigZ + smallZ) / 2.0;
 
-        println!("mainAxisX: {}, mainAxisY: {}, mainAxisZ: {}", mainAxisX, mainAxisY, mainAxisZ);
+        //println!("mainAxisX: {}, mainAxisY: {}, mainAxisZ: {}", mainAxisX, mainAxisY, mainAxisZ);
 
         Self {vertex, tipo, mainAxisX, mainAxisY, mainAxisZ}
     }
@@ -64,7 +64,7 @@ impl Visual {
             let x = self.vertex[index];
             let z = self.vertex[index+2];
 
-            println!("x: {}, z: {}, i: {}, rgb:{},{},{}", x, z, index, self.vertex[index+3], self.vertex[index+4], self.vertex[index+5]);
+            //println!("x: {}, z: {}, i: {}, rgb:{},{},{}", x, z, index, self.vertex[index+3], self.vertex[index+4], self.vertex[index+5]);
 
             let catAdj = x + self.mainAxisX * -1.0;
             let catOp  = z + self.mainAxisZ * -1.0;
@@ -75,7 +75,7 @@ impl Visual {
 
             let angFinal = (ang_rad * 57.2958 + angle) / 57.2958; // rad * 57.2958 + angulo (graus), dps
                                                                   // divide para ir em radianos dnv         
-            println!("ang: {}, angf: {}", ang_rad, angFinal);
+            //println!("ang: {}, angf: {}", ang_rad, angFinal);
             let mut newX = 0.0;
             let mut newZ = 0.0;
 
@@ -101,7 +101,7 @@ impl Visual {
             let y = self.vertex[index+1];
             let z = self.vertex[index+2];
 
-            println!("y: {}, z: {}, i: {}, rgb:{},{},{}", y, z, index, self.vertex[index+3], self.vertex[index+4], self.vertex[index+5]);
+            //println!("y: {}, z: {}, i: {}, rgb:{},{},{}", y, z, index, self.vertex[index+3], self.vertex[index+4], self.vertex[index+5]);
 
             let catOp = y + self.mainAxisY * -1.0;
             let catAdj  = z + self.mainAxisZ * -1.0;
@@ -112,7 +112,7 @@ impl Visual {
 
             let angFinal = (ang_rad * 57.2958 + angle) / 57.2958; // rad * 57.2958 + angulo (graus), dps
                                                                   // divide para ir em radianos dnv         
-            println!("ang: {}, angf: {}", ang_rad, angFinal);
+            //println!("ang: {}, angf: {}", ang_rad, angFinal);
             let mut newY = 0.0;
             let mut newZ = 0.0;
 

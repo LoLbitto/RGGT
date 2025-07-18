@@ -1,6 +1,10 @@
+#![windows_subsystem = "windows"]
+
 mod app;
 mod renderer;
-mod object;
+mod graphic;
+mod entity;
+
 
 use crate::app::App;
 use crate::app::window_attributes;

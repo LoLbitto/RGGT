@@ -1,4 +1,5 @@
 #![ allow(warnings)]
+#![windows_subsystem = "windows"]
 
 use std::env;
 use std::fs::File;

@@ -4,7 +4,8 @@ use std::ffi::CString;
 use std::ops::Deref;
 use std::ffi::CStr;
 
-use crate::object::visualrep::Visual;
+use crate::graphic::visualrep::Visual;
+use crate::entity::object::Object;
 
 pub mod gl {
     #![allow(clippy::all)]
@@ -158,7 +159,7 @@ impl Renderer {
                 self.objetos[0].vertex.as_ptr() as *const _,
             );
         }
-        println!("tentou ne {x}");
+        // println!("tentou ne {x}");
     }
 
     pub fn draw_with_clear_color(
