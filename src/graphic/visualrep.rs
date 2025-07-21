@@ -66,32 +66,13 @@ impl Visual {
             let x = self.vertex[index];
             let z = self.vertex[index+2];
 
-            //println!("x: {}, z: {}, i: {}, rgb:{},{},{}", x, z, index, self.vertex[index+3], self.vertex[index+4], self.vertex[index+5]);
+            let vec_x = x + self.mainAxisX * -1.0;
+            let vec_z  = z + self.mainAxisZ * -1.0;
 
-            let catAdj = x + self.mainAxisX * -1.0;
-            let catOp  = z + self.mainAxisZ * -1.0;
+            let newCoords = rotacionarPontoX(vec_x, vec_z, angle * 57.2958);
 
-            let raio = libm::sqrtf(libm::powf(catOp, 2.0) + libm::powf(catAdj, 2.0));
-
-            let ang_rad = atan2f(catOp, catAdj);
-
-            let angFinal = (ang_rad * 57.2958 + angle) / 57.2958; // rad * 57.2958 + angulo (graus), dps
-                                                                  // divide para ir em radianos dnv         
-            //println!("ang: {}, angf: {}", ang_rad, angFinal);
-            let mut newX = 0.0;
-            let mut newZ = 0.0;
-
-            // println!("sen: {}, cos: {}, ang: {}", sen, cos, angFinal);
-            
-            newX = libm::cosf(angFinal) * raio;
-            newZ = libm::sinf(angFinal) * raio;
-
-            //if ((newZ * 1000000.0).round() == 0.0) {
-            //    newZ *= -1.0;
-            //}
-
-            self.vertex[index] = newX;
-            self.vertex[index+2] = newZ;
+            self.vertex[index] = newCoords[0];
+            self.vertex[index+2] = newCoords[1];
             
         }
     }
@@ -100,36 +81,42 @@ impl Visual {
         for i in 0..(self.vertex.len() / 6) {
             let index = i * 6;
 
-            let y = self.vertex[index+1];
-            let z = self.vertex[index+2];
+            let vecY = self.vertex[index+1];
+            let vecZ = self.vertex[index+2];
 
-            //println!("y: {}, z: {}, i: {}, rgb:{},{},{}", y, z, index, self.vertex[index+3], self.vertex[index+4], self.vertex[index+5]);
+            let newCoords = rotacionarPontoY(vecY, vecZ, angle * 57.2958);
 
-            let catOp = y + self.mainAxisY * -1.0;
-            let catAdj  = z + self.mainAxisZ * -1.0;
-
-            let raio = libm::sqrtf(libm::powf(catOp, 2.0) + libm::powf(catAdj, 2.0));
-
-            let ang_rad = atan2f(catOp, catAdj);
-
-            let angFinal = (ang_rad * 57.2958 + angle) / 57.2958; // rad * 57.2958 + angulo (graus), dps
-                                                                  // divide para ir em radianos dnv         
-            //println!("ang: {}, angf: {}", ang_rad, angFinal);
-            let mut newY = 0.0;
-            let mut newZ = 0.0;
-
-            // println!("sen: {}, cos: {}, ang: {}", sen, cos, angFinal);
-            
-            newY = libm::sinf(angFinal) * raio;
-            newZ = libm::cosf(angFinal) * raio;
-
-            //if ((newZ * 1000000.0).round() == 0.0) {
-            //    newZ *= -1.0;
-            //}
-
-            self.vertex[index+1] = newY;
-            self.vertex[index+2] = newZ;
+            self.vertex[index+1] = newCoords[0];
+            self.vertex[index+2] = newCoords[1];
             
         }
     }
+}
+
+pub fn rotacionarPontoX(vecX: f32, vecZ: f32, rad: f32) -> [f32; 2] {
+
+    let raio = libm::sqrtf(libm::powf(vecZ, 2.0) + libm::powf(vecX, 2.0));
+
+    let ang_rad = atan2f(vecZ, vecX);
+
+    let angFinal = ang_rad + rad;         
+    
+    let newX = libm::cosf(angFinal) * raio;
+    let newZ = libm::sinf(angFinal) * raio;   
+
+    return [newX, newZ]
+}
+
+pub fn rotacionarPontoY(vecY: f32, vecZ: f32, rad: f32) -> [f32; 2] {
+
+    let raio = libm::sqrtf(libm::powf(vecY, 2.0) + libm::powf(vecZ, 2.0));
+
+    let ang_rad = atan2f(vecY, vecZ);
+
+    let angFinal = ang_rad + rad;         
+    
+    let newY = libm::sinf(angFinal) * raio;
+    let newZ = libm::cosf(angFinal) * raio;   
+
+    return [newY, newZ]
 }
