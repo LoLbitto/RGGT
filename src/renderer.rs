@@ -135,7 +135,7 @@ impl Renderer {
 
             for i in 0..vetores.len() / 6 {
                 let index = i * 6;
-                println!("x: {}, y: {}, z: {}, r: {}, g: {}, b: {}", vetores[index], vetores[index+1], vetores[index+2], vetores[index+3], vetores[index+4], vetores[index+5]);
+                //println!("x: {}, y: {}, z: {}, r: {}, g: {}, b: {}", vetores[index], vetores[index+1], vetores[index+2], vetores[index+3], vetores[index+4], vetores[index+5]);
             }
 
             gl.BufferData(
@@ -177,11 +177,11 @@ impl Renderer {
         self.draw_with_clear_color(0.1, 0.1, 0.1, 1.0)
     }
 
-    pub fn update(&mut self, x_m: f32, y_m: f32/*, dir: f32, esq: f32*/) {        
+    pub fn update(&mut self, x: f32, y: f32/*, dir: f32, esq: f32*/) {        
         unsafe {
 
             self.player.rotateViewX(x);
-            self.player.rotateViewY(y);
+            //self.player.rotateViewY(y);
 
             /*
             self.player.walk_right(dir);

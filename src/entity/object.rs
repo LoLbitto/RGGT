@@ -98,7 +98,7 @@ impl Object {
                 let new_y = rotacionarPontoY(y_ratio, z_ratio, libm::atan2f(mira[2], mira[1]))[0];
 
                 let visual_x = new_x_z[0] / 10.0; //10 Gu = 1 no opengl
-                let visual_y = new_y / 10.0;
+                let visual_y = new_y      / 10.0;
                 let visual_z = new_x_z[1] / 10.0;
 
                 posicao_relativa.push(visual_x);

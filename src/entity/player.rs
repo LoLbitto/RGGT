@@ -24,8 +24,8 @@ impl Player {
 
         //println!("x: {}, z: {}, i: {}, rgb:{},{},{}", x, z, index, self.vertex[index+3], self.vertex[index+4], self.vertex[index+5]);
 
-        let catAdj = x + self.position[0] * -1.0;
-        let catOp  = z + self.position[2] * -1.0;
+        let catAdj = x - self.position[0];
+        let catOp  = z - self.position[2];
 
         let raio = libm::sqrtf(libm::powf(catOp, 2.0) + libm::powf(catAdj, 2.0));
 
@@ -59,8 +59,8 @@ impl Player {
 
         //println!("y: {}, z: {}, i: {}, rgb:{},{},{}", y, z, index, self.vertex[index+3], self.vertex[index+4], self.vertex[index+5]);
 
-        let catOp = y + self.position[1] * -1.0;
-        let catAdj  = z + self.position[2] * -1.0;
+        let catOp  = y - self.position[1];
+        let catAdj = z - self.position[2];
 
         let raio = libm::sqrtf(libm::powf(catOp, 2.0) + libm::powf(catAdj, 2.0));
 
