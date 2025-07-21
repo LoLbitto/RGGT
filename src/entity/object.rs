@@ -4,6 +4,7 @@ use crate::graphic::visualrep::rotacionarPontoY;
 
 pub struct Object {
     points: Vec<f32>,
+    map: Vec<f32>,
     pub is_viewed: bool,
     pub visual: Option<Visual>,
 }
@@ -20,6 +21,31 @@ impl Object {
                           9.0,  0.0,-3.0,
                           9.0,  0.0, 3.0,
                          ];
+        let map = vec![
+                        0, 1, 2, 0.0, 0.0, 1.0,
+                        3, 4, 5, 0.0, 0.0, 1.0,
+                        6, 7, 8, 0.0, 0.0, 1.0,
+
+                        0, 1, 2, 0.0, 1.0, 0.0,
+                        6, 7, 8, 0.0, 1.0, 0.0,
+                        12, 13, 14, 0.0, 1.0, 0.0,
+
+                        0, 1, 2, 1.0, 0.0, 0.0,
+                        9, 10, 11, 1.0, 0.0, 0.0,
+                        12, 13, 14, 1.0, 0.0, 0.0,
+
+                        0, 1, 2, 1.0, 1.0, 1.0,
+                        3, 4, 5, 1.0, 1.0, 1.0,
+                        9, 10, 11, 1.0, 1.0, 1.0,
+
+                        3, 4, 5, 1.0, 0.0, 1.0,
+                        6, 7, 8, 1.0, 0.0, 1.0,
+                        9, 10, 11, 1.0, 0.0, 1.0,
+
+                        12, 13, 14, 1.0, 0.0, 1.0,
+                        6, 7, 8, 1.0, 0.0, 1.0,
+                        9, 10, 11, 1.0, 0.0, 1.0,
+                      ];
 
         Self{points, is_viewed: false, visual: None}
     }
@@ -69,13 +95,13 @@ impl Object {
                 let new_x_z = rotacionarPontoX(x_ratio, z_ratio, libm::atan2f(mira[0], mira[2]));
                 let new_y = rotacionarPontoY(y_ratio, z_ratio, libm::atan2f(mira[2], mira[1]))[0];
 
-                let new_x_ratio = new_x_z[0] - position[0];
-                let new_y_ratio = new_y      - position[1];
-                let new_z_ratio = new_x_z[1] - position[2];
-
                 let visual_x = new_x_z[0] / 10.0; //10 Gu = 1 no opengl
                 let visual_y = new_y / 10.0;
                 let visual_z = new_x_z[1] / 10.0;
+
+                posicao_relativa.push(visual_x);
+                posicao_relativa.push(visual_y);
+                posicao_relativa.push(visual_z);
 
                 println!("x: {}, y: {}, z: {}", visual_x, visual_y, visual_z);
             }
