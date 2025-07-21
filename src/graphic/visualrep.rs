@@ -12,11 +12,17 @@ pub struct Visual {
 // impl Copy for Visual { }
 
 impl Visual {
-    pub fn new (pontos: Vec<f32>, map: Vec<f32>, tipo: GLenum) -> Self {
+    pub fn new (pontos: Vec<f32>, map: &Vec<f32>, tipo: GLenum) -> Self {
         
-        let mut vertex = Vec::<f32>::new();
+        let mut vertex = map.to_vec();
 
-        for 
+        for i in 0..vertex.len() / 6 {
+            let index = i * 6;
+
+            vertex[index] = pontos[vertex[index] as usize];
+            vertex[index+1] = pontos[vertex[index+1] as usize];
+            vertex[index+2] = pontos[vertex[index+2] as usize];
+        }
 
         let mut big_x = 0.0;
         let mut small_x = 0.0;

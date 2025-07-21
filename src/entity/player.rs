@@ -31,7 +31,7 @@ impl Player {
 
         let ang_rad = libm::atan2f(catOp, catAdj);
 
-        let angFinal = (ang_rad * 57.2958 + angle) / 57.2958; // rad * 57.2958 + angulo (graus), dps
+        let angFinal = (ang_rad * 57.2958 - angle) / 57.2958; // rad * 57.2958 + angulo (graus), dps
                                                               // divide para ir em radianos dnv         
         //println!("ang: {}, angf: {}", ang_rad, angFinal);
         let mut newX = 0.0;
@@ -48,6 +48,8 @@ impl Player {
 
         self.mira[0] = newX;
         self.mira[2] = newZ;
+
+        println!("*mira* x: {}, y: {}, z: {}", self.mira[0], self.mira[1], self.mira[2]);
     }
 
    pub fn rotateViewY (&mut self, angle: f32) {

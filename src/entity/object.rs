@@ -2,6 +2,8 @@ use crate::graphic::visualrep::Visual;
 use crate::graphic::visualrep::rotacionarPontoX;
 use crate::graphic::visualrep::rotacionarPontoY;
 
+use ::gl::types::*;
+
 pub struct Object {
     points: Vec<f32>,
     map: Vec<f32>,
@@ -22,32 +24,32 @@ impl Object {
                           9.0,  0.0, 3.0,
                          ];
         let map = vec![
-                        0, 1, 2, 0.0, 0.0, 1.0,
-                        3, 4, 5, 0.0, 0.0, 1.0,
-                        6, 7, 8, 0.0, 0.0, 1.0,
+                        0.0, 1.0, 2.0, 0.0, 0.0, 1.0,
+                        3.0, 4.0, 5.0, 0.0, 0.0, 1.0,
+                        6.0, 7.0, 8.0, 0.0, 0.0, 1.0,
 
-                        0, 1, 2, 0.0, 1.0, 0.0,
-                        6, 7, 8, 0.0, 1.0, 0.0,
-                        12, 13, 14, 0.0, 1.0, 0.0,
+                        0.0, 1.0, 2.0, 0.0, 1.0, 0.0,
+                        6.0, 7.0, 8.0, 0.0, 1.0, 0.0,
+                        12.0, 13.0, 14.0, 0.0, 1.0, 0.0,
 
-                        0, 1, 2, 1.0, 0.0, 0.0,
-                        9, 10, 11, 1.0, 0.0, 0.0,
-                        12, 13, 14, 1.0, 0.0, 0.0,
+                        0.0, 1.0, 2.0, 1.0, 0.0, 0.0,
+                        9.0, 10.0, 11.0, 1.0, 0.0, 0.0,
+                        12.0, 13.0, 14.0, 1.0, 0.0, 0.0,
 
-                        0, 1, 2, 1.0, 1.0, 1.0,
-                        3, 4, 5, 1.0, 1.0, 1.0,
-                        9, 10, 11, 1.0, 1.0, 1.0,
+                        0.0, 1.0, 2.0, 1.0, 1.0, 1.0,
+                        3.0, 4.0, 5.0, 1.0, 1.0, 1.0,
+                        9.0, 10.0, 11.0, 1.0, 1.0, 1.0,
 
-                        3, 4, 5, 1.0, 0.0, 1.0,
-                        6, 7, 8, 1.0, 0.0, 1.0,
-                        9, 10, 11, 1.0, 0.0, 1.0,
+                        3.0, 4.0, 5.0, 1.0, 0.0, 1.0,
+                        6.0, 7.0, 8.0, 1.0, 0.0, 1.0,
+                        9.0, 10.0, 11.0, 1.0, 0.0, 1.0,
 
-                        12, 13, 14, 1.0, 0.0, 1.0,
-                        6, 7, 8, 1.0, 0.0, 1.0,
-                        9, 10, 11, 1.0, 0.0, 1.0,
+                        12.0, 13.0, 14.0, 1.0, 0.0, 1.0,
+                        6.0, 7.0, 8.0, 1.0, 0.0, 1.0,
+                        9.0, 10.0, 11.0, 1.0, 0.0, 1.0,
                       ];
 
-        Self{points, is_viewed: false, visual: None}
+        Self{points, map, is_viewed: false, visual: None}
     }
 
     pub fn verifyOnScreen(&mut self, position: [f32; 3], mira: [f32; 3]) -> bool {
@@ -82,7 +84,7 @@ impl Object {
         if is_on_screen {
             self.is_viewed = true;
 
-            let posicao_relativa = Vec::<f32>::new();
+            let mut posicao_relativa = Vec::<f32>::new();
 
             for i in 0..self.points.len() / 3 {
                 
@@ -105,6 +107,8 @@ impl Object {
 
                 println!("x: {}, y: {}, z: {}", visual_x, visual_y, visual_z);
             }
+
+            self.visual = Some(Visual::new(posicao_relativa, &self.map, gl::TRIANGLES));
 
             return true
         } else {

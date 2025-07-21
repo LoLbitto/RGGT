@@ -33,6 +33,8 @@ pub struct Renderer {
 
 impl Renderer {
     pub fn new<D: GlDisplay>(gl_display: &D) -> Self {
+        
+        let player = Player::new();
         let mut objetos = Vec::new();
         let objeto = Object::new();
 
@@ -120,6 +122,28 @@ impl Renderer {
             //    vetores.as_ptr() as *const _,
             //    gl::STATIC_DRAW,
             //);
+            
+            let mut vetores = Vec::<f32>::new();
+
+            for i in 0..objetos.len() {
+             
+                if objetos[i].verifyOnScreen(player.position, player.mira) {
+                    let grap_rep = objetos[i].visual.as_ref().unwrap();
+                    vetores.extend(grap_rep.vertex.iter().cloned());
+                }
+            }
+
+            for i in 0..vetores.len() / 6 {
+                let index = i * 6;
+                println!("x: {}, y: {}, z: {}, r: {}, g: {}, b: {}", vetores[index], vetores[index+1], vetores[index+2], vetores[index+3], vetores[index+4], vetores[index+5]);
+            }
+
+            gl.BufferData(
+                gl::ARRAY_BUFFER,
+                (vetores.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
+                vetores.as_ptr() as *const _,
+                gl::STATIC_DRAW,
+            );
 
             let pos_attrib = gl.GetAttribLocation(program, b"position\0".as_ptr() as *const _);
             let color_attrib = gl.GetAttribLocation(program, b"color\0".as_ptr() as *const _);
@@ -142,9 +166,8 @@ impl Renderer {
             gl.EnableVertexAttribArray(pos_attrib as gl::types::GLuint);
             gl.EnableVertexAttribArray(color_attrib as gl::types::GLuint);
 
-            gl.Enable(gl::DEPTH_TEST);
 
-            let player = Player::new();
+            gl.Enable(gl::DEPTH_TEST);
             
             Self { program, vao, vbo, gl, objetos, player}
         }
@@ -154,16 +177,35 @@ impl Renderer {
         self.draw_with_clear_color(0.1, 0.1, 0.1, 1.0)
     }
 
-    pub fn update(&mut self, x: f32, y: f32) {        
+    pub fn update(&mut self, x_m: f32, y_m: f32/*, dir: f32, esq: f32*/) {        
         unsafe {
-            let mut objects_shown = Vec::<u32>::new();
+
+            self.player.rotateViewX(x);
+            self.player.rotateViewY(y);
+
+            /*
+            self.player.walk_right(dir);
+            self.player.walk_left(esq);
+            */
+
+            let mut vetores = Vec::<f32>::new();
 
             for i in 0..self.objetos.len() {
              
                 if self.objetos[i].verifyOnScreen(self.player.position, self.player.mira) {
-                    objects_shown.push(i as u32);
+                    let grap_rep = self.objetos[i].visual.as_ref().unwrap();
+                    vetores.extend(grap_rep.vertex.iter().cloned());
                 }
             }
+
+            self.gl.BufferSubData(
+                gl::ARRAY_BUFFER,
+                0,
+                (vetores.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
+                vetores.as_ptr() as *const _,
+            );
+
+            println!("sla: {}", vetores.len());
         }
         println!("tentou ne {x}");
     }
@@ -184,6 +226,8 @@ impl Renderer {
 
             self.gl.ClearColor(red, green, blue, alpha);
             self.gl.Clear(gl::COLOR_BUFFER_BIT);
+
+            self.gl.DrawArrays(gl::TRIANGLES, 0, 106);
             
         }
     }
