@@ -38,9 +38,9 @@ impl Object {
             let y_ratio = self.points[index+1] - position[1];
             let z_ratio = self.points[index+2] - position[2];
 
-            if ((z_ratio / x_ratio <= 1.0 && z_ratio / x_ratio >= -1.0) && ((y_ratio / z_ratio <= 1.0 && y_ratio / z_ratio >= -1.0) || (y_ratio / x_ratio <= 1.0 && y_ratio / x_ratio >= -1.0))){
+            if (z_ratio / x_ratio <= 1.0 && z_ratio / x_ratio >= -1.0) && ((y_ratio / z_ratio <= 1.0 && y_ratio / z_ratio >= -1.0) || (y_ratio / x_ratio <= 1.0 && y_ratio / x_ratio >= -1.0)) {
 
-                if ((((x_ratio <= 0.0) && (x_factor <= 0.0)) || ((x_ratio >= 0.0) && (x_factor >= 0.0))) && (((z_ratio <= 0.0) && (z_factor <= 0.0)) || ((z_ratio >= 0.0) && (z_factor >= 0.0)))) {
+                if (((x_ratio <= 0.0) && (x_factor <= 0.0)) || ((x_ratio >= 0.0) && (x_factor >= 0.0))) && (((z_ratio <= 0.0) && (z_factor <= 0.0)) || ((z_ratio >= 0.0) && (z_factor >= 0.0))) {
                     is_on_screen = true;
                     println!("sim");
                     break;
@@ -53,37 +53,31 @@ impl Object {
             }
         }
         
-        if (is_on_screen) {
+        if is_on_screen {
             self.is_viewed = true;
 
-            let mut posicao_relativa = Vec::<f32>::new();
+            let posicao_relativa = Vec::<f32>::new();
 
             for i in 0..self.points.len() / 3 {
                 
                 let index = i * 3;
 
-                let x_ratio = position[0] - self.points[index];
-                let y_ratio = position[1] - self.points[index+1];
-                let z_ratio = position[2] - self.points[index+2];
-                
-                let angulo_x = libm::atan2f(z_ratio, x_ratio);
-                let angulo_y = libm::atan2f(y_ratio, z_ratio);
+                let x_ratio = self.points[index] - position[0];
+                let y_ratio = self.points[index+1] - position[1];
+                let z_ratio = self.points[index+2] - position[2];
 
-                let raio = libm::sqrtf(libm::powf(x_ratio, 2.0) + libm::powf(z_ratio, 2.0));
+                let new_x_z = rotacionarPontoX(x_ratio, z_ratio, libm::atan2f(mira[0], mira[2]));
+                let new_y = rotacionarPontoY(y_ratio, z_ratio, libm::atan2f(mira[2], mira[1]))[0];
 
-                let mut z = raio / 100.0; // Transformando as Gu (unidade de medida do game) em
-                                          // proporção de tela, todo o espaço 3D da tela tem um Z que
-                                          // vai de -50 a 50 Gu, ou seja, se o raio passar 100 Gu ele
-                                          // está "fora" da área, e entra na distância, que é o 4°
-                                          // argumento da posição no opengl
-                                          //
-                                          // NOTE: Posso mudar, ainda não implementei a rotação do
-                                          // ponto
+                let new_x_ratio = new_x_z[0] - position[0];
+                let new_y_ratio = new_y      - position[1];
+                let new_z_ratio = new_x_z[1] - position[2];
 
-                let x = libm::cosf(angulo_x);
-                let y = libm::sinf(angulo_y);
+                let visual_x = new_x_z[0] / 10.0; //10 Gu = 1 no opengl
+                let visual_y = new_y / 10.0;
+                let visual_z = new_x_z[1] / 10.0;
 
-                println!("x: {}, y: {}, raio / 100: {}", x, y, z);
+                println!("x: {}, y: {}, z: {}", visual_x, visual_y, visual_z);
             }
 
             return true

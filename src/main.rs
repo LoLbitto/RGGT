@@ -12,7 +12,6 @@ use crate::app::window_attributes;
 use glutin_winit::DisplayBuilder;
 use winit::event_loop::EventLoop;
 use winit::event_loop::ControlFlow;
-use winit::window::Window;
 
 use glutin::config::ConfigTemplateBuilder;
 

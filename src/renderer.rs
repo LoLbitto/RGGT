@@ -4,7 +4,6 @@ use std::ffi::CString;
 use std::ops::Deref;
 use std::ffi::CStr;
 
-use crate::graphic::visualrep::Visual;
 use crate::entity::object::Object;
 use crate::entity::player::Player;
 
@@ -35,7 +34,7 @@ pub struct Renderer {
 impl Renderer {
     pub fn new<D: GlDisplay>(gl_display: &D) -> Self {
         let mut objetos = Vec::new();
-        let mut objeto = Object::new();
+        let objeto = Object::new();
 
         objetos.push(objeto);
 
@@ -218,12 +217,12 @@ unsafe fn create_shader(
     gl: &gl::Gl,
     shader: gl::types::GLenum,
     source: &[u8],
-) -> gl::types::GLuint {
+) -> gl::types::GLuint { unsafe {
     let shader = gl.CreateShader(shader);
     gl.ShaderSource(shader, 1, [source.as_ptr().cast()].as_ptr(), std::ptr::null());
     gl.CompileShader(shader);
     shader
-}
+}}
 
 fn get_gl_string(gl: &gl::Gl, variant: gl::types::GLenum) -> Option<&'static CStr> {
     unsafe {
