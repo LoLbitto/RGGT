@@ -94,7 +94,7 @@ impl Object {
                 let y_ratio = self.points[index+1] - position[1];
                 let z_ratio = self.points[index+2] - position[2];
 
-                let new_x_z = rotacionarPontoX(x_ratio, z_ratio, libm::atan2f(mira[0], mira[2]));
+                let new_x_z = rotacionarPontoX(x_ratio, z_ratio, libm::atan2f(mira[2], mira[2]));
                 let new_y = rotacionarPontoY(y_ratio, z_ratio, libm::atan2f(mira[2], mira[1]))[0];
 
                 let visual_x = new_x_z[0] / 10.0; //10 Gu = 1 no opengl
