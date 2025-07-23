@@ -17,11 +17,11 @@ impl Object {
     
     pub fn new() -> Self {
         let points = vec![
-                          56.0,  5.0, 0.0,
-                          53.0,  0.0,-3.0,
+                          56.0,  5.0, 6.0,
                           53.0,  0.0, 3.0,
-                          59.0,  0.0,-3.0,
+                          53.0,  0.0, 9.0,
                           59.0,  0.0, 3.0,
+                          59.0,  0.0, 9.0,
                          ];
         let map = vec![
                         0.0, 1.0, 2.0, 3.0, 0.0, 0.0, 1.0,
@@ -91,20 +91,18 @@ impl Object {
                 let y_ratio = self.points[index+1] - position[1];
                 let z_ratio = self.points[index+2] - position[2];
 
-                let hipotenusa = libm::sqrtf(libm::powf(x_ratio, 2.0) + libm::powf(z_ratio, 2.0));
-
-                let mut visual_w = hipotenusa;
-
                 let new_x_z = rotacionarPontoX(x_ratio, z_ratio, libm::atan2f(x_factor, z_factor));
-                let mut new_y = rotacionarPontoY(y_ratio, z_ratio, libm::atan2f(y_factor, x_factor))[0];
-                
-                
+                let mut new_y = rotacionarPontoY(y_ratio, z_ratio, libm::atan2f(y_factor, z_factor))[0];
 
                 if (y_ratio < 0.0 && new_y > 0.0) {
                     new_y *= -1.0;
                 } // Solução preguiçosa pq eu só quero marcar essa parte como concluida
 
                 //println!("{} - {}", new_y_z, new_y_x);
+
+                let hipotenusa = libm::sqrtf(libm::powf(new_x_z[0], 2.0) + libm::powf(new_x_z[1], 2.0));
+
+                let mut visual_w = hipotenusa;
 
                 let visual_x = new_x_z[0] * 2.0;
                 let visual_y = new_y      * 2.0;
