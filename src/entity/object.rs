@@ -94,38 +94,16 @@ impl Object {
                 let y_ratio = self.points[index+1] - position[1];
                 let z_ratio = self.points[index+2] - position[2];
 
+                let hipotenusa = libm::sqrtf(libm::powf(x_ratio, 2.0) + libm::powf(z_ratio, 2.0));
+
+                let visual_w = hipotenusa;
+
                 let new_x_z = rotacionarPontoX(x_ratio, z_ratio, libm::atan2f(mira[0], mira[2]));
                 let new_y = rotacionarPontoY(y_ratio, z_ratio, libm::atan2f(mira[2], mira[1]))[0];
 
-                let hipotenusa = libm::sqrtf(libm::powf(new_x_z[0], 2.0) + libm::powf(new_x_z[1], 2.0));
-
-                let mut visual_w = hipotenusa / 10.0;
-
-                let mut mod_vis_w = visual_w;
-
-                if (mod_vis_w < 0.0) {
-                    mod_vis_w *= -1.0;
-                }
-
-                let mut visual_x = new_x_z[0] / 10.0 * mira[0] / libm::sqrtf(libm::powf(mira[0], 2.0) + libm::powf(mira[2], 2.0)) + new_x_z[0] / libm::sqrtf(libm::powf(new_x_z[0], 2.0) + libm::powf(new_x_z[1], 2.0)); //10 Gu = 1 no opengl
-                let mut visual_y = new_y * mod_vis_w / 10.0;
-                let mut visual_z = new_x_z[1] * mod_vis_w / 10.0;
-
-                if (visual_z > 1.0) {
-                    let diference = visual_z - 1.0;
-                    visual_w += visual_z - diference;
-                    visual_z = diference;
-                    println!("Entrou no 1.0");
-                } else if (visual_z < -1.0) {
-                    let diference = visual_z + 1.0;
-                    visual_w += visual_z - diference;
-                    visual_z = diference;
-                    println!("Entrou no -1.0");
-                }
-
-                visual_z *= libm::sinf(libm::atan2f(mira[0], mira[2]));
-                //visual_x /= libm::cosf(libm::atan2f(mira[2], mira[0]));
-                visual_y /= visual_w;
+                let visual_x = new_x_z[0] /* hipotenusa / 10.0*/;
+                let visual_y = new_y      /* hipotenusa / 10.0*/;
+                let visual_z = new_x_z[1] /* hipotenusa / 10.0*/;
 
                 posicao_relativa.push(visual_x);
                 posicao_relativa.push(visual_y);
