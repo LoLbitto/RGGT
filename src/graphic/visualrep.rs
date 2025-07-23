@@ -23,6 +23,8 @@ impl Visual {
             vertex[index+1] = pontos[vertex[index+1] as usize];
             vertex[index+2] = pontos[vertex[index+2] as usize];
             vertex[index+3] = pontos[vertex[index+3] as usize];
+
+            println!("{}, {}, {}, {}", vertex[index+2] / vertex[index+3], vertex[index+4], vertex[index+5], vertex[index+6],);
         }
 
         let mut big_x = 0.0;

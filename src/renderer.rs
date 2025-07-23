@@ -183,6 +183,7 @@ impl Renderer {
         unsafe {
 
             self.player.rotateViewX(x);
+            self.player.moveRelativeX(y);
             //self.player.rotateViewY(y);
 
             /*
@@ -207,9 +208,7 @@ impl Renderer {
                 }
                 vetores = self.vetores.clone();
             } else {
-                for i in 0..vetores.len() {
-                    self.vetores[i] = vetores[i];
-                }
+                self.vetores = vetores.clone();
             }
 
             self.gl.BufferSubData(
@@ -218,10 +217,7 @@ impl Renderer {
                 (vetores.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
                 vetores.as_ptr() as *const _,
             );
-
-            println!("sla: {}", vetores.len());
         }
-        println!("tentou ne {x}");
     }
 
     pub fn draw_with_clear_color(

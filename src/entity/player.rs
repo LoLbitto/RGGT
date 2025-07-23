@@ -8,9 +8,9 @@ pub struct Player {
 impl Player {
     pub fn new() -> Self {
         
-        let position = [0.0, 5.0, 0.0];
+        let position = [5.0, 5.0, 0.0];
 
-        let mira = [5.0, 5.0, 0.0];
+        let mira = [position[0] + 5.0, position[1], position[2]];
 
         let fov = 30;
 
@@ -33,21 +33,14 @@ impl Player {
 
         let angFinal = (ang_rad * 57.2958 - angle) / 57.2958; // rad * 57.2958 + angulo (graus), dps
                                                               // divide para ir em radianos dnv         
-        //println!("ang: {}, angf: {}", ang_rad, angFinal);
         let mut newX = 0.0;
         let mut newZ = 0.0;
-
-        // println!("sen: {}, cos: {}, ang: {}", sen, cos, angFinal);
         
         newX = libm::cosf(angFinal) * raio;
         newZ = libm::sinf(angFinal) * raio;
 
-        //if ((newZ * 1000000.0).round() == 0.0) {
-        //    newZ *= -1.0;
-        //}
-
-        self.mira[0] = newX;
-        self.mira[2] = newZ;
+        self.mira[0] = newX + self.position[0];
+        self.mira[2] = newZ + self.position[2];
 
         println!("*mira* x: {}, y: {}, z: {}", self.mira[0], self.mira[1], self.mira[2]);
     }
@@ -85,5 +78,22 @@ impl Player {
         self.mira[2] = newZ;
     }
 
+    pub fn moveRelativeX(&mut self, speed: f32) {
+        let mira_x = self.mira[0] - self.position[0];
+        let mira_z = self.mira[2] - self.position[2];
 
+        let hip = libm::sqrtf(libm::powf(mira_x, 2.0) + libm::powf(mira_z, 2.0));
+    
+        let sen = mira_z / hip;
+        let cos = mira_x / hip;
+
+        let x = cos * speed;
+        let z = sen * speed;
+
+        self.position[0] += x;
+        self.position[2] += z;
+
+        self.mira[0] += x;
+        self.mira[2] += z;
+    }
 }
