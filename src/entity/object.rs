@@ -17,11 +17,11 @@ impl Object {
     
     pub fn new() -> Self {
         let points = vec![
-                          6.0,  5.0, 0.0,
-                          3.0,  0.0,-3.0,
-                          3.0,  0.0, 3.0,
-                          9.0,  0.0,-3.0,
-                          9.0,  0.0, 3.0,
+                          16.0,  5.0, 0.0,
+                          13.0,  0.0,-3.0,
+                          13.0,  0.0, 3.0,
+                          19.0,  0.0,-3.0,
+                          19.0,  0.0, 3.0,
                          ];
         let map = vec![
                         0.0, 1.0, 2.0, 3.0, 0.0, 0.0, 1.0,
@@ -107,8 +107,8 @@ impl Object {
                     mod_vis_w *= -1.0;
                 }
 
-                let mut visual_x = new_x_z[0] * mod_vis_w / 10.0; //10 Gu = 1 no opengl
-                let mut visual_y = new_y      * mod_vis_w / 10.0;
+                let mut visual_x = new_x_z[0] / 10.0 * mira[0] / libm::sqrtf(libm::powf(mira[0], 2.0) + libm::powf(mira[2], 2.0)) + new_x_z[0] / libm::sqrtf(libm::powf(new_x_z[0], 2.0) + libm::powf(new_x_z[1], 2.0)); //10 Gu = 1 no opengl
+                let mut visual_y = new_y * mod_vis_w / 10.0;
                 let mut visual_z = new_x_z[1] * mod_vis_w / 10.0;
 
                 if (visual_z > 1.0) {
@@ -123,8 +123,8 @@ impl Object {
                     println!("Entrou no -1.0");
                 }
 
-                visual_z *= visual_w;
-                visual_x /= visual_w;
+                visual_z *= libm::sinf(libm::atan2f(mira[0], mira[2]));
+                //visual_x /= libm::cosf(libm::atan2f(mira[2], mira[0]));
                 visual_y /= visual_w;
 
                 posicao_relativa.push(visual_x);
