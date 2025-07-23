@@ -45,3 +45,7 @@
 
    Acabei não fazendo log ontem (que foi dia 21), então estou fazendo hoje, aproveitando que não mexi direito no código.
    Basicamente, fiz a movimentação relativa do objeto na tela em relação à movimentação da câmera, mas, como tive que diminuir os pontos manualmente (dividindo por 10), eles acabaram girando em torno de um eixo que fica mais pra frente, é como se estivesse em 3° pessoa. Amanhã vou arrumar isso.
+
+## 23/07/2025
+
+   Fiz o W das coordenadas ser dinâmico, e com isso quase todos os meus problemas se resolveram, mas ainda tenho um problema: a pirâmide não gira em torno da câmera, mas sim em torno de um eixo imaginário que fica no espaço da camêra, mas acho que sei como resolver.
