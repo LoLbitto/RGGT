@@ -29,6 +29,8 @@ pub struct Renderer {
     objetos: Vec<Object>,
 
     player: Player,
+
+    vetores: Vec<f32>,
 }
 
 impl Renderer {
@@ -149,10 +151,10 @@ impl Renderer {
             let color_attrib = gl.GetAttribLocation(program, b"color\0".as_ptr() as *const _);
             gl.VertexAttribPointer(
                 pos_attrib as gl::types::GLuint,
-                3,
+                4,
                 gl::FLOAT,
                 0,
-                6 * std::mem::size_of::<f32>() as gl::types::GLsizei,
+                7 * std::mem::size_of::<f32>() as gl::types::GLsizei,
                 std::ptr::null(),
             );
             gl.VertexAttribPointer(
@@ -160,8 +162,8 @@ impl Renderer {
                 3,
                 gl::FLOAT,
                 0,
-                6 * std::mem::size_of::<f32>() as gl::types::GLsizei,
-                (3 * std::mem::size_of::<f32>()) as *const () as *const _,
+                7 * std::mem::size_of::<f32>() as gl::types::GLsizei,
+                (4 * std::mem::size_of::<f32>()) as *const () as *const _,
             );
             gl.EnableVertexAttribArray(pos_attrib as gl::types::GLuint);
             gl.EnableVertexAttribArray(color_attrib as gl::types::GLuint);
@@ -169,7 +171,7 @@ impl Renderer {
 
             gl.Enable(gl::DEPTH_TEST);
             
-            Self { program, vao, vbo, gl, objetos, player}
+            Self { program, vao, vbo, gl, objetos, player, vetores}
         }
     }
 
@@ -195,6 +197,18 @@ impl Renderer {
                 if self.objetos[i].verifyOnScreen(self.player.position, self.player.mira) {
                     let grap_rep = self.objetos[i].visual.as_ref().unwrap();
                     vetores.extend(grap_rep.vertex.iter().cloned());
+                }
+            }
+
+            if vetores.len() == 0 {
+                vetores = Vec::<f32>::new();
+                for i in 0..self.vetores.len() {
+                    self.vetores[i] = 0.0;
+                }
+                vetores = self.vetores.clone();
+            } else {
+                for i in 0..vetores.len() {
+                    self.vetores[i] = vetores[i];
                 }
             }
 
@@ -279,13 +293,13 @@ const VERTEX_SHADER_SOURCE: &[u8] = b"
 #version 100
 precision mediump float;
 
-attribute vec3 position;
+attribute vec4 position;
 attribute vec3 color;
 
 varying vec3 v_color;
 
 void main() {
-    gl_Position = vec4(position, 1.0);
+    gl_Position = position;
     v_color = color;
 }
 \0";

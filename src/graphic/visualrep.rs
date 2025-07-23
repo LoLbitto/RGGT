@@ -16,12 +16,13 @@ impl Visual {
         
         let mut vertex = map.to_vec();
 
-        for i in 0..vertex.len() / 6 {
-            let index = i * 6;
+        for i in 0..vertex.len() / 7 {
+            let index = i * 7;
 
             vertex[index] = pontos[vertex[index] as usize];
             vertex[index+1] = pontos[vertex[index+1] as usize];
             vertex[index+2] = pontos[vertex[index+2] as usize];
+            vertex[index+3] = pontos[vertex[index+3] as usize];
         }
 
         let mut big_x = 0.0;
@@ -33,8 +34,8 @@ impl Visual {
         let mut big_z = 0.0;
         let mut small_z = 0.0;
 
-        for i in 0..vertex.len() / 6 {
-            let index = i * 6;
+        for i in 0..vertex.len() / 7 {
+            let index = i * 7;
 
             let x = vertex[index];
             let y = vertex[index + 1];
@@ -70,8 +71,8 @@ impl Visual {
     }
 
     pub fn rotateX (&mut self, angle: f32) {
-        for i in 0..(self.vertex.len() / 6) {
-            let index = i * 6;
+        for i in 0..(self.vertex.len() / 7) {
+            let index = i * 7;
 
             let x = self.vertex[index];
             let z = self.vertex[index+2];
@@ -88,8 +89,8 @@ impl Visual {
     }
 
    pub fn rotateY (&mut self, angle: f32) {
-        for i in 0..(self.vertex.len() / 6) {
-            let index = i * 6;
+        for i in 0..(self.vertex.len() / 7) {
+            let index = i * 7;
 
             let vec_y = self.vertex[index+1];
             let vec_z = self.vertex[index+2];
