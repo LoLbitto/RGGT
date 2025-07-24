@@ -72,7 +72,7 @@ impl Object {
 
             println!("{}, {}", new_x_z[0], new_x_z[1]);
 
-            if (new_x_z[1] / new_x_z[0] >= 1.0 || new_x_z[1] / new_x_z[0] <= -1.0) {
+            if (new_x_z[1] / new_x_z[0] >= 1.0 || new_x_z[1] / new_x_z[0] <= -1.0) && (((x_factor <= 0.0 && x_ratio <= 0.0) || (x_factor >= 0.0 && x_ratio >= 0.0)) && ((z_factor <= 0.0 && z_ratio <= 0.0) || (z_factor >= 0.0 && z_ratio >= 0.0))){
                 is_on_screen = true; 
                 break;           
             } 
