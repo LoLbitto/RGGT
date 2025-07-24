@@ -114,7 +114,7 @@ pub fn rotacionar_ponto_x(vec_x: f32, vec_z: f32, rad: f32) -> [f32; 2] {
     let new_z = libm::sinf(ang_final) * raio;   
 
     return [new_x, new_z]
-}
+} // NOTE: fodase isso aqui, as duas funções são iguais lol
 
 pub fn rotacionar_ponto_y(vec_y: f32, vec_z: f32, rad: f32) -> [f32; 2] {
 

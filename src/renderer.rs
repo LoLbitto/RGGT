@@ -28,15 +28,14 @@ pub struct Renderer {
 
     objetos: Vec<Object>,
 
-    player: Player,
+    player: *const Player,
 
     vetores: Vec<f32>,
 }
 
 impl Renderer {
-    pub fn new<D: GlDisplay>(gl_display: &D) -> Self {
+    pub fn new<D: GlDisplay>(gl_display: &D, player: *const Player) -> Self {
         
-        let player = Player::new();
         let mut objetos = Vec::new();
         let objeto = Object::new();
 
@@ -86,7 +85,7 @@ impl Renderer {
 
             for i in 0..objetos.len() {
              
-                if objetos[i].verify_on_screen(player.position, player.mira) {
+                if objetos[i].verify_on_screen((*player).position, (*player).mira) {
                     let grap_rep = objetos[i].visual.as_ref().unwrap();
                     vetores.extend(grap_rep.vertex.iter().cloned());
                 }
@@ -131,17 +130,13 @@ impl Renderer {
         self.draw_with_clear_color(0.1, 0.1, 0.1, 1.0)
     }
 
-    pub fn update(&mut self, x: f32, y: f32) {        
+    pub fn update(&mut self) {        
         unsafe {
-
-            self.player.rotate_view_x(x);
-            self.player.move_relative_x(y);
-
             let mut vetores = Vec::<f32>::new();
 
             for i in 0..self.objetos.len() {
              
-                if self.objetos[i].verify_on_screen(self.player.position, self.player.mira) {
+                if self.objetos[i].verify_on_screen((*self.player).position, (*self.player).mira) {
                     let grap_rep = self.objetos[i].visual.as_ref().unwrap();
                     vetores.extend(grap_rep.vertex.iter().cloned());
                 }

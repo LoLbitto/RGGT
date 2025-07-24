@@ -3,12 +3,16 @@ use std::num::NonZeroU32;
 
 use crate::renderer::Renderer;
 
+use std::time::{Duration, Instant};
+use std::thread::sleep;
+
 use raw_window_handle::HasWindowHandle;
 use winit::application::ApplicationHandler;
-use winit::event::{KeyEvent, WindowEvent};
-use winit::event_loop::ActiveEventLoop;
-use winit::keyboard::{Key, NamedKey};
-use winit::window::{Window, WindowAttributes, WindowId};
+use winit::event::{KeyEvent, WindowEvent, ElementState};
+use winit::event_loop::{ActiveEventLoop, ControlFlow};
+use winit::keyboard::{Key, NamedKey, SmolStr};
+use winit::window::{Window, WindowAttributes, WindowId, CursorGrabMode};
+use winit::dpi::{PhysicalPosition, PhysicalSize};
 
 use glutin::config::{Config, ConfigTemplateBuilder, GetGlConfig};
 use glutin::context::{
@@ -20,6 +24,8 @@ use glutin::surface::{Surface, SwapInterval, WindowSurface};
 
 use glutin_winit::GlWindow;
 use glutin_winit::DisplayBuilder;
+
+use crate::entity::player::Player;
 
 enum GlDisplayCreationState {
     /// The display was not build yet.
@@ -36,6 +42,8 @@ pub struct App {
     gl_context: Option<PossiblyCurrentContext>,
     gl_display: GlDisplayCreationState,
     exit_state: Result<(), Box<dyn Error>>,
+
+    player: Player,
 }
 
 impl App {
@@ -47,28 +55,46 @@ impl App {
             gl_context: None,
             state: None,
             renderer: None,
+            player: Player::new(),
         }
     }
 }
 
 struct AppState {
     gl_surface: Surface<WindowSurface>,
-    window: Window
+    window: Window,
+    cursor_grab: CursorGrabber
 }
 
-pub fn gl_config_picker(configs: Box<dyn Iterator<Item = Config> + '_>) -> Config {
-    configs
-        .reduce(|accum, config| {
-            let transparency_check = config.supports_transparency().unwrap_or(false)
-                & !accum.supports_transparency().unwrap_or(false);
+struct CursorGrabber {
+    window_size: [f64; 2],
+    pub position: PhysicalPosition<f64>,
+    pub is_lock: bool
+}
 
-            if transparency_check || config.num_samples() > accum.num_samples() {
-                config
-            } else {
-                accum
-            }
-        })
-        .unwrap()
+impl CursorGrabber {
+    pub fn new(size: PhysicalSize<u32>) -> Self {
+        let window_size = [size.width as f64, size.height as f64];
+        let position = Self::calc_position(size);
+        let is_lock = true;
+
+        Self {window_size, position, is_lock}
+    }
+
+    pub fn calc_position(size: PhysicalSize<u32>) -> PhysicalPosition<f64>{
+        let mid_width = size.width as f64 / 2.0;
+        let mid_height = size.height as f64 / 2.0;
+
+        PhysicalPosition::<f64>::new(mid_width, mid_height)
+    }
+
+    pub fn change_lock(&mut self, lock: bool) {
+        self.is_lock = lock;
+    }
+
+    pub fn window_resized(&mut self, size: PhysicalSize<u32>) {
+        self.position = Self::calc_position(size);
+    }
 }
 
 impl ApplicationHandler for App {
@@ -101,7 +127,7 @@ impl ApplicationHandler for App {
                 // cria contexto do opengl
                 // (Olhar a fundo como funciona isso depois)
                 self.gl_context = Some(create_gl_context(&window, &gl_config).treat_as_possibly_current());
-                
+
                 // retorna a janela e a config do opengl
                 (window, gl_config)
             },
@@ -138,7 +164,7 @@ impl ApplicationHandler for App {
         gl_context.make_current(&gl_surface).unwrap();
 
         // cria um renderizador para o display
-        self.renderer.get_or_insert_with(|| Renderer::new(&gl_config.display()));
+        self.renderer.get_or_insert_with(|| Renderer::new(&gl_config.display(), &self.player));
 
         // tenta colocar vsync
         // se o "set_swap_interval" retornar um erro, vai ser retornado "true" pois a atribuição
@@ -148,11 +174,16 @@ impl ApplicationHandler for App {
         {
             eprintln!("Error setting vsync: {res:?}");
         }
+
+        let cursor_grab = CursorGrabber::new(window.inner_size());
+
+        window.set_cursor_visible(false);
+        window.set_cursor_position(cursor_grab.position);
         
         // coloca um novo AppState com a superficie e a janela
         // o "replace" retorna o valor antigo, e esse valor tem q ser vazio, caso contrario ele
         // retornará "false" e o programa soltará um erro
-        assert!(self.state.replace(AppState { gl_surface, window }).is_none());
+        assert!(self.state.replace(AppState { gl_surface, window, cursor_grab }).is_none());
     }
 
     fn suspended(&mut self, _event_loop: &ActiveEventLoop) {
@@ -179,28 +210,76 @@ impl ApplicationHandler for App {
                 event_loop.exit();
             },
 
-            WindowEvent::KeyboardInput {
-                event: KeyEvent { logical_key: Key::Named(NamedKey::ArrowRight), .. },
-                ..
-            } => self.renderer.as_mut().unwrap().update(2.0, 0.0),
+            WindowEvent::KeyboardInput { event, ..} => {
+                if !event.repeat {
+                    let char = event.logical_key.to_text();
 
-            WindowEvent::KeyboardInput {
-                event: KeyEvent { logical_key: Key::Named(NamedKey::ArrowLeft), .. },
-                ..
-            } => self.renderer.as_mut().unwrap().update(-2.0, 0.0),
+                    if char != None {
+                        match char.unwrap() {
+                            "w" => {
+                                if event.state == ElementState::Pressed {
+                                    self.player.w = true;
+                                } else if event.state == ElementState::Released {
+                                    self.player.w = false;
+                                }
+                            },
 
-            WindowEvent::KeyboardInput {
-                event: KeyEvent { logical_key: Key::Named(NamedKey::ArrowUp), .. },
-                ..
-            } => self.renderer.as_mut().unwrap().update(0.0, 2.0),
+                            "a" => {
+                                if event.state == ElementState::Pressed {
+                                    self.player.a = true;
+                                } else if event.state == ElementState::Released {
+                                    self.player.a = false;
+                                }
+                            },
+                            
+                            "s" => {
+                                if event.state == ElementState::Pressed {
+                                    self.player.s = true;
+                                } else if event.state == ElementState::Released {
+                                    self.player.s = false;
+                                }
+                            },
 
-            WindowEvent::KeyboardInput {
-                event: KeyEvent { logical_key: Key::Named(NamedKey::ArrowDown), .. },
-                ..
-            } => self.renderer.as_mut().unwrap().update(0.0, -2.0),
+                            "d" => {
+                                if event.state == ElementState::Pressed {
+                                    self.player.d = true;
+                                } else if event.state == ElementState::Released {
+                                    self.player.d = false;
+                                }
+                            },
+                            
+                            "\x1b" => {
+                                self.state.as_mut().unwrap().cursor_grab.change_lock(false);
+                                self.state.as_mut().unwrap().window.set_cursor_visible(true);
+                            },
+
+                            &_ => {
+                            },
+                        }
+                    } 
+                }   
+            },
+
+            WindowEvent::CursorMoved { position, ..} => {
+                let mut state = self.state.as_mut().unwrap();
+                let cursor_grab = &state.cursor_grab;
+
+                if (cursor_grab.is_lock){
+                    self.player.change_view(position, cursor_grab.position);
+                    state.window.set_cursor_position(cursor_grab.position);
+                }
+            },
+
+            WindowEvent::MouseInput {..} => {
+                if !self.state.as_mut().unwrap().cursor_grab.is_lock {
+                    self.state.as_mut().unwrap().cursor_grab.change_lock(true);
+                    self.state.as_mut().unwrap().window.set_cursor_visible(false);
+                }
+            }
 
             WindowEvent::Resized(size) => {
                 self.renderer.as_mut().unwrap().resize(size.width as i32, size.height as i32);
+                self.state.as_mut().unwrap().cursor_grab.window_resized(size);
             },
 
             WindowEvent::RedrawRequested => { 
@@ -208,6 +287,11 @@ impl ApplicationHandler for App {
             }
             _ => (),
         }
+        
+        self.player.update();
+        self.renderer.as_mut().unwrap().update();
+        
+        event_loop.set_control_flow(ControlFlow::Poll);
     }
 
     fn exiting(&mut self, _event_loop: &ActiveEventLoop) {
@@ -226,7 +310,7 @@ impl ApplicationHandler for App {
     }
 
     fn about_to_wait(&mut self, _event_loop: &ActiveEventLoop) {
-        if let Some(AppState { gl_surface, window }) = self.state.as_ref() {
+        if let Some(AppState { gl_surface, window, cursor_grab }) = self.state.as_ref() {
             let gl_context = self.gl_context.as_ref().unwrap();
             let renderer = self.renderer.as_ref().unwrap();
             window.request_redraw();
@@ -234,6 +318,21 @@ impl ApplicationHandler for App {
             gl_surface.swap_buffers(gl_context).unwrap();
         }
     }
+}
+
+pub fn gl_config_picker(configs: Box<dyn Iterator<Item = Config> + '_>) -> Config {
+    configs
+        .reduce(|accum, config| {
+            let transparency_check = config.supports_transparency().unwrap_or(false)
+                & !accum.supports_transparency().unwrap_or(false);
+
+            if transparency_check || config.num_samples() > accum.num_samples() {
+                config
+            } else {
+                accum
+            }
+        })
+        .unwrap()
 }
 
 fn create_gl_context(window: &Window, gl_config: &Config) -> NotCurrentContext {
