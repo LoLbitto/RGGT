@@ -106,7 +106,7 @@ impl Object {
 
                 let visual_x = new_x_z[0] * 2.0;
                 let visual_y = new_y      * 2.0;
-                let visual_z = new_x_z[1];
+                let visual_z = new_x_z[1] - 0.5;
 
                 posicao_relativa.push(visual_x);
                 posicao_relativa.push(visual_y);
