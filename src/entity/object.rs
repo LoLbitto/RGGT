@@ -67,9 +67,11 @@ impl Object {
 
             let new_x_z = rotacionar_ponto_x(x_ratio, z_ratio, libm::atan2f(x_factor, z_factor));
 
+            let hip = libm::sqrtf(libm::powf(new_x_z[0], 2.0) + libm::powf(new_x_z[1], 2.0));
+
             println!("{}, {}", new_x_z[0], new_x_z[1]);
 
-            if (new_x_z[1] / new_x_z[0] >= 1.0 || new_x_z[1] / new_x_z[0] <= -1.0) && (((x_factor <= 0.0 && x_ratio <= 0.0) || (x_factor >= 0.0 && x_ratio >= 0.0)) && ((z_factor <= 0.0 && z_ratio <= 0.0) || (z_factor >= 0.0 && z_ratio >= 0.0))){
+            if (new_x_z[1] / new_x_z[0] >= 1.0 || new_x_z[1] / new_x_z[0] <= -1.0) && new_x_z[1] / hip > 0.0 {
                 is_on_screen = true; 
                 break;           
             } 
@@ -95,13 +97,15 @@ impl Object {
                     new_y *= -1.0;
                 } // Solução preguiçosa pq eu só quero marcar essa parte como concluida
 
-                let hipotenusa = libm::sqrtf(libm::powf(new_x_z[0], 2.0) + libm::powf(new_x_z[1], 2.0));
+                let hipotenusa = libm::sqrtf(libm::powf(x_ratio, 2.0) + libm::powf(z_ratio, 2.0) + libm::powf(y_ratio, 2.0));
 
                 let visual_w = hipotenusa;
 
                 let visual_x = new_x_z[0] * 2.0;
                 let visual_y = new_y      * 2.0;
-                let visual_z = new_x_z[1] - 0.5;
+                let visual_z = hipotenusa - 0.5;
+
+                println!("{}", visual_z);
 
                 posicao_relativa.push(visual_x);
                 posicao_relativa.push(visual_y);
