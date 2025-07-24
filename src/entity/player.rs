@@ -17,68 +17,58 @@ impl Player {
         Self{position, mira, fov}
     }
 
-    pub fn rotateViewX (&mut self, angle: f32) {
+    pub fn rotate_view_x (&mut self, angle: f32) {
 
         let x = self.mira[0];
         let z = self.mira[2];
+ 
+        let cat_adj = x - self.position[0];
+        let cat_op  = z - self.position[2];
 
-        //println!("x: {}, z: {}, i: {}, rgb:{},{},{}", x, z, index, self.vertex[index+3], self.vertex[index+4], self.vertex[index+5]);
+        let raio = libm::sqrtf(libm::powf(cat_op, 2.0) + libm::powf(cat_adj, 2.0));
 
-        let catAdj = x - self.position[0];
-        let catOp  = z - self.position[2];
+        let ang_rad = libm::atan2f(cat_op, cat_adj);
 
-        let raio = libm::sqrtf(libm::powf(catOp, 2.0) + libm::powf(catAdj, 2.0));
-
-        let ang_rad = libm::atan2f(catOp, catAdj);
-
-        let angFinal = (ang_rad * 57.2958 - angle) / 57.2958; // rad * 57.2958 + angulo (graus), dps
+        let ang_final = (ang_rad * 57.2958 - angle) / 57.2958; // rad * 57.2958 + angulo (graus), dps
                                                               // divide para ir em radianos dnv         
-        let mut newX = 0.0;
-        let mut newZ = 0.0;
+        let mut new_x = 0.0;
+        let mut new_z = 0.0;
         
-        newX = libm::cosf(angFinal) * raio;
-        newZ = libm::sinf(angFinal) * raio;
+        new_x = libm::cosf(ang_final) * raio;
+        new_z = libm::sinf(ang_final) * raio;
 
-        self.mira[0] = newX + self.position[0];
-        self.mira[2] = newZ + self.position[2];
+        self.mira[0] = new_x + self.position[0];
+        self.mira[2] = new_z + self.position[2];
 
         println!("*mira* x: {}, y: {}, z: {}", self.mira[0], self.mira[1], self.mira[2]);
     }
 
-   pub fn rotateViewY (&mut self, angle: f32) {
+   pub fn rotate_view_y (&mut self, angle: f32) {
 
         let y = self.mira[1];
         let z = self.mira[2];
 
-        //println!("y: {}, z: {}, i: {}, rgb:{},{},{}", y, z, index, self.vertex[index+3], self.vertex[index+4], self.vertex[index+5]);
+        let cat_op  = y - self.position[1];
+        let cat_adj = z - self.position[2];
 
-        let catOp  = y - self.position[1];
-        let catAdj = z - self.position[2];
+        let raio = libm::sqrtf(libm::powf(cat_op, 2.0) + libm::powf(cat_adj, 2.0));
 
-        let raio = libm::sqrtf(libm::powf(catOp, 2.0) + libm::powf(catAdj, 2.0));
+        let ang_rad = libm::atan2f(cat_op, cat_adj);
 
-        let ang_rad = libm::atan2f(catOp, catAdj);
-
-        let angFinal = (ang_rad * 57.2958 + angle) / 57.2958; // rad * 57.2958 + angulo (graus), dps
+        let ang_final = (ang_rad * 57.2958 + angle) / 57.2958; // rad * 57.2958 + angulo (graus), dps
                                                               // divide para ir em radianos dnv         
-        println!("ang: {}, angf: {}", ang_rad, angFinal);
-        let mut newY = 0.0;
-        let mut newZ = 0.0;
+        println!("ang: {}, angf: {}", ang_rad, ang_final);
+        let mut new_y = 0.0;
+        let mut new_z = 0.0;
 
-        // println!("sen: {}, cos: {}, ang: {}", sen, cos, angFinal);
-        
-        newY = libm::sinf(angFinal) * raio;
-        newZ = libm::cosf(angFinal) * raio;
+        new_y = libm::sinf(ang_final) * raio;
+        new_z = libm::cosf(ang_final) * raio;
 
-        //if ((newZ * 1000000.0).round() == 0.0) {
-        //    newZ *= -1.0;
-        //}
-
-        self.mira[1] = newY;
-        self.mira[2] = newZ;
+        self.mira[1] = new_y;
+        self.mira[2] = new_z;
     }
 
-    pub fn moveRelativeX(&mut self, speed: f32) {
+    pub fn move_relative_x(&mut self, speed: f32) {
         let mira_x = self.mira[0] - self.position[0];
         let mira_z = self.mira[2] - self.position[2];
 

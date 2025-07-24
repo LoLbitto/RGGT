@@ -9,8 +9,6 @@ pub struct Visual {
     main_axis_z:  f32,
 }
 
-// impl Copy for Visual { }
-
 impl Visual {
     pub fn new (pontos: Vec<f32>, map: &Vec<f32>, tipo: GLenum) -> Self {
         
@@ -66,13 +64,11 @@ impl Visual {
         let main_axis_x = (big_x + small_x) / 2.0;
         let main_axis_y = (big_y + small_y) / 2.0;
         let main_axis_z = (big_z + small_z) / 2.0;
-
-        //println!("mainAxisX: {}, mainAxisY: {}, mainAxisZ: {}", mainAxisX, mainAxisY, mainAxisZ);
-
+ 
         Self {vertex, tipo, main_axis_x, main_axis_y, main_axis_z}
     }
 
-    pub fn rotateX (&mut self, angle: f32) {
+    pub fn rotate_x (&mut self, angle: f32) {
         for i in 0..(self.vertex.len() / 7) {
             let index = i * 7;
 
@@ -82,7 +78,7 @@ impl Visual {
             let vec_x = x + self.main_axis_x * -1.0;
             let vec_z  = z + self.main_axis_z * -1.0;
 
-            let new_coords = rotacionarPontoX(vec_x, vec_z, angle * 57.2958);
+            let new_coords = rotacionar_ponto_x(vec_x, vec_z, angle * 57.2958);
 
             self.vertex[index] = new_coords[0];
             self.vertex[index+2] = new_coords[1];
@@ -90,14 +86,14 @@ impl Visual {
         }
     }
 
-   pub fn rotateY (&mut self, angle: f32) {
+   pub fn rotate_y (&mut self, angle: f32) {
         for i in 0..(self.vertex.len() / 7) {
             let index = i * 7;
 
             let vec_y = self.vertex[index+1];
             let vec_z = self.vertex[index+2];
 
-            let new_coords = rotacionarPontoY(vec_y, vec_z, angle * 57.2958);
+            let new_coords = rotacionar_ponto_y(vec_y, vec_z, angle * 57.2958);
 
             self.vertex[index+1] = new_coords[0];
             self.vertex[index+2] = new_coords[1];
@@ -106,7 +102,7 @@ impl Visual {
     }
 }
 
-pub fn rotacionarPontoX(vec_x: f32, vec_z: f32, rad: f32) -> [f32; 2] {
+pub fn rotacionar_ponto_x(vec_x: f32, vec_z: f32, rad: f32) -> [f32; 2] {
 
     let raio = libm::sqrtf(libm::powf(vec_z, 2.0) + libm::powf(vec_x, 2.0));
 
@@ -120,7 +116,7 @@ pub fn rotacionarPontoX(vec_x: f32, vec_z: f32, rad: f32) -> [f32; 2] {
     return [new_x, new_z]
 }
 
-pub fn rotacionarPontoY(vec_y: f32, vec_z: f32, rad: f32) -> [f32; 2] {
+pub fn rotacionar_ponto_y(vec_y: f32, vec_z: f32, rad: f32) -> [f32; 2] {
 
     let raio = libm::sqrtf(libm::powf(vec_y, 2.0) + libm::powf(vec_z, 2.0));
 

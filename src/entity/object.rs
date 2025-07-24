@@ -1,8 +1,7 @@
 use crate::graphic::visualrep::Visual;
-use crate::graphic::visualrep::rotacionarPontoX;
-use crate::graphic::visualrep::rotacionarPontoY;
+use crate::graphic::visualrep::rotacionar_ponto_x;
+use crate::graphic::visualrep::rotacionar_ponto_y;
 
-use ::gl::types::*;
 
 pub struct Object {
     points: Vec<f32>,
@@ -10,8 +9,6 @@ pub struct Object {
     pub is_viewed: bool,
     pub visual: Option<Visual>,
 }
-
-// impl Copy for Object { }
 
 impl Object {
     
@@ -52,7 +49,7 @@ impl Object {
         Self{points, map, is_viewed: false, visual: None}
     }
 
-    pub fn verifyOnScreen(&mut self, position: [f32; 3], mira: [f32; 3]) -> bool {
+    pub fn verify_on_screen(&mut self, position: [f32; 3], mira: [f32; 3]) -> bool {
         let x_factor = mira[0] - position[0];
         let y_factor = mira[1] - position[1];
         let z_factor = mira[2] - position[2];
@@ -68,7 +65,7 @@ impl Object {
             let y_ratio = self.points[index+1] - position[1];
             let z_ratio = self.points[index+2] - position[2];
 
-            let new_x_z = rotacionarPontoX(x_ratio, z_ratio, libm::atan2f(x_factor, z_factor));
+            let new_x_z = rotacionar_ponto_x(x_ratio, z_ratio, libm::atan2f(x_factor, z_factor));
 
             println!("{}, {}", new_x_z[0], new_x_z[1]);
 
@@ -91,18 +88,16 @@ impl Object {
                 let y_ratio = self.points[index+1] - position[1];
                 let z_ratio = self.points[index+2] - position[2];
 
-                let new_x_z = rotacionarPontoX(x_ratio, z_ratio, libm::atan2f(x_factor, z_factor));
-                let mut new_y = rotacionarPontoY(y_ratio, z_ratio, libm::atan2f(y_factor, z_factor))[0];
+                let new_x_z = rotacionar_ponto_x(x_ratio, z_ratio, libm::atan2f(x_factor, z_factor));
+                let mut new_y = rotacionar_ponto_y(y_ratio, z_ratio, libm::atan2f(y_factor, z_factor))[0];
 
-                if (y_ratio < 0.0 && new_y > 0.0) {
+                if y_ratio < 0.0 && new_y > 0.0 {
                     new_y *= -1.0;
                 } // Solução preguiçosa pq eu só quero marcar essa parte como concluida
 
-                //println!("{} - {}", new_y_z, new_y_x);
-
                 let hipotenusa = libm::sqrtf(libm::powf(new_x_z[0], 2.0) + libm::powf(new_x_z[1], 2.0));
 
-                let mut visual_w = hipotenusa;
+                let visual_w = hipotenusa;
 
                 let visual_x = new_x_z[0] * 2.0;
                 let visual_y = new_y      * 2.0;
@@ -113,7 +108,6 @@ impl Object {
                 posicao_relativa.push(visual_z);
                 posicao_relativa.push(visual_w);
 
-                //println!("x: {}, y: {}, z: {}, w: {}", visual_x, visual_y, visual_z, visual_w);
             }
 
             self.visual = Some(Visual::new(posicao_relativa, &self.map, gl::TRIANGLES));

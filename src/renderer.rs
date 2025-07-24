@@ -42,34 +42,6 @@ impl Renderer {
 
         objetos.push(objeto);
 
-        //let visual1 = Visual::new(vec![ 0.0,  0.5,  0.0,  0.0, 0.0, 1.0,
-        //                               -0.5, -0.5,  0.5,  0.0, 0.0, 1.0,
-        //                                0.5, -0.5,  0.5,  0.0, 0.0, 0.0,
-
-        //                                0.0,  0.5,  0.0,  0.0, 1.0, 0.0,
-        //                              -0.5, -0.5, -0.5,  0.0, 1.0, 0.0,
-        //                                0.5, -0.5, -0.5,  0.0, 1.0, 0.0,
-
-        //                                0.0,  0.5,  0.0,  1.0, 0.0, 0.0,
-        //                               -0.5, -0.5, -0.5,  1.0, 0.0, 0.0,
-        //                               -0.5, -0.5,  0.5,  1.0, 0.0, 0.0,
-
-        //                                0.0,  0.5,  0.0,  0.0, 1.0, 1.0,
-        //                                0.5, -0.5, -0.5,  0.0, 1.0, 1.0,
-        //                                0.5, -0.5,  0.5,  0.0, 1.0, 1.0,
-
-        //                               -0.5, -0.5,  0.5,   1.0, 0.5, 0.7,
-        //                                0.5, -0.5,  0.5,   1.0, 0.5, 0.7,
-        //                               -0.5, -0.5, -0.5,   1.0, 0.5, 0.7,
-
-        //                               -0.5, -0.5, -0.5,   1.0, 0.5, 0.7,
-        //                                0.5, -0.5, -0.5,   1.0, 0.5, 0.7,
-        //                                0.5, -0.5,  0.5,   1.0, 0.5, 0.7,
-        //                              ],
-        //                         gl::TRIANGLES);
-        
-        //objetos.push(visual1);
-
         unsafe {
             let gl = gl::Gl::load_with(|symbol| {
                 let symbol = CString::new(symbol).unwrap();
@@ -109,35 +81,15 @@ impl Renderer {
             let mut vbo = std::mem::zeroed();
             gl.GenBuffers(1, &mut vbo);
             gl.BindBuffer(gl::ARRAY_BUFFER, vbo);
-
-            //let mut len = 0;
-            // let mut vetores = Vec::new();
-
-            //for i in 0..objetos.len() {
-            //    len += objetos[i].vertex.len();
-            //    vetores.extend(objetos[i].vertex.iter().cloned());
-            //}
-
-            //gl.BufferData(
-            //    gl::ARRAY_BUFFER,
-            //    (len * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
-            //    vetores.as_ptr() as *const _,
-            //    gl::STATIC_DRAW,
-            //);
             
             let mut vetores = Vec::<f32>::new();
 
             for i in 0..objetos.len() {
              
-                if objetos[i].verifyOnScreen(player.position, player.mira) {
+                if objetos[i].verify_on_screen(player.position, player.mira) {
                     let grap_rep = objetos[i].visual.as_ref().unwrap();
                     vetores.extend(grap_rep.vertex.iter().cloned());
                 }
-            }
-
-            for i in 0..vetores.len() / 6 {
-                let index = i * 6;
-                //println!("x: {}, y: {}, z: {}, r: {}, g: {}, b: {}", vetores[index], vetores[index+1], vetores[index+2], vetores[index+3], vetores[index+4], vetores[index+5]);
             }
 
             gl.BufferData(
@@ -179,23 +131,17 @@ impl Renderer {
         self.draw_with_clear_color(0.1, 0.1, 0.1, 1.0)
     }
 
-    pub fn update(&mut self, x: f32, y: f32/*, dir: f32, esq: f32*/) {        
+    pub fn update(&mut self, x: f32, y: f32) {        
         unsafe {
 
-            self.player.rotateViewX(x);
-            self.player.moveRelativeX(y);
-            //self.player.rotateViewY(y);
-
-            /*
-            self.player.walk_right(dir);
-            self.player.walk_left(esq);
-            */
+            self.player.rotate_view_x(x);
+            self.player.move_relative_x(y);
 
             let mut vetores = Vec::<f32>::new();
 
             for i in 0..self.objetos.len() {
              
-                if self.objetos[i].verifyOnScreen(self.player.position, self.player.mira) {
+                if self.objetos[i].verify_on_screen(self.player.position, self.player.mira) {
                     let grap_rep = self.objetos[i].visual.as_ref().unwrap();
                     vetores.extend(grap_rep.vertex.iter().cloned());
                 }
