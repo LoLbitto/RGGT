@@ -3,15 +3,12 @@ use std::num::NonZeroU32;
 
 use crate::renderer::Renderer;
 
-use std::time::{Duration, Instant};
-use std::thread::sleep;
 
 use raw_window_handle::HasWindowHandle;
 use winit::application::ApplicationHandler;
-use winit::event::{KeyEvent, WindowEvent, ElementState};
+use winit::event::{WindowEvent, ElementState};
 use winit::event_loop::{ActiveEventLoop, ControlFlow};
-use winit::keyboard::{Key, NamedKey, SmolStr};
-use winit::window::{Window, WindowAttributes, WindowId, CursorGrabMode};
+use winit::window::{Window, WindowAttributes, WindowId};
 use winit::dpi::{PhysicalPosition, PhysicalSize};
 
 use glutin::config::{Config, ConfigTemplateBuilder, GetGlConfig};
@@ -44,6 +41,7 @@ pub struct App {
     exit_state: Result<(), Box<dyn Error>>,
 
     player: Player,
+    pub is_running: bool
 }
 
 impl App {
@@ -56,7 +54,13 @@ impl App {
             state: None,
             renderer: None,
             player: Player::new(),
+            is_running: true
         }
+    }
+
+    pub fn update(&mut self) {
+        self.player.update();
+        self.renderer.as_mut().unwrap().update();
     }
 }
 
@@ -207,6 +211,7 @@ impl ApplicationHandler for App {
         match event {
             WindowEvent::CloseRequested => {
                 println!("Fechando");
+                self.is_running = false;
                 event_loop.exit();
             },
 
@@ -261,10 +266,10 @@ impl ApplicationHandler for App {
             },
 
             WindowEvent::CursorMoved { position, ..} => {
-                let mut state = self.state.as_mut().unwrap();
+                let state = self.state.as_mut().unwrap();
                 let cursor_grab = &state.cursor_grab;
 
-                if (cursor_grab.is_lock){
+                if cursor_grab.is_lock {
                     self.player.change_view(position, cursor_grab.position);
                     state.window.set_cursor_position(cursor_grab.position);
                 }
@@ -287,9 +292,6 @@ impl ApplicationHandler for App {
             }
             _ => (),
         }
-        
-        self.player.update();
-        self.renderer.as_mut().unwrap().update();
         
         event_loop.set_control_flow(ControlFlow::Poll);
     }
