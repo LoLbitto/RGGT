@@ -50,7 +50,7 @@ impl Player {
         self.mira[0] = new_x_z[0] + self.position[0];
         self.mira[2] = new_x_z[1] + self.position[2];
 
-        println!("*mira* x: {}, y: {}, z: {}", self.mira[0], self.mira[1], self.mira[2]);
+        //println!("*mira* x: {}, y: {}, z: {}", self.mira[0], self.mira[1], self.mira[2]);
     }
 
    pub fn rotate_view_y (&mut self, angle: f32) {
@@ -68,12 +68,16 @@ impl Player {
         let sen = z_ratio / hip; // se tiver totalmente no Z, só levamos em consideração ele
         let cos = x_ratio / hip; // mesmo aqui
         
-        let x_y = rotacionar_ponto_x(x_ratio, y_ratio, angle);
-        let z_y = rotacionar_ponto_x(z_ratio, y_ratio, angle);
+        let x_y = rotacionar_ponto_x(x_ratio, y_ratio, angle * cos);
+        let z_y = rotacionar_ponto_x(z_ratio, y_ratio, angle * sen);    
+        
+        let new_y = x_y[1] + z_y[1] - y_ratio + self.position[1];
 
-        let new_y = x_y[1] * cos + z_y[1] * sen;
-
+        self.mira[0] = x_y[0] + self.position[0];
         self.mira[1] = new_y;
+        self.mira[2] = z_y[0] + self.position[2];
+
+        println!("*mira* x: {}, y: {}, z: {}", self.mira[0], self.mira[1], self.mira[2]);
     }
 
     pub fn move_relative_z(&mut self, speed: f32) {
@@ -120,8 +124,11 @@ impl Player {
         let width_ratio = meio.x - position.x;
         let height_ratio = meio.y - position.y;
 
-        self.rotate_view_x(width_ratio as f32 / 100.0);
-        //self.rotate_view_y(-height_ratio as f32);
+        let ratio_x = meio.x / meio.y;
+        let ratio_y = meio.y / meio.x;
+
+        self.rotate_view_x(width_ratio as f32 / 150.0 * ratio_x as f32);
+        self.rotate_view_y(-height_ratio as f32 / 150.0 * ratio_y as f32);
 
     }
 }
