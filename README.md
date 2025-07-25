@@ -6,6 +6,10 @@
 
 # DevLog
 
+## Videos
+
+ - https://youtube.com/playlist?list=PLqe3Cbp7qgBD8I-2UTlq2cDyvmoSybPSt&si=vNwHeFgaZeUEaaE2
+
 ## 09/07/2025
 
    Hoje resolvi começar uma DevLog, para anotar o procedimento de desenvolvimento do projeto.
@@ -30,11 +34,11 @@
 
    Fiz a movimentação 3D de uma pirâmide, mas não está 100% funcionando, existe algum erro
 
-   1° Versão: *Olhar na pasta assetsLog/videos*
+   1° Versão: *video 1*
    
-   2° Versão com alguns erros arrumados: *Olhar na pasta assetsLog/videos*
+   2° Versão com alguns erros arrumados: *video 2*
 
-   3° Versão quase 100% certa: *Olhar na pasta assetsLog/videos*
+   3° Versão quase 100% certa: *video 3*
 
 ## 18/07/2025
 
@@ -49,3 +53,8 @@
 ## 23/07/2025
 
    Fiz o W das coordenadas ser dinâmico, e com isso quase todos os meus problemas se resolveram, mas ainda tenho um problema: a pirâmide não gira em torno da câmera, mas sim em torno de um eixo imaginário que fica no espaço da camêra, mas acho que sei como resolver.
+
+## 24-25/07/2025
+
+   Não fiz devlog ontem, mas arrumei a renderização por perspectiva e coloquei a movimentação, inicialmente ela só ia para frente e, para se mover no eixo Z (repare que a camera está alinhada no X), você mexia a câmera para os lados usando as setas e depois se movia para frente.
+   Ontem também ajeitei os eventos do App e coloquei movimentação da câmera por mouse e do player por WASD. Fiz também um cursor grabber, você pode tirar da tela usando o ESC.
