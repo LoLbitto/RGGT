@@ -11,6 +11,8 @@ pub struct Player {
     pub d: bool,
 }
 
+unsafe impl Send for Player {}
+
 impl Player {
     pub fn new() -> Self {
         
@@ -124,11 +126,8 @@ impl Player {
         let width_ratio = meio.x - position.x;
         let height_ratio = meio.y - position.y;
 
-        let ratio_x = meio.x / meio.y;
-        let ratio_y = meio.y / meio.x;
-
-        self.rotate_view_x(width_ratio as f32 / 150.0 * ratio_x as f32);
-        self.rotate_view_y(-height_ratio as f32 / 150.0 * ratio_y as f32);
+        self.rotate_view_x(width_ratio as f32 / 300.0 );
+        self.rotate_view_y(-height_ratio as f32 / 300.0 );
 
     }
 }

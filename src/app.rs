@@ -1,8 +1,11 @@
 use std::error::Error;
 use std::num::NonZeroU32;
 
+use std::time::Duration;
+
 use crate::renderer::Renderer;
 
+use std::time::Instant;
 
 use raw_window_handle::HasWindowHandle;
 use winit::application::ApplicationHandler;
@@ -41,7 +44,7 @@ pub struct App {
     exit_state: Result<(), Box<dyn Error>>,
 
     player: Player,
-    pub is_running: bool
+    last_update: Instant,
 }
 
 impl App {
@@ -54,7 +57,7 @@ impl App {
             state: None,
             renderer: None,
             player: Player::new(),
-            is_running: true
+            last_update: Instant::now(),
         }
     }
 
@@ -211,7 +214,6 @@ impl ApplicationHandler for App {
         match event {
             WindowEvent::CloseRequested => {
                 println!("Fechando");
-                self.is_running = false;
                 event_loop.exit();
             },
 
@@ -292,8 +294,15 @@ impl ApplicationHandler for App {
             }
             _ => (),
         }
-        
-        event_loop.set_control_flow(ControlFlow::Poll);
+ 
+        if (Instant::now() - self.last_update >= Duration::from_secs_f64(0.016)){
+            self.update();
+            self.last_update = Instant::now();
+        } else {
+            self.state.as_mut().unwrap().window.request_redraw();
+        }
+
+        //event_loop.set_control_flow(ControlFlow::Poll);
     }
 
     fn exiting(&mut self, _event_loop: &ActiveEventLoop) {
