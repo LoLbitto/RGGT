@@ -1,0 +1,6 @@
+
+
+struct PlayState {
+    mapa: Mapa,
+
+}
