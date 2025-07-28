@@ -1,7 +1,7 @@
 use crate::graphic::visualrep::Visual;
 use crate::graphic::visualrep::rotacionar_ponto_x;
 use crate::graphic::visualrep::rotacionar_ponto_y;
-
+use crate::resources::file_manager;
 
 pub struct Object {
     points: Vec<f32>,
@@ -12,39 +12,20 @@ pub struct Object {
 
 impl Object {
     
-    pub fn new() -> Self {
-        let points = vec![
-                          56.0,  5.0, 6.0,
-                          53.0,  0.0, 3.0,
-                          53.0,  0.0, 9.0,
-                          59.0,  0.0, 3.0,
-                          59.0,  0.0, 9.0,
-                         ];
-        let map = vec![
-                        0.0, 1.0, 2.0, 3.0, 0.0, 0.0, 1.0,
-                        4.0, 5.0, 6.0, 7.0, 0.0, 0.0, 1.0,
-                        8.0, 9.0, 10.0, 11.0, 0.0, 0.0, 1.0,
+    pub fn new(model: String) -> Self {
+        let (points, map) = file_manager::get_object(model);
 
-                        0.0, 1.0, 2.0, 3.0, 0.0, 1.0, 0.0,
-                        8.0, 9.0, 10.0, 11.0, 0.0, 1.0, 0.0,
-                        16.0, 17.0, 18.0, 19.0, 0.0, 1.0, 0.0,
+        println!("Pontos:");
 
-                        0.0, 1.0, 2.0, 3.0, 1.0, 0.0, 0.0,
-                        12.0, 13.0, 14.0, 15.0, 1.0, 0.0, 0.0,
-                        16.0, 17.0, 18.0, 19.0, 1.0, 0.0, 0.0,
+        for ponto in &points {
+            println!("{}", ponto);
+        }
 
-                        0.0, 1.0, 2.0, 3.0, 1.0, 1.0, 1.0,
-                        4.0, 5.0, 6.0, 7.0, 1.0, 1.0, 1.0,
-                        12.0, 13.0, 14.0, 15.0, 1.0, 1.0, 1.0,
+        println!("Map:");
 
-                        4.0, 5.0, 6.0, 7.0, 1.0, 0.0, 1.0,
-                        8.0, 9.0, 10.0, 11.0, 1.0, 0.0, 1.0,
-                        12.0, 13.0, 14.0, 15.0, 1.0, 0.0, 1.0,
-
-                        16.0, 17.0, 18.0, 19.0, 1.0, 0.0, 1.0,
-                        8.0, 9.0, 10.0, 11.0, 1.0, 0.0, 1.0,
-                        12.0, 13.0, 14.0, 15.0, 1.0, 0.0, 1.0,
-                      ];
+        for ponto in &map {
+            println!("{}", ponto);
+        }
 
         Self{points, map, is_viewed: false, visual: None}
     }

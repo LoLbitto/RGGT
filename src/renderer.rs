@@ -37,7 +37,7 @@ impl Renderer {
     pub fn new<D: GlDisplay>(gl_display: &D, player: *const Player) -> Self {
         
         let mut objetos = Vec::new();
-        let objeto = Object::new();
+        let objeto = Object::new("piramide".to_string());
 
         objetos.push(objeto);
 

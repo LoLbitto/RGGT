@@ -1,14 +1,16 @@
-#![windows_subsystem = "windows"]
+//#![windows_subsystem = "windows"]
 
 mod app;
 mod renderer;
 mod graphic;
 mod entity;
+mod resources;
 
 use std::sync::Mutex;
 
 use crate::app::App;
 use crate::app::window_attributes;
+use crate::resources::file_manager;
 
 use glutin_winit::DisplayBuilder;
 use winit::event_loop::EventLoop;
@@ -30,4 +32,6 @@ fn main() {
 
     event_loop.set_control_flow(ControlFlow::Wait);
     event_loop.run_app(&mut app);
+
+    file_manager::get_object("piramide".to_string());
 }

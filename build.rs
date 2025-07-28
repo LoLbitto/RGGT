@@ -5,6 +5,9 @@ use std::env;
 use std::fs::File;
 use std::path::PathBuf;
 
+use std::path::Path;
+use std::fs;
+
 use cfg_aliases::cfg_aliases;
 use gl_generator::{Api, Fallbacks, Profile, Registry, StructGenerator};
 
@@ -40,4 +43,34 @@ fn main() {
     Registry::new(Api::Gles2, (3, 0), Profile::Core, Fallbacks::All, [])
         .write_bindings(StructGenerator, &mut file)
         .unwrap();
+
+    let pastaExe = env::var("PROFILE").unwrap();
+    let pastaExe = PathBuf::from(format!("target/{}/{}", pastaExe, "resources"));
+
+    if pastaExe.exists() {
+        fs::remove_dir_all(&pastaExe).unwrap();
+    }
+
+    fs::create_dir(&pastaExe).unwrap();
+
+    copy_dir("resources", &pastaExe);
+}
+
+fn copy_dir<P: AsRef<Path>, Q: AsRef<Path>> (de: P, para: Q) {
+    let para = para.as_ref().to_path_buf();
+
+    for caminho in fs::read_dir(de).unwrap() {
+        let caminho = caminho.unwrap().path();
+        let para = para.clone().join(caminho.file_name().unwrap());
+
+        if caminho.is_file() {
+            fs::copy(caminho, para).unwrap();
+        } else if caminho.is_dir() {
+            if !para.exists() {
+                fs::create_dir(&para).unwrap();
+            }
+
+            copy_dir(&caminho, para);
+        }
+    }
 }
