@@ -1,7 +1,7 @@
 use std::fs;
 
 pub fn get_object(nome: String) -> (Vec<f32>, Vec<f32>) {
-    let dados = fs::read_to_string("resources/".to_owned() + &nome + ".rgm").expect("Deveria abrir o arquivo");
+    let dados = fs::read_to_string("resources/models/".to_owned() + &nome + ".rgm").expect("Deveria abrir o arquivo");
     
     let mut points = Vec::<f32>::new();
     let mut map = Vec::<f32>::new();
