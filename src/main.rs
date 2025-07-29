@@ -1,9 +1,8 @@
 //#![windows_subsystem = "windows"]
 
 mod app;
-mod renderer;
 mod graphic;
-mod entity;
+mod logical;
 mod resources;
 
 use std::sync::Mutex;

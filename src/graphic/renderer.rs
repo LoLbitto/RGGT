@@ -4,8 +4,7 @@ use std::ffi::CString;
 use std::ops::Deref;
 use std::ffi::CStr;
 
-use crate::entity::object::Object;
-use crate::entity::player::Player;
+use crate::logical::entity::object::Object;
 
 pub mod gl {
     #![allow(clippy::all)]
@@ -28,13 +27,11 @@ pub struct Renderer {
 
     objetos: Vec<Object>,
 
-    player: *const Player,
-
     vetores: Vec<f32>,
 }
 
 impl Renderer {
-    pub fn new<D: GlDisplay>(gl_display: &D, player: *const Player) -> Self {
+    pub fn new<D: GlDisplay>(gl_display: &D) -> Self {
         
         let mut objetos = Vec::new();
         let objeto = Object::new("piramide".to_string());
@@ -80,16 +77,8 @@ impl Renderer {
             let mut vbo = std::mem::zeroed();
             gl.GenBuffers(1, &mut vbo);
             gl.BindBuffer(gl::ARRAY_BUFFER, vbo);
-            
-            let mut vetores = Vec::<f32>::new();
 
-            for i in 0..objetos.len() {
-             
-                if objetos[i].verify_on_screen((*player).position, (*player).mira) {
-                    let grap_rep = objetos[i].visual.as_ref().unwrap();
-                    vetores.extend(grap_rep.vertex.iter().cloned());
-                }
-            }
+            let vetores = vec![0.0]; /// ARRUMAR ISSO OWOWWOWO
 
             gl.BufferData(
                 gl::ARRAY_BUFFER,
@@ -122,7 +111,7 @@ impl Renderer {
 
             gl.Enable(gl::DEPTH_TEST);
             
-            Self { program, vao, vbo, gl, objetos, player, vetores}
+            Self { program, vao, vbo, gl, objetos, vetores}
         }
     }
 
@@ -130,28 +119,10 @@ impl Renderer {
         self.draw_with_clear_color(0.1, 0.1, 0.1, 1.0)
     }
 
-    pub fn update(&mut self) {        
+    pub fn update(&mut self, vetores: Vec<f32>) {        
         unsafe {
-            let mut vetores = Vec::<f32>::new();
-
-            for i in 0..self.objetos.len() {
-             
-                if self.objetos[i].verify_on_screen((*self.player).position, (*self.player).mira) {
-                    let grap_rep = self.objetos[i].visual.as_ref().unwrap();
-                    vetores.extend(grap_rep.vertex.iter().cloned());
-                }
-            }
-
-            if vetores.len() == 0 {
-                vetores = Vec::<f32>::new();
-                for i in 0..self.vetores.len() {
-                    self.vetores[i] = 0.0;
-                }
-                vetores = self.vetores.clone();
-            } else {
-                self.vetores = vetores.clone();
-            }
-
+            // Refazer esse update com o buffer dinâmico
+            
             self.gl.BufferSubData(
                 gl::ARRAY_BUFFER,
                 0,
