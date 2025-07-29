@@ -14,12 +14,7 @@ pub struct Player {
 unsafe impl Send for Player {}
 
 impl Player {
-    pub fn new() -> Self {
-        
-        let position = [5.0, 5.0, 0.0];
-
-        let mira = [position[0] + 5.0, position[1], position[2]];
-
+    pub fn new(position: [f32; 3], mira: [f32;3]) -> Self {
         let fov = 30;
 
         Self{position, mira, fov, w: false, a: false, s: false, d: false}

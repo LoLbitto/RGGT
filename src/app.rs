@@ -1,11 +1,11 @@
 use std::error::Error;
 use std::num::NonZeroU32;
-
 use std::time::Duration;
+use std::time::Instant;
 
 use crate::graphic::renderer::Renderer;
-
-use std::time::Instant;
+use crate::states::State;
+use crate::states::play_state::PlayState;
 
 use raw_window_handle::HasWindowHandle;
 use winit::application::ApplicationHandler;
@@ -39,8 +39,10 @@ pub struct App {
     gl_context: Option<PossiblyCurrentContext>,
     gl_display: GlDisplayCreationState,
     exit_state: Result<(), Box<dyn Error>>,
-
+    
     last_update: Instant,
+
+    gamestate: Option<Box<dyn State>>
 }
 
 impl App {
@@ -53,17 +55,20 @@ impl App {
             state: None,
             renderer: None,
             last_update: Instant::now(),
+            gamestate: None
         }
     }
 
     pub fn update(&mut self) {
-        self.renderer.as_mut().unwrap().update(vec![0.0]);
+        let state = self.gamestate.as_mut().unwrap();
+        state.update();
+        self.renderer.as_mut().unwrap().update(state.get_vertices());
     }
 }
 
-struct AppState {
+pub struct AppState {
     gl_surface: Surface<WindowSurface>,
-    window: Window,
+    pub window: Window,
 }
 
 impl ApplicationHandler for App {
@@ -148,6 +153,8 @@ impl ApplicationHandler for App {
         // o "replace" retorna o valor antigo, e esse valor tem q ser vazio, caso contrario ele
         // retornará "false" e o programa soltará um erro
         assert!(self.state.replace(AppState { gl_surface, window}).is_none());
+        
+        self.gamestate.replace(PlayState::new("teste".to_string(), self.state.as_mut().unwrap()) as Box<dyn State>);
     }
 
     fn suspended(&mut self, _event_loop: &ActiveEventLoop) {
@@ -168,6 +175,9 @@ impl ApplicationHandler for App {
 
 
     fn window_event (&mut self, event_loop: &ActiveEventLoop, id: WindowId, event: WindowEvent) {
+        
+        let state = self.gamestate.as_mut().unwrap();
+        
         match event {
             WindowEvent::CloseRequested => {
                 println!("Fechando");
@@ -175,15 +185,15 @@ impl ApplicationHandler for App {
             },
 
             WindowEvent::KeyboardInput { event, ..} => {
-                   
+                state.manage_keyboard_input(event);
             },
 
             WindowEvent::CursorMoved { position, ..} => {
-                
+                state.manage_mouse_movement(position);
             },
 
             WindowEvent::MouseInput {..} => {
-                
+                state.manage_mouse_input(event);
             }
 
             WindowEvent::Resized(size) => {

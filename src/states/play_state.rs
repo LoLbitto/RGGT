@@ -1,59 +1,62 @@
 use crate::logical::mapa::Mapa;
-use crate::logical::entity::Player;
+use crate::logical::entity::player::Player;
 use crate::resources::file_manager;
-
-use crate::App;
+use crate::app::AppState;
+use crate::states::State;
 
 use winit::dpi::{PhysicalPosition, PhysicalSize};
-
+use winit::event::KeyEvent;
 use winit::event::WindowEvent;
 use winit::window::Window;
+use winit::event::ElementState;
 
-struct PlayState<M: Mapa> {
-    mapa: M,
+pub struct PlayState {
+    mapa: Box<dyn Mapa>,
     player: Player,
     vetores: Vec<f32>,
-    app_state: &mut AppState,
-    cursor_grab: CursorGrab
+    app_state: *const AppState,
+    cursor_grab: CursorGrabber
 }
 
 impl PlayState {
-    pub fn new(mapa: String, app_state: &mut AppState ) -> Self {
-        let mapa = file_manager::get_map(mapa);
-        let player = Player::new(mapa.get_start_position()); // N sei se retornar os 2 valores                                                     
-                                                             // assim dá certo, vamos ver
-        
+    pub fn new(data: String, app_state: &mut AppState ) -> Box<Self> {
+        let mapa = Box::new(file_manager::get_map(data));
+        let (player_pos, mira) = mapa.get_start_position();
+        let player = Player::new(*player_pos, *mira);                 
         let vetores = vec![0.0];                             // futuramente vai ter q adicionar a GUI
         
         let cursor_grab = CursorGrabber::new(app_state.window.inner_size());
 
         app_state.window.set_cursor_visible(false);
 
-        Self{mapa, player, vetores, app_state, cursor_grab}
+        Box::new(Self{mapa, player, vetores, app_state, cursor_grab})
     }
+
 }
 
 impl State for PlayState {
-    pub fn get_vertices(&self) -> Vec<f32> {
-        self.vetores
+
+    fn get_vertices(&self) -> &Vec<f32> {
+        &self.vetores
     }
 
-    pub fn update(&mut self) {
-        let vetores = Vec::<f32>::new();
+    fn update(&mut self) {
+        let mut vetores = Vec::<f32>::new();
 
-        for i in 0..self.objetos.len() {
+        for i in 0..self.mapa.get_objects().len() {
              
-            if self.objetos[i].verify_on_screen((*self.player).position, (*self.player).mira) {
-                let grap_rep = self.objetos[i].visual.as_ref().unwrap();
+            if self.mapa.get_objects()[i].verify_on_screen(self.player.position, self.player.mira) {
+                let grap_rep = self.mapa.get_objects()[i].visual.as_ref().unwrap();
                 vetores.extend(grap_rep.vertex.iter().cloned());
             }
         }
 
         self.vetores = vetores;
+        self.player.update();
 
     }
 
-    pub fn manage_keyboard_input(&mut self, event: WindowEvent) {
+    fn manage_keyboard_input(&mut self, event: KeyEvent) {
         if !event.repeat {
             let char = event.logical_key.to_text();
 
@@ -93,7 +96,9 @@ impl State for PlayState {
                     
                     "\x1b" => {
                         self.cursor_grab.change_lock(false);
-                        self.appState.window.set_cursor_visible(true);
+                        unsafe {
+                            (*self.app_state).window.set_cursor_visible(true);
+                        }
                     },
 
                     &_ => {
@@ -103,19 +108,22 @@ impl State for PlayState {
         }
     }
 
-    pub fn manage_mouse_input(&mut self, evento: WindowEvent) {
+    fn manage_mouse_input(&mut self, evento: WindowEvent) {
         if !self.cursor_grab.is_lock {
             self.cursor_grab.change_lock(true);
-            self.appState.window.set_cursor_visible(false);
+            unsafe {
+                (*self.app_state).window.set_cursor_visible(false);
+            }
         }
     }
 
-    pub fn manage_mouse_movement(&mut self, position: PhysicalPosition<f64>) {
-        let state = self.state.as_mut().unwrap();
+    fn manage_mouse_movement(&mut self, position: PhysicalPosition<f64>) {
 
         if self.cursor_grab.is_lock {
             self.player.change_view(position, self.cursor_grab.position);
-            app_state.window.set_cursor_position(self.cursor_grab.position);
+            unsafe {
+                (*self.app_state).window.set_cursor_position(self.cursor_grab.position);
+            }
         }
     }
 

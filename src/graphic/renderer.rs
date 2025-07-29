@@ -82,7 +82,7 @@ impl Renderer {
 
             gl.BufferData(
                 gl::ARRAY_BUFFER,
-                (vetores.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
+                (16000 * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
                 vetores.as_ptr() as *const _,
                 gl::STATIC_DRAW,
             );
@@ -119,7 +119,7 @@ impl Renderer {
         self.draw_with_clear_color(0.1, 0.1, 0.1, 1.0)
     }
 
-    pub fn update(&mut self, vetores: Vec<f32>) {        
+    pub fn update(&mut self, vetores: &Vec<f32>) {        
         unsafe {
             // Refazer esse update com o buffer dinâmico
             

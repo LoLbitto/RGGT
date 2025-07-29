@@ -4,6 +4,7 @@ mod app;
 mod graphic;
 mod logical;
 mod resources;
+mod states;
 
 use std::sync::Mutex;
 
@@ -32,5 +33,4 @@ fn main() {
     event_loop.set_control_flow(ControlFlow::Wait);
     event_loop.run_app(&mut app);
 
-    file_manager::get_object("piramide".to_string());
 }

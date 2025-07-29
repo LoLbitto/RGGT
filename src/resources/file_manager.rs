@@ -1,5 +1,9 @@
 use std::fs;
 
+use crate::logical::mapa::Mapa;
+use crate::logical::mapa::DefaultMap;
+use crate::logical::entity::object::Object;
+
 pub fn get_object(nome: String) -> (Vec<f32>, Vec<f32>) {
     let dados = fs::read_to_string("resources/models/".to_owned() + &nome + ".rgm").expect("Deveria abrir o arquivo");
     
@@ -50,3 +54,10 @@ pub fn get_object(nome: String) -> (Vec<f32>, Vec<f32>) {
 
     (points, map)
 } 
+
+pub fn get_map(nome: String) -> impl Mapa { // Por enquanto vai funcionar de mentirinha
+    let objeto = Object::new("piramide".to_string());
+    let vec = vec![objeto];
+
+    DefaultMap::new(vec, [10.0, 5.0, 15.0], [15.0, 5.0, 15.0])
+}
