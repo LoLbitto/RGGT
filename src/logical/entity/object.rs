@@ -12,8 +12,23 @@ pub struct Object {
 
 impl Object {
     
-    pub fn new(model: String) -> Self {
-        let (points, map) = file_manager::get_object(model);
+    pub fn new(model: String, position: Vec<f32>, scale: f32) -> Self {
+        let (mut points, mut map) = file_manager::get_object(model);
+
+        for j in 0..points.len()/3 {
+            let i = j * 3;
+
+            points[i] *= scale;
+            points[i+1] *= scale;
+            points[i+2] *= scale;
+
+
+            points[i] += position[0];
+            points[i+1] += position[1];
+            points[i+2] += position[2];
+        
+            println!("x: {}, y: {}, z: {}", points[i], points[i+1], points[i+2])
+        } 
 
         println!("Pontos:");
 

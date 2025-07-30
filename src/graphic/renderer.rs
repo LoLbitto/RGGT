@@ -25,18 +25,11 @@ pub struct Renderer {
     // comunicador com o opengl ou coisa parecida
     gl: gl::Gl,
 
-    objetos: Vec<Object>,
-
     vetores: Vec<f32>,
 }
 
 impl Renderer {
     pub fn new<D: GlDisplay>(gl_display: &D) -> Self {
-        
-        let mut objetos = Vec::new();
-        let objeto = Object::new("piramide".to_string());
-
-        objetos.push(objeto);
 
         unsafe {
             let gl = gl::Gl::load_with(|symbol| {
@@ -111,7 +104,7 @@ impl Renderer {
 
             gl.Enable(gl::DEPTH_TEST);
             
-            Self { program, vao, vbo, gl, objetos, vetores}
+            Self { program, vao, vbo, gl, vetores}
         }
     }
 

@@ -74,7 +74,7 @@ impl Player {
         self.mira[1] = new_y;
         self.mira[2] = z_y[0] + self.position[2];
 
-        println!("*mira* x: {}, y: {}, z: {}", self.mira[0], self.mira[1], self.mira[2]);
+        //println!("*mira* x: {}, y: {}, z: {}", self.mira[0], self.mira[1], self.mira[2]);
     }
 
     pub fn move_relative_z(&mut self, speed: f32) {

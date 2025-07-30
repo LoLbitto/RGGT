@@ -3,6 +3,7 @@ use crate::logical::entity::player::Player;
 use crate::resources::file_manager;
 use crate::app::AppState;
 use crate::states::State;
+use crate::logical::mapa;
 
 use winit::dpi::{PhysicalPosition, PhysicalSize};
 use winit::event::KeyEvent;
@@ -20,7 +21,7 @@ pub struct PlayState {
 
 impl PlayState {
     pub fn new(data: String, app_state: &mut AppState ) -> Box<Self> {
-        let mapa = Box::new(file_manager::get_map(data));
+        let mapa: Box<dyn Mapa> = Box::new(mapa::DefaultMap::new("main".to_string()));
         let (player_pos, mira) = mapa.get_start_position();
         let player = Player::new(*player_pos, *mira);                 
         let vetores = vec![0.0];                             // futuramente vai ter q adicionar a GUI

@@ -1,4 +1,5 @@
 use crate::logical::entity::object::Object;
+use crate::resources::file_manager::get_map;
 
 pub trait Mapa {
     fn get_objects(&mut self) -> &mut Vec<Object>;
@@ -16,7 +17,9 @@ pub struct DefaultMap {
 }
 
 impl DefaultMap {
-    pub fn new(objects: Vec<Object>, start_position: [f32; 3], start_aim: [f32; 3]) -> Self {
+    pub fn new(nome: String) -> Self {
+        let objects = get_map(nome);
+        let (start_position, start_aim) = ([0.0, 5.0, 0.0], [5.0, 5.0, 0.0]);
         Self {objects, start_position, start_aim}
     }
 }

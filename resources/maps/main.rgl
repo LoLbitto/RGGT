@@ -1,1 +1,11 @@
+<models>
+	<model id = "0" name = "piramide">
+</models>
 
+<map>
+
+	<object id = "0" pos = "50.0, 0.0, 20.0" scale = "5.0">
+	<object id = "0" pos = "50.0, 0.0, 200.0" scale = "3.0">
+	<object id = "0" pos = "100.0, 0.0, 20.0" scale = "10.0">
+
+</map>
