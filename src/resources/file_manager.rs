@@ -212,7 +212,7 @@ pub fn get_map(nome: String) -> Vec<Object> { // Por enquanto vai funcionar de m
 
                                                     "pos" => {
                                                         let values: Vec<&str> = word2.split(",").collect();
-                                                        for i in 0..2 {
+                                                        for i in 0..3 {
                                                             //if i+1 < values.len(){
                                                             pos[i] = values[i].parse::<f32>().unwrap();
                                                             println!("Ué: {}", values[i]);
