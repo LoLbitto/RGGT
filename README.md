@@ -58,3 +58,11 @@
 
    Não fiz devlog ontem, mas arrumei a renderização por perspectiva e coloquei a movimentação, inicialmente ela só ia para frente e, para se mover no eixo Z (repare que a camera está alinhada no X), você mexia a câmera para os lados usando as setas e depois se movia para frente.
    Ontem também ajeitei os eventos do App e coloquei movimentação da câmera por mouse e do player por WASD. Fiz também um cursor grabber, você pode tirar da tela usando o ESC.
+
+## 28-30/07/2025
+
+   Ok, vou resumir o que eu fiz nesses últimos dias.
+   Basicamente, nenhuma mudança visual muito expressiva foi feita, na verdade eu passei esses últimos dias organizando o código e preparando para mudanças futuras.
+   Uma mudança expressiva foi tirar a maioria da parte lógica das Structs responsáveis pela renderização e manejamento da aplicação. Eu basicamente criei uma trait genéria "State", que tem funções que vão manejar todos os inputs e também o update da parte gráfica. Isso é muito bom, pois permite a criação de diversos estados da aplicação com as mais diversas funções sem ter que mexer nas structs principais, tudos está bem abstraido.
+   Além disso, eu criei arquivos RGL e RGM - Rust Game Level e Rust Game Model respectivamente - que são arquivos que vão armazenar informações dos mapas e dos modelos, fazendo com que eu possa editar ambos sem ter que recompilar o programa toda vez. E isso também prepara o terreno para o futuro modelador e criador de mapas que irá ser implementado na engine. Para ler esses arquivos eu tive que criar um interpretador de uma linguagem super simples que eu acabei criando.
+   Além do mais, eu organizei melhor a estrutura de arquivos.
