@@ -78,7 +78,7 @@ impl Visual {
             let vec_x = x + self.main_axis_x * -1.0;
             let vec_z  = z + self.main_axis_z * -1.0;
 
-            let new_coords = rotacionar_ponto_x(vec_x, vec_z, angle * 57.2958);
+            let new_coords = rotacionar_ponto(vec_x, vec_z, angle * 57.2958);
 
             self.vertex[index] = new_coords[0];
             self.vertex[index+2] = new_coords[1];
@@ -93,39 +93,25 @@ impl Visual {
             let vec_y = self.vertex[index+1];
             let vec_z = self.vertex[index+2];
 
-            let new_coords = rotacionar_ponto_y(vec_y, vec_z, angle * 57.2958);
+            let new_coords = rotacionar_ponto(vec_z, vec_y, angle * 57.2958);
 
-            self.vertex[index+1] = new_coords[0];
-            self.vertex[index+2] = new_coords[1];
+            self.vertex[index+1] = new_coords[1];
+            self.vertex[index+2] = new_coords[0];
             
         }
     }
 }
 
-pub fn rotacionar_ponto_x(vec_x: f32, vec_z: f32, rad: f32) -> [f32; 2] {
+pub fn rotacionar_ponto(cos: f32, sen: f32, rad: f32) -> [f32; 2] {
 
-    let raio = libm::sqrtf(libm::powf(vec_z, 2.0) + libm::powf(vec_x, 2.0));
+    let raio = libm::sqrtf(libm::powf(sen, 2.0) + libm::powf(cos, 2.0));
 
-    let ang_rad = atan2f(vec_z, vec_x);
-
-    let ang_final = ang_rad + rad;         
-    
-    let new_x = libm::cosf(ang_final) * raio;
-    let new_z = libm::sinf(ang_final) * raio;   
-
-    return [new_x, new_z]
-} // NOTE: fodase isso aqui, as duas funções são iguais lol
-
-pub fn rotacionar_ponto_y(vec_y: f32, vec_z: f32, rad: f32) -> [f32; 2] {
-
-    let raio = libm::sqrtf(libm::powf(vec_y, 2.0) + libm::powf(vec_z, 2.0));
-
-    let ang_rad = atan2f(vec_y, vec_z);
+    let ang_rad = atan2f(sen, cos);
 
     let ang_final = ang_rad + rad;         
     
-    let new_y = libm::sinf(ang_final) * raio;
-    let new_z = libm::cosf(ang_final) * raio;   
+    let new_cos = libm::cosf(ang_final) * raio;
+    let new_sen = libm::sinf(ang_final) * raio;   
 
-    return [new_y, new_z]
+    return [new_cos, new_sen]
 }

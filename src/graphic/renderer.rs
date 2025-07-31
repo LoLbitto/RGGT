@@ -71,17 +71,18 @@ impl Renderer {
             gl.GenBuffers(1, &mut vbo);
             gl.BindBuffer(gl::ARRAY_BUFFER, vbo);
 
-            let vetores = vec![0.0]; /// ARRUMAR ISSO OWOWWOWO
+            let vetores = vec![0.0];
 
             gl.BufferData(
                 gl::ARRAY_BUFFER,
-                (16000 * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
+                (vetores.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
                 vetores.as_ptr() as *const _,
                 gl::STATIC_DRAW,
             );
 
             let pos_attrib = gl.GetAttribLocation(program, b"position\0".as_ptr() as *const _);
             let color_attrib = gl.GetAttribLocation(program, b"color\0".as_ptr() as *const _);
+            
             gl.VertexAttribPointer(
                 pos_attrib as gl::types::GLuint,
                 4,
@@ -114,14 +115,30 @@ impl Renderer {
 
     pub fn update(&mut self, vetores: &Vec<f32>) {        
         unsafe {
-            // Refazer esse update com o buffer dinâmico
             
-            self.gl.BufferSubData(
-                gl::ARRAY_BUFFER,
-                0,
-                (vetores.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
-                vetores.as_ptr() as *const _,
-            );
+            if self.vetores.len() >= vetores.len() { 
+                for i in 0..self.vetores.len() {
+                    if i < vetores.len() {
+                        self.vetores[i] = vetores[i];
+                    } else {
+                        self.vetores[i] = 0.0;
+                    }
+                } // limpando o vetores
+                self.gl.BufferSubData(
+                    gl::ARRAY_BUFFER,
+                    0,
+                    (self.vetores.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
+                    self.vetores.as_ptr() as *const _,
+                );
+            } else {
+                self.vetores = vetores.clone();
+                self.gl.BufferData(
+                    gl::ARRAY_BUFFER,
+                    (vetores.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
+                    self.vetores.as_ptr() as *const _,
+                    gl::STATIC_DRAW,
+                );
+            }
         }
     }
 

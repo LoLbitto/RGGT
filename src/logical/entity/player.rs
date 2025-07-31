@@ -1,5 +1,5 @@
 use winit::dpi::PhysicalPosition;
-use crate::graphic::visualrep::rotacionar_ponto_x;
+use crate::graphic::visualrep::rotacionar_ponto;
 
 pub struct Player {
     pub position: [f32; 3],
@@ -42,7 +42,7 @@ impl Player {
         let x_ratio = x - self.position[0];
         let z_ratio  = z - self.position[2];
 
-        let new_x_z = rotacionar_ponto_x(x_ratio, z_ratio, angle);
+        let new_x_z = rotacionar_ponto(x_ratio, z_ratio, angle);
 
         self.mira[0] = new_x_z[0] + self.position[0];
         self.mira[2] = new_x_z[1] + self.position[2];
@@ -65,8 +65,8 @@ impl Player {
         let sen = z_ratio / hip; // se tiver totalmente no Z, só levamos em consideração ele
         let cos = x_ratio / hip; // mesmo aqui
         
-        let x_y = rotacionar_ponto_x(x_ratio, y_ratio, angle * cos);
-        let z_y = rotacionar_ponto_x(z_ratio, y_ratio, angle * sen);    
+        let x_y = rotacionar_ponto(x_ratio, y_ratio, angle * cos);
+        let z_y = rotacionar_ponto(z_ratio, y_ratio, angle * sen);    
         
         let new_y = x_y[1] + z_y[1] - y_ratio + self.position[1];
 
@@ -100,7 +100,7 @@ impl Player {
         let mira_ratio_x = self.mira[0] - self.position[0];
         let mira_ratio_z = self.mira[2] - self.position[2];
 
-        let new_mira_x_z = rotacionar_ponto_x(mira_ratio_x, mira_ratio_z, libm::asinf(1.0));
+        let new_mira_x_z = rotacionar_ponto(mira_ratio_x, mira_ratio_z, libm::asinf(1.0));
 
         let hip = libm::sqrtf(libm::powf(new_mira_x_z[0], 2.0) + libm::powf(new_mira_x_z[1], 2.0));
     
@@ -122,7 +122,7 @@ impl Player {
         let height_ratio = meio.y - position.y;
 
         self.rotate_view_x(width_ratio as f32 / 300.0 );
-        self.rotate_view_y(-height_ratio as f32 / 300.0 );
+        self.rotate_view_y(height_ratio as f32 / 300.0 );
 
     }
 }

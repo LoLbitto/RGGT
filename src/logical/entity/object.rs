@@ -1,6 +1,5 @@
 use crate::graphic::visualrep::Visual;
-use crate::graphic::visualrep::rotacionar_ponto_x;
-use crate::graphic::visualrep::rotacionar_ponto_y;
+use crate::graphic::visualrep::rotacionar_ponto;
 use crate::resources::file_manager;
 
 pub struct Object {
@@ -61,7 +60,7 @@ impl Object {
             let y_ratio = self.points[index+1] - position[1];
             let z_ratio = self.points[index+2] - position[2];
 
-            let new_x_z = rotacionar_ponto_x(x_ratio, z_ratio, libm::atan2f(x_factor, z_factor));
+            let new_x_z = rotacionar_ponto(x_ratio, z_ratio, libm::atan2f(x_factor, z_factor));
 
             let hip = libm::sqrtf(libm::powf(new_x_z[0], 2.0) + libm::powf(new_x_z[1], 2.0));
 
@@ -86,19 +85,18 @@ impl Object {
                 let y_ratio = self.points[index+1] - position[1];
                 let z_ratio = self.points[index+2] - position[2];
 
-                let new_x_z = rotacionar_ponto_x(x_ratio, z_ratio, libm::atan2f(x_factor, z_factor));
-
-                let z_factor_rot = rotacionar_ponto_x(x_factor, z_factor, libm::atan2f(x_factor, z_factor))[1];
-                let hip_y = libm::sqrtf(libm::powf(y_factor, 2.0) + libm::powf(z_factor_rot, 2.0));
-
-                let new_y_z = rotacionar_ponto_y(y_ratio, new_x_z[1], libm::asinf(y_factor / hip_y));
+                let new_x_z = rotacionar_ponto(x_ratio, z_ratio, libm::atan2f(x_factor, z_factor));
 
                 let hipotenusa = libm::sqrtf(libm::powf(x_ratio, 2.0) + libm::powf(z_ratio, 2.0) + libm::powf(y_ratio, 2.0));
-
                 let visual_w = hipotenusa;
 
+                let hip_y = libm::sqrtf(libm::powf(y_ratio, 2.0) + libm::powf(libm::sqrtf(libm::powf(x_ratio, 2.0) + libm::powf(z_ratio, 2.0)), 2.0));                
+                let extend_aim_y = ( y_factor / libm::sqrtf(libm::powf(y_factor, 2.0) + libm::powf(libm::sqrtf(libm::powf(x_factor, 2.0) + libm::powf(z_factor, 2.0)), 2.0)) ) * hip_y;
+                
+                let new_y = y_ratio - extend_aim_y;
+
                 let visual_x = new_x_z[0] * 2.0;
-                let visual_y = new_y_z[0] * 2.0;
+                let visual_y = new_y      * 2.0;
                 let visual_z = hipotenusa - 0.5;
 
                 //println!("{}", visual_z);
