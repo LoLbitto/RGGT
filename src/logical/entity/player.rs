@@ -126,7 +126,7 @@ impl Player {
         let height_ratio = meio.y - position.y;
 
         self.rotate_view_x(width_ratio as f32 / 300.0 );
-        self.rotate_view_y(height_ratio as f32 / 300.0 );
+        self.rotate_view_y(-height_ratio as f32 / 300.0 );
 
     }
 }
