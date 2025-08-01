@@ -87,19 +87,18 @@ impl Object {
 
                 let new_x_z = rotacionar_ponto(x_ratio, z_ratio, libm::atan2f(x_factor, z_factor));
 
-                let hipotenusa = libm::sqrtf(libm::powf(x_ratio, 2.0) + libm::powf(z_ratio, 2.0) + libm::powf(y_ratio, 2.0));
-                let visual_w = hipotenusa;
-
-                let hip_y = libm::sqrtf(libm::powf(y_ratio, 2.0) + libm::powf(libm::sqrtf(libm::powf(x_ratio, 2.0) + libm::powf(z_ratio, 2.0)), 2.0));                
-                let extend_aim_y = ( y_factor / libm::sqrtf(libm::powf(y_factor, 2.0) + libm::powf(libm::sqrtf(libm::powf(x_factor, 2.0) + libm::powf(z_factor, 2.0)), 2.0)) ) * hip_y;
+                let visual_w = new_x_z[1];
                 
-                let new_y = y_ratio - extend_aim_y;
+                let z_factor_rot = rotacionar_ponto(x_factor, z_factor, libm::atan2f(x_factor, z_factor))[1];
+                let hip_y = libm::sqrtf(libm::powf(y_factor, 2.0) + libm::powf(z_factor_rot, 2.0));
+
+                let new_y = rotacionar_ponto(new_x_z[1], y_ratio, libm::asinf(y_factor / hip_y));
 
                 let visual_x = new_x_z[0] * 2.0;
-                let visual_y = new_y      * 2.0;
-                let visual_z = hipotenusa - 0.5;
+                let visual_y = new_y[1]   * 2.0;
+                let visual_z = visual_w   - 0.5;
 
-                //println!("{}", visual_z);
+                println!("y: {}", visual_y);
 
                 posicao_relativa.push(visual_x);
                 posicao_relativa.push(visual_y);
