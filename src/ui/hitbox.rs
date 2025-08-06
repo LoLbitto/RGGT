@@ -14,7 +14,7 @@ impl Hitbox {
         Self{points_position, screen_size, real_position}
     }
 
-    pub fn change_position(&mut self, screen_size: Option<PhysicalSize<u32>>, new_position: Option<[f32; 8]>) {
+    pub fn update_position(&mut self, screen_size: Option<PhysicalSize<u32>>, new_position: Option<[f32; 8]>) {
         if screen_size != None {
             self.screen_size = screen_size.unwrap();
         }
@@ -24,6 +24,48 @@ impl Hitbox {
         }
 
         self.real_position = Self::calculate_real_position(self.points_position, self.screen_size);
+    }
+
+    pub fn contains(&self, position: PhysicalPosition<u32>) -> bool {
+        
+        let (pos_x, pos_y) = (position.x as f32, position.y as f32);
+
+        let (mut big_x, mut small_x, mut big_y, mut small_y) = (0.0, 0.0, 0.0, 0.0);
+
+        for i in 0..self.real_position.len()/2 {
+            let index = i * 2;
+
+            let point_x = self.real_position[index];
+            let point_y = self.real_position[index+1];
+
+            if point_x > big_x {
+                big_x = point_x;
+            } else if point_x < small_x {
+                small_x = point_x;
+            }
+
+            if point_y > big_y {
+                big_y = point_y;
+            } else if point_y < small_y {
+                small_y = point_y;
+            }
+        }
+        
+        let (mut is_inside_x, mut is_inside_y) = (false, false);
+
+        if pos_x <= big_x && pos_x >= small_x {
+            is_inside_x = true;
+        } 
+
+        if pos_y <= big_y && pos_y >= small_y {
+            is_inside_y = true;
+        }
+
+        if is_inside_x && is_inside_y {
+            true
+        } else {
+            false
+        }
     }
 
     fn calculate_real_position(pontos: [f32; 8], screen_size: PhysicalSize<u32>) -> [f32; 8] {
