@@ -4,11 +4,11 @@ use winit::dpi::{PhysicalPosition, PhysicalSize};
 struct Button {
     points: [f32; 8],
     hitbox: Hitbox,
-    id: u32,
+    pub id: u32,
 }
 
 impl Button {
-    pub fn new(pos: [f32; 2], height: f32, width: f32, screen_size: PhysicalSize<u32>, id: u32) -> Self {
+    pub fn new(pos: [f32; 2], width: f32, height: f32, id: u32) -> Self {
         let mut points = [0.0; 8];
 
         let x = pos[0];
@@ -39,6 +39,8 @@ impl Button {
                 _ => {}
             }
         }
+
+        let screen_size = PhysicalSize::<u32>::new(0, 0);
 
         let hitbox = Hitbox::new(points, screen_size);
 

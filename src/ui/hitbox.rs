@@ -9,7 +9,7 @@ pub struct Hitbox {
 impl Hitbox {
 
     pub fn new(points_position: [f32; 8], screen_size: PhysicalSize<u32>) -> Self {
-        let real_position = Self::calculate_real_position(points_position, screen_size);
+        let real_position = [0.0; 8];
 
         Self{points_position, screen_size, real_position}
     }
