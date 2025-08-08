@@ -1,2 +1,2 @@
-mod menu;
-mod hitbox;
+pub mod menu;
+pub mod hitbox;

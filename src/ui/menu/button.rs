@@ -1,8 +1,8 @@
 use crate::ui::hitbox::Hitbox;
 use winit::dpi::{PhysicalPosition, PhysicalSize};
 
-struct Button {
-    points: [f32; 8],
+pub struct Button {
+    pub points: [f32; 8],
     hitbox: Hitbox,
     pub id: u32,
 }
@@ -26,6 +26,7 @@ impl Button {
                     points[index] = x;
                     points[index+1] = y + height;
                 },
+
                 2 => {
                     points[index] = x + width;
                     points[index+1] = y;
@@ -52,7 +53,7 @@ impl Button {
         self.hitbox.update_position(Some(screen_size), new_position);
     }
 
-    pub fn verify_inside(&self, position: PhysicalPosition<u32>) -> bool {
+    pub fn verify_inside(&self, position: PhysicalPosition<f64>) -> bool {
         self.hitbox.contains(position)
     }
 }

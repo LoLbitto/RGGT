@@ -5,7 +5,7 @@ use std::time::Instant;
 
 use crate::graphic::renderer::Renderer;
 use crate::states::State;
-use crate::states::play_state::PlayState;
+use crate::states::main_menu_state::MainMenuState;
 
 use raw_window_handle::HasWindowHandle;
 use winit::application::ApplicationHandler;
@@ -35,14 +35,14 @@ pub struct App {
     template: ConfigTemplateBuilder,
     renderer: Option<Renderer>,
 
-    state: Option<AppState>, 
+    pub state: Option<AppState>, 
     gl_context: Option<PossiblyCurrentContext>,
     gl_display: GlDisplayCreationState,
     exit_state: Result<(), Box<dyn Error>>,
     
     last_update: Instant,
 
-    gamestate: Option<Box<dyn State>>
+    pub game_state: Option<Box<dyn State>>
 }
 
 impl App {
@@ -55,12 +55,12 @@ impl App {
             state: None,
             renderer: None,
             last_update: Instant::now(),
-            gamestate: None
+            game_state: None
         }
     }
 
     pub fn update(&mut self) {
-        let state = self.gamestate.as_mut().unwrap();
+        let state = self.game_state.as_mut().unwrap();
         state.update();
         self.renderer.as_mut().unwrap().update(state.get_vertices());
     }
@@ -154,7 +154,9 @@ impl ApplicationHandler for App {
         // retornará "false" e o programa soltará um erro
         assert!(self.state.replace(AppState { gl_surface, window}).is_none());
         
-        self.gamestate.replace(PlayState::new("teste".to_string(), self.state.as_mut().unwrap()) as Box<dyn State>);
+        let state = MainMenuState::new(self) as Box<dyn State>;
+
+        self.game_state.replace(state);
     }
 
     fn suspended(&mut self, _event_loop: &ActiveEventLoop) {
@@ -176,7 +178,7 @@ impl ApplicationHandler for App {
 
     fn window_event (&mut self, event_loop: &ActiveEventLoop, id: WindowId, event: WindowEvent) {
         
-        let state = self.gamestate.as_mut().unwrap();
+        let state = self.game_state.as_mut().unwrap();
         
         match event {
             WindowEvent::CloseRequested => {
@@ -192,12 +194,13 @@ impl ApplicationHandler for App {
                 state.manage_mouse_movement(position);
             },
 
-            WindowEvent::MouseInput {..} => {
-                state.manage_mouse_input(event);
+            WindowEvent::MouseInput {button, ..} => {
+                state.manage_mouse_input(button);
             }
 
             WindowEvent::Resized(size) => {
                 self.renderer.as_mut().unwrap().resize(size.width as i32, size.height as i32);
+                state.manage_window_resize(size);
             },
 
             WindowEvent::RedrawRequested => { 

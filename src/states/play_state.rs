@@ -2,6 +2,7 @@ use crate::logical::mapa::Mapa;
 use crate::logical::entity::player::Player;
 use crate::resources::file_manager;
 use crate::app::AppState;
+use crate::app::App;
 use crate::states::State;
 use crate::logical::mapa;
 
@@ -10,27 +11,28 @@ use winit::event::KeyEvent;
 use winit::event::WindowEvent;
 use winit::window::Window;
 use winit::event::ElementState;
+use winit::event::MouseButton;
 
 pub struct PlayState {
     mapa: Box<dyn Mapa>,
     player: Player,
     vetores: Vec<f32>,
-    app_state: *const AppState,
+    app: *const App,
     cursor_grab: CursorGrabber
 }
 
 impl PlayState {
-    pub fn new(data: String, app_state: &mut AppState ) -> Box<Self> {
+    pub fn new(data: String, app: &mut App ) -> Box<Self> {
         let mapa: Box<dyn Mapa> = Box::new(mapa::DefaultMap::new("main".to_string()));
         let (player_pos, mira) = mapa.get_start_position();
         let player = Player::new(*player_pos, *mira);                 
         let vetores = vec![0.0];                             // futuramente vai ter q adicionar a GUI
         
-        let cursor_grab = CursorGrabber::new(app_state.window.inner_size());
+        let cursor_grab = CursorGrabber::new(app.state.as_ref().unwrap().window.inner_size());
 
-        app_state.window.set_cursor_visible(false);
+        app.state.as_ref().unwrap().window.set_cursor_visible(false);
 
-        Box::new(Self{mapa, player, vetores, app_state, cursor_grab})
+        Box::new(Self{mapa, player, vetores, app, cursor_grab})
     }
 
 }
@@ -98,7 +100,7 @@ impl State for PlayState {
                     "\x1b" => {
                         self.cursor_grab.change_lock(false);
                         unsafe {
-                            (*self.app_state).window.set_cursor_visible(true);
+                            (*self.app).state.as_ref().unwrap().window.set_cursor_visible(true);
                         }
                     },
 
@@ -109,11 +111,11 @@ impl State for PlayState {
         }
     }
 
-    fn manage_mouse_input(&mut self, evento: WindowEvent) {
+    fn manage_mouse_input(&mut self, button: MouseButton) {
         if !self.cursor_grab.is_lock {
             self.cursor_grab.change_lock(true);
             unsafe {
-                (*self.app_state).window.set_cursor_visible(false);
+                (*self.app).state.as_ref().unwrap().window.set_cursor_visible(false);
             }
         }
     }
@@ -123,7 +125,7 @@ impl State for PlayState {
         if self.cursor_grab.is_lock {
             self.player.change_view(position, self.cursor_grab.position);
             unsafe {
-                (*self.app_state).window.set_cursor_position(self.cursor_grab.position);
+                (*self.app).state.as_ref().unwrap().window.set_cursor_position(self.cursor_grab.position);
             }
         }
     }

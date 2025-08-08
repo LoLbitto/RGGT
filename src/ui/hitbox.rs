@@ -15,8 +15,13 @@ impl Hitbox {
     }
 
     pub fn update_position(&mut self, screen_size: Option<PhysicalSize<u32>>, new_position: Option<[f32; 8]>) {
-        if screen_size != None {
-            self.screen_size = screen_size.unwrap();
+        match screen_size {
+            Some(p) => {
+                println!("Entrou");
+                self.screen_size = screen_size.unwrap();
+            },
+
+            None => {}
         }
 
         if new_position != None {
@@ -26,27 +31,31 @@ impl Hitbox {
         self.real_position = Self::calculate_real_position(self.points_position, self.screen_size);
     }
 
-    pub fn contains(&self, position: PhysicalPosition<u32>) -> bool {
+    pub fn contains(&self, position: PhysicalPosition<f64>) -> bool {
         
-        let (pos_x, pos_y) = (position.x as f32, position.y as f32);
+        let (pos_x, pos_y) = (position.x, position.y);
 
         let (mut big_x, mut small_x, mut big_y, mut small_y) = (0.0, 0.0, 0.0, 0.0);
 
         for i in 0..self.real_position.len()/2 {
             let index = i * 2;
 
-            let point_x = self.real_position[index];
-            let point_y = self.real_position[index+1];
+            let point_x = self.real_position[index] as f64;
+            let point_y = self.real_position[index+1] as f64;
 
             if point_x > big_x {
                 big_x = point_x;
-            } else if point_x < small_x {
+            } 
+
+            if point_x < small_x || small_x == 0.0{
                 small_x = point_x;
             }
 
             if point_y > big_y {
                 big_y = point_y;
-            } else if point_y < small_y {
+            }
+            
+            if point_y < small_y || small_y == 0.0{
                 small_y = point_y;
             }
         }
@@ -77,11 +86,11 @@ impl Hitbox {
             let index = i*2;
 
             pontos_final[index] = pontos[index] * width + width; // Ponto vai
-                                                                                                 // de
-                                                                                                 // -1 (0)
-                                                                                                 // a 0 (metade) 
-                                                                                                 // a 1 (final)
-            pontos_final[index+1] = pontos[index+1] * height + height; 
+                                                                 // de
+                                                                 // -1 (0)
+                                                                 // a 0 (metade) 
+                                                                 // a 1 (final)
+            pontos_final[index+1] = -pontos[index+1] * height + height; 
         }
 
         pontos_final
