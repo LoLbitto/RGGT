@@ -26,12 +26,12 @@ impl Object {
             points[i+1] += position[1];
             points[i+2] += position[2];
         
-            println!("x: {}, y: {}, z: {}", points[i], points[i+1], points[i+2])
+            //println!("x: {}, y: {}, z: {}", points[i], points[i+1], points[i+2])
         } 
 
-        println!("Pontos:");
+        //println!("Pontos:");
 
-        for ponto in &points {
+        /*for ponto in &points {
             println!("{}", ponto);
         }
 
@@ -39,7 +39,7 @@ impl Object {
 
         for ponto in &map {
             println!("{}", ponto);
-        }
+        }*/
 
         Self{points, map, is_viewed: false, visual: None}
     }
@@ -98,7 +98,7 @@ impl Object {
                 let visual_y = new_y[1]   * 2.0;
                 let visual_z = visual_w   - 0.5;
 
-                println!("y: {}", visual_y);
+                //println!("y: {}", visual_y);
 
                 posicao_relativa.push(visual_x);
                 posicao_relativa.push(visual_y);

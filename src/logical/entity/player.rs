@@ -95,7 +95,7 @@ impl Player {
         self.mira[0] += x;
         self.mira[2] += z;
     
-        println!("x: {}, y: {}, z: {}", self.position[0], self.position[1], self.position[2]);
+        //println!("x: {}, y: {}, z: {}", self.position[0], self.position[1], self.position[2]);
     }
 
     pub fn move_relative_x(&mut self, speed: f32) {
@@ -118,7 +118,7 @@ impl Player {
         self.mira[0] += x;
         self.mira[2] += z;
 
-        println!("x: {}, y: {}, z: {}", self.position[0], self.position[1], self.position[2]);
+        //println!("x: {}, y: {}, z: {}", self.position[0], self.position[1], self.position[2]);
     }
 
     pub fn change_view (&mut self, position: PhysicalPosition<f64>, meio: PhysicalPosition<f64>) {

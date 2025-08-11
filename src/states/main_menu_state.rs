@@ -3,6 +3,8 @@ use crate::app::App;
 use crate::states::State;
 use crate::states::play_state::PlayState;
 
+use image::ImageReader;
+
 use winit::dpi::{PhysicalPosition, PhysicalSize};
 use winit::event::{WindowEvent, MouseButton};
 use winit::event::KeyEvent;
@@ -63,7 +65,7 @@ impl MainMenuState {
                 vertices.push(green);
                 vertices.push(blue);
             } // Segundo triângulo
-        }
+        }       
 
         let mouse_position = PhysicalPosition::<f64>::new(0.0, 0.0); 
 
@@ -88,8 +90,7 @@ impl State for MainMenuState {
         let mut id = -1;
         let position = self.mouse_position;
         
-        if (button == MouseButton::Left) {
-            println!("{}, {}", position.x, position.y);
+        if (button == MouseButton::Left) {   
             for button in &self.buttons {
                 let check = button.verify_inside(position);
 
@@ -99,8 +100,6 @@ impl State for MainMenuState {
                 }
             }
         }
-
-        println!("id: {}", id);
 
         match id {
             PLAY_BUTTON => {

@@ -4,6 +4,48 @@ use crate::logical::mapa::Mapa;
 use crate::logical::mapa::DefaultMap;
 use crate::logical::entity::object::Object;
 
+pub enum Resource {
+    Model,
+    Map
+}
+
+pub fn get_resource_list(tipo: Resource) -> Vec<String> {
+    let mut folder = "resources/".to_string();
+    let mut list = Vec::<String>::new();
+    
+    match tipo {
+        Resource::Model => {
+            folder.push_str("models/");
+        },
+        Resource::Map => {
+            folder.push_str("maps/");
+        }
+    }
+
+    let files = fs::read_dir(folder);
+
+    match files {
+
+        Ok(read_dir) => {
+            for item in read_dir {
+                if let Ok(item) = item {
+                    let os_string = item.file_name();
+                    let mut file_name = os_string.to_str().unwrap().split(".").next().unwrap();
+
+                    println!("Nome: {}", file_name);
+                    list.push(file_name.to_string());
+                }
+            }
+        },
+
+        Err(e) => {
+
+        }
+    }
+
+    list
+}    
+
 pub fn get_object(nome: String) -> (Vec<f32>, Vec<f32>) {
     let dados = fs::read_to_string("resources/models/".to_owned() + &nome + ".rgm").expect("Deveria abrir o arquivo");
     
