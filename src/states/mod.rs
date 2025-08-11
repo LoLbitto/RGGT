@@ -1,5 +1,6 @@
 pub mod play_state;
 pub mod main_menu_state;
+pub mod map_selector_state;
 
 use winit::event::{WindowEvent, KeyEvent};
 use winit::window::Window;
