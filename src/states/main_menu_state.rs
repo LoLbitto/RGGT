@@ -2,15 +2,14 @@ use crate::ui::menu::button::Button;
 use crate::app::App;
 use crate::states::State;
 use crate::states::play_state::PlayState;
+use crate::resources::file_manager::assets;
 
-use image::ImageReader;
+use image::error::ImageResult;
+use image::DynamicImage;
 
 use winit::dpi::{PhysicalPosition, PhysicalSize};
 use winit::event::{WindowEvent, MouseButton};
 use winit::event::KeyEvent;
-
-const DEFAULT_Z: f32 = 0.0;
-const DEFAULT_W: f32 = 1.0;
 
 const PLAY_BUTTON: i32 = 1;
 const EXIT_BUTTON: i32 = 2;
@@ -30,42 +29,25 @@ impl MainMenuState {
         let width = 0.3;
         let height = 0.2;
 
-        let button_play = Button::new(cords_play, width, height, PLAY_BUTTON as u32);
-        let button_exit = Button::new(cords_exit, width, height, EXIT_BUTTON as u32);
+        let img_play = assets::get_image("play.jpg");
+        let img_exit = assets::get_image("exit.jpg");
+        
+        // NOTE: fazer assim deixa muito estático, o certo é ler de algum lugar
+        let button_play = Button::new(cords_play, width, height, Some(img_play.unwrap()), PLAY_BUTTON as u32);
+        let button_exit = Button::new(cords_exit, width, height, Some(img_exit.unwrap()), EXIT_BUTTON as u32);
 
         let buttons = vec![button_play, button_exit];
 
         let mut vertices = Vec::<f32>::new();
 
-        for i in 0..buttons.len() {
-            let (red, green, blue) = (i as f32, 0.0, 1.0);
-
-            for j in 0..buttons[i].points.len() / 2 - 1{
-                let index = j * 2;
-                let (x, y) = (buttons[i].points[index], buttons[i].points[index+1]);
-
-                vertices.push(x);
-                vertices.push(y);
-                vertices.push(DEFAULT_Z);
-                vertices.push(DEFAULT_W);
-                vertices.push(red);
-                vertices.push(green);
-                vertices.push(blue);
-            } // Primeiro triângulo
-
-            for j in 1..buttons[i].points.len() / 2{
-                let index = j * 2;
-                let (x, y) = (buttons[i].points[index], buttons[i].points[index+1]);
-
-                vertices.push(x);
-                vertices.push(y);
-                vertices.push(DEFAULT_Z);
-                vertices.push(DEFAULT_W);
-                vertices.push(red);
-                vertices.push(green);
-                vertices.push(blue);
-            } // Segundo triângulo
-        }       
+        /*for i in 0..buttons.len() {
+            let but_vertices = buttons[i].get_vertices();
+            
+            for j in 0..but_vertices.len() {
+                vertices.push(but_vertices[j]);
+            }
+        } NOTE: Fazer com que ele possa retornar algo caso ocorra erro na imagem
+        */
 
         let mouse_position = PhysicalPosition::<f64>::new(0.0, 0.0); 
 

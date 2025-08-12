@@ -1,6 +1,5 @@
 use crate::states::State;
-use crate::resources::file_manager::get_resource_list;
-use crate::resources::file_manager::Resource;
+use crate::resources::file_manager::listing;
 
 use winit::event::KeyEvent;
 use winit::keyboard::{PhysicalKey, KeyCode};
@@ -22,7 +21,7 @@ struct KeyManager {
 
 impl MapSelectorState {
     pub fn new() -> Self {
-        let maps = get_resource_list(Resource::Map);
+        let maps = listing::get_resource_list(listing::Resource::Map);
         let selector = 0;
         let key_manager = KeyManager {up: false, down: false};
         let vertices = vec![0.0];

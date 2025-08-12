@@ -1,14 +1,23 @@
 use crate::ui::hitbox::Hitbox;
+
+use image::DynamicImage;
+
 use winit::dpi::{PhysicalPosition, PhysicalSize};
+
+const DEFAULT_Z: f32 = 0.0;
+const DEFAULT_W: f32 = 1.0;
 
 pub struct Button {
     pub points: [f32; 8],
     hitbox: Hitbox,
+    imagem: Option<DynamicImage>,
+    vertices: Option<Vec<f32>>,
+    pub has_image: bool,
     pub id: u32,
 }
 
 impl Button {
-    pub fn new(pos: [f32; 2], width: f32, height: f32, id: u32) -> Self {
+    pub fn new(pos: [f32; 2], width: f32, height: f32, imagem: Option<DynamicImage> , id: u32) -> Self {
         let mut points = [0.0; 8];
 
         let x = pos[0];
@@ -41,11 +50,20 @@ impl Button {
             }
         }
 
+        let mut has_image = false;
+        let mut vertices = None;
+
+        if let Some(ref i) = imagem {
+            has_image = true;
+        } else {
+            vertices = Some(Self::calculate_vertices(points));
+        }
+
         let screen_size = PhysicalSize::<u32>::new(0, 0);
 
         let hitbox = Hitbox::new(points, screen_size);
 
-        Self{points, hitbox, id}
+        Self{points, hitbox, imagem, vertices, has_image, id}
     }
 
     pub fn update_screen_size(&mut self, screen_size: PhysicalSize<u32>) {
@@ -55,5 +73,47 @@ impl Button {
 
     pub fn verify_inside(&self, position: PhysicalPosition<f64>) -> bool {
         self.hitbox.contains(position)
+    }
+
+    pub fn get_vertices(&self) -> &Vec<f32> {
+        self.vertices.as_ref().unwrap()
+    }
+
+    pub fn get_imagem(&self) -> &DynamicImage {
+        self.imagem.as_ref().unwrap()
+    }
+
+    fn calculate_vertices(points: [f32; 8]) -> Vec<f32> {
+        let mut vertices = Vec::<f32>::new();
+        
+        let (red, green, blue) = (1.0, 0.0, 0.0);
+
+        for j in 0..points.len() / 2 - 1{
+            let index = j * 2;
+            let (x, y) = (points[index], points[index+1]);
+
+            vertices.push(x);
+            vertices.push(y);
+            vertices.push(DEFAULT_Z);
+            vertices.push(DEFAULT_W);
+            vertices.push(red);
+            vertices.push(green);
+            vertices.push(blue);
+        } // Primeiro triângulo
+
+        for j in 1..points.len() / 2{
+            let index = j * 2;
+            let (x, y) = (points[index], points[index+1]);
+
+            vertices.push(x);
+            vertices.push(y);
+            vertices.push(DEFAULT_Z);
+            vertices.push(DEFAULT_W);
+            vertices.push(red);
+            vertices.push(green);
+            vertices.push(blue);
+        } // Segundo triângulo
+
+        vertices
     }
 }
