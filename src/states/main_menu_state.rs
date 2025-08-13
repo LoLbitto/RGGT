@@ -3,6 +3,7 @@ use crate::app::App;
 use crate::states::State;
 use crate::states::play_state::PlayState;
 use crate::resources::file_manager::assets;
+use crate::graphic::texture::Texture;
 
 use winit::dpi::{PhysicalPosition, PhysicalSize};
 use winit::event::{WindowEvent, MouseButton};
@@ -38,14 +39,13 @@ impl MainMenuState {
 
         let mut vertices = Vec::<f32>::new();
 
-        /*for i in 0..buttons.len() {
+        for i in 0..buttons.len() {
             let but_vertices = buttons[i].get_vertices();
             
             for j in 0..but_vertices.len() {
                 vertices.push(but_vertices[j]);
             }
-        } NOTE: Fazer com que ele possa retornar algo caso ocorra erro na imagem
-        */
+        }
 
         let mouse_position = PhysicalPosition::<f64>::new(0.0, 0.0); 
 
@@ -56,6 +56,10 @@ impl MainMenuState {
 impl State for MainMenuState {
     fn get_vertices (&self) -> &Vec<f32> {
         &self.vertices
+    }
+
+    fn get_textures(&self) -> (bool, Option<Texture>) {
+        (false, None) // NOTE: Por enquanto só
     }
 
     fn update(&mut self) {

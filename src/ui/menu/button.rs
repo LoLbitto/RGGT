@@ -10,7 +10,7 @@ pub struct Button {
     pub points: [f32; 8],
     hitbox: Hitbox,
     texture: Option<Texture>,
-    vertices: Option<Vec<f32>>,
+    vertices: Vec<f32>,
     pub has_texture: bool,
     pub id: u32,
 }
@@ -51,14 +51,13 @@ impl Button {
 
         let mut has_texture = false;
         let mut texture = None;
-        let mut vertices = None;
 
         if texture_name != "" {
             has_texture = true;
             texture = Some(Texture::new(texture_name));
-        } else {
-            vertices = Some(Self::calculate_vertices(points));
         }
+
+        let vertices = Self::calculate_vertices(points, has_texture);
 
         let screen_size = PhysicalSize::<u32>::new(0, 0);
 
@@ -77,43 +76,58 @@ impl Button {
     }
 
     pub fn get_vertices(&self) -> &Vec<f32> {
-        self.vertices.as_ref().unwrap()
+        &self.vertices
     }
 
     pub fn get_texture(&self) -> &Texture {
         self.texture.as_ref().unwrap()
     }
 
-    fn calculate_vertices(points: [f32; 8]) -> Vec<f32> {
+    fn calculate_vertices(points: [f32; 8], has_texture: bool) -> Vec<f32> {
         let mut vertices = Vec::<f32>::new();
         
         let (red, green, blue) = (1.0, 0.0, 0.0);
 
-        for j in 0..points.len() / 2 - 1{
-            let index = j * 2;
-            let (x, y) = (points[index], points[index+1]);
+        for i in 0..2 {
+            for j in i..points.len() / 2 - 1{
+                let index = j * 2;
+                let (x, y) = (points[index], points[index+1]);
 
-            vertices.push(x);
-            vertices.push(y);
-            vertices.push(DEFAULT_Z);
-            vertices.push(DEFAULT_W);
-            vertices.push(red);
-            vertices.push(green);
-            vertices.push(blue);
-        } // Primeiro triângulo
+                vertices.push(x);
+                vertices.push(y);
+                vertices.push(DEFAULT_Z);
+                vertices.push(DEFAULT_W);
+                vertices.push(red);
+                vertices.push(green);
+                vertices.push(blue);
 
-        for j in 1..points.len() / 2{
-            let index = j * 2;
-            let (x, y) = (points[index], points[index+1]);
+                if has_texture {
+                    match j {
+                        0 => {
+                            vertices.push(0.0);
+                            vertices.push(0.0);
+                        },
 
-            vertices.push(x);
-            vertices.push(y);
-            vertices.push(DEFAULT_Z);
-            vertices.push(DEFAULT_W);
-            vertices.push(red);
-            vertices.push(green);
-            vertices.push(blue);
-        } // Segundo triângulo
+                        1 => {
+                            vertices.push(0.0);
+                            vertices.push(1.0);
+                        },
+
+                        2 => {
+                            vertices.push(1.0);
+                            vertices.push(0.0);
+                        },
+
+                        3 => {
+                            vertices.push(1.0);
+                            vertices.push(1.0);
+                        },
+
+                        _ => {}
+                    }
+                }
+            }
+        }
 
         vertices
     }

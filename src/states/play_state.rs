@@ -5,6 +5,7 @@ use crate::app::AppState;
 use crate::app::App;
 use crate::states::State;
 use crate::logical::mapa;
+use crate::graphic::texture::Texture;
 
 use winit::dpi::{PhysicalPosition, PhysicalSize};
 use winit::event::KeyEvent;
@@ -41,6 +42,10 @@ impl State for PlayState {
 
     fn get_vertices(&self) -> &Vec<f32> {
         &self.vetores
+    }
+
+    fn get_textures(&self) -> (bool, Option<Texture>) {
+        (false, None) // NOTE: Por enquanto só
     }
 
     fn update(&mut self) {

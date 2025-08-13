@@ -1,5 +1,6 @@
 use crate::states::State;
 use crate::resources::file_manager::listing;
+use crate::graphic::texture::Texture;
 
 use winit::event::KeyEvent;
 use winit::keyboard::{PhysicalKey, KeyCode};
@@ -34,6 +35,10 @@ impl State for MapSelectorState {
     
     fn get_vertices (&self) -> &Vec<f32> {
         &self.vertices
+    }
+
+    fn get_textures(&self) -> (bool, Option<Texture>) {
+        (false, None) // NOTE: Por enquanto só
     }
 
     fn update(&mut self) {

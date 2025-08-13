@@ -9,10 +9,13 @@ use winit::event::MouseButton;
 
 use crate::logical::entity::object::Object;
 use crate::app::AppState;
+use crate::graphic::texture::Texture;
 
 pub trait State {
     
     fn get_vertices (&self) -> &Vec<f32>;
+    fn get_textures (&self) -> (bool, Option<Texture>);
+
     fn update(&mut self);
     fn manage_keyboard_input(&mut self, event: KeyEvent);
     fn manage_mouse_input(&mut self, button: MouseButton);
