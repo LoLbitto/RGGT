@@ -52,12 +52,39 @@ pub mod listing {
 
 pub mod assets {
     use std::fs;
-    use image::GenericImageView;
+    use image::ImageReader;
     use image::error::ImageResult;
     use image::DynamicImage;
 
     pub fn get_image(file_name: &str) -> ImageResult<DynamicImage> {
-        let img = image::open("resources/assets/images/".to_owned() + file_name);
+        let mut extension = "".to_owned();
+        let folder = "resources/assets/images/";
+
+        let files = fs::read_dir(folder);
+
+        match files {
+
+            Ok(read_dir) => {
+                for item in read_dir {
+                    if let Ok(item) = item {
+                        let os_string = item.file_name();
+                        let mut split = os_string.to_str().unwrap().split(".");
+                        let real_name = split.next().unwrap();
+                        
+                        if real_name == file_name {
+                            extension = split.next().unwrap().to_string();
+                            break;
+                        }
+                    }
+                }
+            },
+
+            Err(e) => {
+
+            }
+        }
+
+        let img = ImageReader::open(folder.to_owned() + file_name + "." + &extension)?.decode();
         img
     }
 }

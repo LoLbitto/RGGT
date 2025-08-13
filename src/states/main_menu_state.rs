@@ -4,9 +4,6 @@ use crate::states::State;
 use crate::states::play_state::PlayState;
 use crate::resources::file_manager::assets;
 
-use image::error::ImageResult;
-use image::DynamicImage;
-
 use winit::dpi::{PhysicalPosition, PhysicalSize};
 use winit::event::{WindowEvent, MouseButton};
 use winit::event::KeyEvent;
@@ -33,8 +30,9 @@ impl MainMenuState {
         let img_exit = assets::get_image("exit.jpg");
         
         // NOTE: fazer assim deixa muito estático, o certo é ler de algum lugar
-        let button_play = Button::new(cords_play, width, height, Some(img_play.unwrap()), PLAY_BUTTON as u32);
-        let button_exit = Button::new(cords_exit, width, height, Some(img_exit.unwrap()), EXIT_BUTTON as u32);
+            //  Concordo plenamente
+        let button_play = Button::new(cords_play, width, height, "play", PLAY_BUTTON as u32);
+        let button_exit = Button::new(cords_exit, width, height, "exit", EXIT_BUTTON as u32);
 
         let buttons = vec![button_play, button_exit];
 

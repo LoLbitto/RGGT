@@ -1,6 +1,5 @@
 use crate::ui::hitbox::Hitbox;
-
-use image::DynamicImage;
+use crate::graphic::texture::Texture;
 
 use winit::dpi::{PhysicalPosition, PhysicalSize};
 
@@ -10,14 +9,14 @@ const DEFAULT_W: f32 = 1.0;
 pub struct Button {
     pub points: [f32; 8],
     hitbox: Hitbox,
-    imagem: Option<DynamicImage>,
+    texture: Option<Texture>,
     vertices: Option<Vec<f32>>,
-    pub has_image: bool,
+    pub has_texture: bool,
     pub id: u32,
 }
 
 impl Button {
-    pub fn new(pos: [f32; 2], width: f32, height: f32, imagem: Option<DynamicImage> , id: u32) -> Self {
+    pub fn new(pos: [f32; 2], width: f32, height: f32, texture_name: &str , id: u32) -> Self {
         let mut points = [0.0; 8];
 
         let x = pos[0];
@@ -50,11 +49,13 @@ impl Button {
             }
         }
 
-        let mut has_image = false;
+        let mut has_texture = false;
+        let mut texture = None;
         let mut vertices = None;
 
-        if let Some(ref i) = imagem {
-            has_image = true;
+        if texture_name != "" {
+            has_texture = true;
+            texture = Some(Texture::new(texture_name));
         } else {
             vertices = Some(Self::calculate_vertices(points));
         }
@@ -63,7 +64,7 @@ impl Button {
 
         let hitbox = Hitbox::new(points, screen_size);
 
-        Self{points, hitbox, imagem, vertices, has_image, id}
+        Self{points, hitbox, texture, vertices, has_texture, id}
     }
 
     pub fn update_screen_size(&mut self, screen_size: PhysicalSize<u32>) {
@@ -79,8 +80,8 @@ impl Button {
         self.vertices.as_ref().unwrap()
     }
 
-    pub fn get_imagem(&self) -> &DynamicImage {
-        self.imagem.as_ref().unwrap()
+    pub fn get_texture(&self) -> &Texture {
+        self.texture.as_ref().unwrap()
     }
 
     fn calculate_vertices(points: [f32; 8]) -> Vec<f32> {
