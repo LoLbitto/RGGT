@@ -4,7 +4,7 @@ use std::ffi::CString;
 use std::ops::Deref;
 use std::ffi::CStr;
 
-use crate::logical::entity::object::Object;
+use crate::graphic::texture::Texture;
 
 pub mod gl {
     #![allow(clippy::all)]
@@ -14,18 +14,23 @@ pub mod gl {
 }
 
 pub struct Renderer {
-    program: gl::types::GLuint,
+    program_solid: gl::types::GLuint,
+    program_texture: gl::types::GLuint,
     
     // armazena o vbo e outros atributos do objeto
-    vao: gl::types::GLuint,
+    vao_solid: gl::types::GLuint,
+    vao_texture: gl::types::GLuint,
 
     // armazena os vértices brutos de algo
-    vbo: gl::types::GLuint,
+    vbo_solid: gl::types::GLuint,
+    vbo_texture: gl::types::GLuint,
 
     // comunicador com o opengl ou coisa parecida
     gl: gl::Gl,
 
     vetores: Vec<f32>,
+
+    textures: Vec<Texture>
 }
 
 impl Renderer {
@@ -48,40 +53,35 @@ impl Renderer {
                 println!("Shaders version on {}", shaders_version.to_string_lossy());
             }
 
-            let vertex_shader = create_shader(&gl, gl::VERTEX_SHADER, VERTEX_SHADER_SOURCE);
-            let fragment_shader = create_shader(&gl, gl::FRAGMENT_SHADER, FRAGMENT_SHADER_SOURCE);
+            // CRIAÇÃO DE MANEJAMENTO DE OBJETOS COM CORES SÓLIDAS (SEM TEXTURA)
 
-            let program = gl.CreateProgram();
+            let vertex_shader_solid = create_shader(&gl, gl::VERTEX_SHADER, VERTEX_SHADER_SOURCE);
+            let fragment_shader_solid = create_shader(&gl, gl::FRAGMENT_SHADER, FRAGMENT_SHADER_SOURCE);
 
-            gl.AttachShader(program, vertex_shader);
-            gl.AttachShader(program, fragment_shader);
+            let program_solid = gl.CreateProgram();
 
-            gl.LinkProgram(program);
+            gl.AttachShader(program_solid, vertex_shader_solid);
+            gl.AttachShader(program_solid, fragment_shader_solid);
 
-            gl.UseProgram(program);
+            gl.LinkProgram(program_solid);
 
-            gl.DeleteShader(vertex_shader);
-            gl.DeleteShader(fragment_shader);
+            gl.UseProgram(program_solid);
 
-            let mut vao = std::mem::zeroed();
-            gl.GenVertexArrays(1, &mut vao);
-            gl.BindVertexArray(vao);
+            gl.DeleteShader(vertex_shader_solid);
+            gl.DeleteShader(fragment_shader_solid);
 
-            let mut vbo = std::mem::zeroed();
-            gl.GenBuffers(1, &mut vbo);
-            gl.BindBuffer(gl::ARRAY_BUFFER, vbo);
+            let mut vao_solid = std::mem::zeroed();
+            gl.GenVertexArrays(1, &mut vao_solid);
+            gl.BindVertexArray(vao_solid);
+
+            let mut vbo_solid = std::mem::zeroed();
+            gl.GenBuffers(1, &mut vbo_solid);
+            gl.BindBuffer(gl::ARRAY_BUFFER, vbo_solid);
 
             let vetores = vec![0.0];
 
-            gl.BufferData(
-                gl::ARRAY_BUFFER,
-                (vetores.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
-                vetores.as_ptr() as *const _,
-                gl::STATIC_DRAW,
-            );
-
-            let pos_attrib = gl.GetAttribLocation(program, b"position\0".as_ptr() as *const _);
-            let color_attrib = gl.GetAttribLocation(program, b"color\0".as_ptr() as *const _);
+            let pos_attrib = gl.GetAttribLocation(program_solid, b"position\0".as_ptr() as *const _);
+            let color_attrib = gl.GetAttribLocation(program_solid, b"color\0".as_ptr() as *const _);
             
             gl.VertexAttribPointer(
                 pos_attrib as gl::types::GLuint,
@@ -102,10 +102,73 @@ impl Renderer {
             gl.EnableVertexAttribArray(pos_attrib as gl::types::GLuint);
             gl.EnableVertexAttribArray(color_attrib as gl::types::GLuint);
 
+            // CRIAÇÃO DE MANEJAMENTO DE OBJETOS COM TEXTURA
+
+            let vertex_shader_texture = create_shader(&gl, gl::VERTEX_SHADER, VERTEX_SHADER_SOURCE_TEXTURE);
+            let fragment_shader_texture = create_shader(&gl, gl::FRAGMENT_SHADER, FRAGMENT_SHADER_SOURCE_TEXTURE);
+
+            let program_texture = gl.CreateProgram();
+
+            gl.AttachShader(program_texture, vertex_shader_texture);
+            gl.AttachShader(program_texture, fragment_shader_texture);
+
+            gl.LinkProgram(program_texture);
+
+            gl.UseProgram(program_texture);
+
+            gl.DeleteShader(vertex_shader_texture);
+            gl.DeleteShader(fragment_shader_texture);
+
+            let mut vao_texture = std::mem::zeroed();
+            gl.GenVertexArrays(1, &mut vao_texture);
+            gl.BindVertexArray(vao_texture);
+
+            let mut vbo_texture = std::mem::zeroed();
+            gl.GenBuffers(1, &mut vbo_texture);
+            gl.BindBuffer(gl::ARRAY_BUFFER, vbo_texture);
+
+            let vetores_texture = vec![0.0];
+
+            let pos_attrib = gl.GetAttribLocation(program_texture, b"position\0".as_ptr() as *const _);
+            let color_attrib = gl.GetAttribLocation(program_texture, b"aColor\0".as_ptr() as *const _);
+            let tex_attrib = gl.GetAttribLocation(program_texture, b"aTexCoord\0".as_ptr() as *const _);
+
+            gl.VertexAttribPointer(
+                pos_attrib as gl::types::GLuint,
+                4,
+                gl::FLOAT,
+                0,
+                9 * std::mem::size_of::<f32>() as gl::types::GLsizei,
+                std::ptr::null(),
+            );
+
+            gl.VertexAttribPointer(
+                color_attrib as gl::types::GLuint,
+                3,
+                gl::FLOAT,
+                0,
+                9 * std::mem::size_of::<f32>() as gl::types::GLsizei,
+                (4 * std::mem::size_of::<f32>()) as *const () as *const _,
+            );
+
+            gl.VertexAttribPointer(
+                tex_attrib as gl::types::GLuint,
+                2,
+                gl::FLOAT,
+                0,
+                9 * std::mem::size_of::<f32>() as gl::types::GLsizei,
+                (7 * std::mem::size_of::<f32>()) as *const () as *const _,
+            );
+
+            gl.EnableVertexAttribArray(pos_attrib as gl::types::GLuint);
+            gl.EnableVertexAttribArray(color_attrib as gl::types::GLuint);
+            gl.EnableVertexAttribArray(tex_attrib as gl::types::GLuint);
 
             gl.Enable(gl::DEPTH_TEST);
+
+            let textures = Vec::<Texture>::new();
             
-            Self { program, vao, vbo, gl, vetores}
+            Self { program_solid, program_texture, vao_solid, vao_texture, vbo_solid, vbo_texture, gl, vetores, textures}
         }
     }
 
@@ -151,15 +214,16 @@ impl Renderer {
     ) {
         unsafe {
             self.gl.Clear(gl::DEPTH_BUFFER_BIT);
-            self.gl.UseProgram(self.program);
-
-            self.gl.BindVertexArray(self.vao);
-            self.gl.BindBuffer(gl::ARRAY_BUFFER, self.vbo);
+            
+            self.gl.UseProgram(self.program_solid);
+            
+            self.gl.BindVertexArray(self.vao_solid);
+            self.gl.BindBuffer(gl::ARRAY_BUFFER, self.vbo_solid);
 
             self.gl.ClearColor(red, green, blue, alpha);
             self.gl.Clear(gl::COLOR_BUFFER_BIT);
 
-            self.gl.DrawArrays(gl::TRIANGLES, 0, 106);
+            self.gl.DrawArrays(gl::TRIANGLES, 0, self.vetores.len() as i32);
             
         }
     }
@@ -182,9 +246,9 @@ impl Deref for Renderer {
 impl Drop for Renderer {
     fn drop(&mut self) {
         unsafe {
-            self.gl.DeleteProgram(self.program);
-            self.gl.DeleteBuffers(1, &self.vbo);
-            self.gl.DeleteVertexArrays(1, &self.vao);
+            self.gl.DeleteProgram(self.program_solid);
+            self.gl.DeleteBuffers(1, &self.vbo_solid);
+            self.gl.DeleteVertexArrays(1, &self.vao_solid);
         }
     }
 }
@@ -223,13 +287,47 @@ void main() {
 \0";
 
 const FRAGMENT_SHADER_SOURCE: &[u8] = b"
-#version 100
+#version 330
 precision mediump float;
 
 varying vec3 v_color;
 
 void main() {
     gl_FragColor = vec4(v_color, 1.0);
+}
+\0";
+
+const VERTEX_SHADER_SOURCE_TEXTURE: &[u8] = b"
+#version 330
+precision mediump float;
+
+layout (location = 0) in vec4 position;
+layout (location = 1) in vec3 aColor;
+layout (location = 2) in vec2 aTexCoord;
+
+out vec3 ourColor;
+out vec2 TexCoord;
+
+varying vec3 v_color;
+
+void main() {
+    gl_Position = position;
+    ourColor = aColor;
+    TexCoord = aTexCoord;
+}
+\0";
+
+const FRAGMENT_SHADER_SOURCE_TEXTURE: &[u8] = b"
+#version 330
+out vec4 FragColor
+
+in vec3 ourColor;
+in vec2 TexCoord;
+
+uniform sampler2D ourTexture;
+
+void main() {
+    FragColor = texture(ourTexture, TexCoord) * vec4(ourColor, 1.0);
 }
 \0";
 
