@@ -129,12 +129,12 @@ impl Renderer {
 
             let vetores_texture = vec![0.0];
 
-            let pos_attrib = gl.GetAttribLocation(program_texture, b"position\0".as_ptr() as *const _);
-            let color_attrib = gl.GetAttribLocation(program_texture, b"aColor\0".as_ptr() as *const _);
+            let pos_attrib_t = gl.GetAttribLocation(program_texture, b"position\0".as_ptr() as *const _);
+            let color_attrib_t = gl.GetAttribLocation(program_texture, b"aColor\0".as_ptr() as *const _);
             let tex_attrib = gl.GetAttribLocation(program_texture, b"aTexCoord\0".as_ptr() as *const _);
 
             gl.VertexAttribPointer(
-                pos_attrib as gl::types::GLuint,
+                pos_attrib_t as gl::types::GLuint,
                 4,
                 gl::FLOAT,
                 0,
@@ -143,7 +143,7 @@ impl Renderer {
             );
 
             gl.VertexAttribPointer(
-                color_attrib as gl::types::GLuint,
+                color_attrib_t as gl::types::GLuint,
                 3,
                 gl::FLOAT,
                 0,
@@ -165,7 +165,7 @@ impl Renderer {
             gl.EnableVertexAttribArray(tex_attrib as gl::types::GLuint);
 
             gl.Enable(gl::DEPTH_TEST);
-
+            
             let textures = Vec::<Texture>::new();
             
             Self { program_solid, program_texture, vao_solid, vao_texture, vbo_solid, vbo_texture, gl, vetores, textures}
@@ -178,6 +178,11 @@ impl Renderer {
 
     pub fn update(&mut self, vetores: &Vec<f32>) {        
         unsafe {
+
+            self.gl.UseProgram(self.program_solid);
+            
+            self.gl.BindVertexArray(self.vao_solid);
+            self.gl.BindBuffer(gl::ARRAY_BUFFER, self.vbo_solid);
             
             if self.vetores.len() >= vetores.len() { 
                 for i in 0..self.vetores.len() {

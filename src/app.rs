@@ -231,7 +231,7 @@ impl ApplicationHandler for App {
             unsafe {
                 display.terminate();
             }
-        }
+        } 
     }
 
     fn about_to_wait(&mut self, _event_loop: &ActiveEventLoop) {
