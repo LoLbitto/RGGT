@@ -3,7 +3,7 @@ use crate::graphic::texture::Texture;
 
 use winit::dpi::{PhysicalPosition, PhysicalSize};
 
-const DEFAULT_Z: f32 = 0.0;
+const DEFAULT_Z: f32 = 0.5;
 const DEFAULT_W: f32 = 1.0;
 
 pub struct Button {
@@ -79,14 +79,14 @@ impl Button {
         &self.vertices
     }
 
-    pub fn get_texture(&self) -> &Texture {
-        self.texture.as_ref().unwrap()
+    pub fn get_texture(&mut self) -> &mut Texture {
+        self.texture.as_mut().unwrap()
     }
 
     fn calculate_vertices(points: [f32; 8], has_texture: bool) -> Vec<f32> {
         let mut vertices = Vec::<f32>::new();
         
-        let (red, green, blue) = (1.0, 0.0, 0.0);
+        let (red, green, blue) = (1.0, 1.0, 1.0);
 
         for i in 0..2 {
             for j in i..points.len() / 2 - 1{

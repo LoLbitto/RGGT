@@ -37,8 +37,8 @@ impl State for MapSelectorState {
         &self.vertices
     }
 
-    fn get_textures(&self) -> (bool, Option<Texture>) {
-        (false, None) // NOTE: Por enquanto só
+    fn get_textures(&mut self) -> (bool, Option<&mut Vec<*mut Texture>>, Option<& Vec<f32>>) {
+        (false, None, None) // NOTE: Por enquanto só
     }
 
     fn update(&mut self) {

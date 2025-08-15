@@ -28,9 +28,11 @@ pub struct Renderer {
     // comunicador com o opengl ou coisa parecida
     gl: gl::Gl,
 
-    vetores: Vec<f32>,
+    vetores_solid: Vec<f32>,
 
-    textures: Vec<Texture>
+    vetores_texture: Vec<f32>,
+
+    textures: *mut Vec<*mut Texture>
 }
 
 impl Renderer {
@@ -78,8 +80,6 @@ impl Renderer {
             gl.GenBuffers(1, &mut vbo_solid);
             gl.BindBuffer(gl::ARRAY_BUFFER, vbo_solid);
 
-            let vetores = vec![0.0];
-
             let pos_attrib = gl.GetAttribLocation(program_solid, b"position\0".as_ptr() as *const _);
             let color_attrib = gl.GetAttribLocation(program_solid, b"color\0".as_ptr() as *const _);
             
@@ -107,6 +107,12 @@ impl Renderer {
             let vertex_shader_texture = create_shader(&gl, gl::VERTEX_SHADER, VERTEX_SHADER_SOURCE_TEXTURE);
             let fragment_shader_texture = create_shader(&gl, gl::FRAGMENT_SHADER, FRAGMENT_SHADER_SOURCE_TEXTURE);
 
+            let mut comp_stt: i32 = 1000;
+
+            gl.GetShaderiv(fragment_shader_texture, gl::COMPILE_STATUS, &mut comp_stt);
+
+            println!("compiled stt: {}", comp_stt);
+
             let program_texture = gl.CreateProgram();
 
             gl.AttachShader(program_texture, vertex_shader_texture);
@@ -130,7 +136,7 @@ impl Renderer {
             let vetores_texture = vec![0.0];
 
             let pos_attrib_t = gl.GetAttribLocation(program_texture, b"position\0".as_ptr() as *const _);
-            let color_attrib_t = gl.GetAttribLocation(program_texture, b"aColor\0".as_ptr() as *const _);
+            let color_attrib_t = gl.GetAttribLocation(program_texture, b"color\0".as_ptr() as *const _);
             let tex_attrib = gl.GetAttribLocation(program_texture, b"aTexCoord\0".as_ptr() as *const _);
 
             gl.VertexAttribPointer(
@@ -164,11 +170,15 @@ impl Renderer {
             gl.EnableVertexAttribArray(color_attrib as gl::types::GLuint);
             gl.EnableVertexAttribArray(tex_attrib as gl::types::GLuint);
 
+            // Definições finais
+
             gl.Enable(gl::DEPTH_TEST);
             
-            let textures = Vec::<Texture>::new();
+            let textures = &mut Vec::<*mut Texture>::new();
+            let vetores_solid = vec![0.0];
+            let vetores_texture = vec![0.0];
             
-            Self { program_solid, program_texture, vao_solid, vao_texture, vbo_solid, vbo_texture, gl, vetores, textures}
+            Self { program_solid, program_texture, vao_solid, vao_texture, vbo_solid, vbo_texture, gl, vetores_solid, vetores_texture, textures}
         }
     }
 
@@ -176,7 +186,7 @@ impl Renderer {
         self.draw_with_clear_color(0.1, 0.1, 0.1, 1.0)
     }
 
-    pub fn update(&mut self, vetores: &Vec<f32>) {        
+    pub fn update_solid(&mut self, vetores: &Vec<f32>) {        
         unsafe {
 
             self.gl.UseProgram(self.program_solid);
@@ -184,26 +194,87 @@ impl Renderer {
             self.gl.BindVertexArray(self.vao_solid);
             self.gl.BindBuffer(gl::ARRAY_BUFFER, self.vbo_solid);
             
-            if self.vetores.len() >= vetores.len() { 
-                for i in 0..self.vetores.len() {
+            if self.vetores_solid.len() >= vetores.len() { 
+                for i in 0..self.vetores_solid.len() {
                     if i < vetores.len() {
-                        self.vetores[i] = vetores[i];
+                        self.vetores_solid[i] = vetores[i];
                     } else {
-                        self.vetores[i] = 0.0;
+                        self.vetores_solid[i] = 0.0;
                     }
                 } // limpando o vetores
                 self.gl.BufferSubData(
                     gl::ARRAY_BUFFER,
                     0,
-                    (self.vetores.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
-                    self.vetores.as_ptr() as *const _,
+                    (self.vetores_solid.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
+                    self.vetores_solid.as_ptr() as *const _,
                 );
             } else {
-                self.vetores = vetores.clone();
+                self.vetores_solid = vetores.clone();
                 self.gl.BufferData(
                     gl::ARRAY_BUFFER,
                     (vetores.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
-                    self.vetores.as_ptr() as *const _,
+                    self.vetores_solid.as_ptr() as *const _,
+                    gl::STATIC_DRAW,
+                );
+            }
+        }
+    }
+
+    pub fn update_texture(&mut self, vetores: &Vec<f32>, textures: &mut Vec<*mut Texture>) { // Separando em 2 Métodos deixa mais organizado (eu acho)       
+        unsafe {
+
+            self.gl.UseProgram(self.program_texture);
+            
+            self.gl.BindVertexArray(self.vao_texture);
+            self.gl.BindBuffer(gl::ARRAY_BUFFER, self.vbo_texture);
+            
+            self.textures = textures;
+
+            let textures: &mut Vec<*mut Texture> = textures.as_mut();
+
+            for i in 0..textures.len() {
+                
+                let mut texture: &mut Texture = textures[i].as_mut().expect("Erro");
+
+                if !texture.has_id {
+
+                    //println!("wow1: {}", *texture.get_id());
+                    self.gl.GenTextures(1, texture.get_id());
+                    self.gl.BindTexture(gl::TEXTURE_2D, *texture.get_id());
+                    
+                    self.gl.TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_S, gl::REPEAT as i32);	
+                    self.gl.TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_T, gl::REPEAT as i32);
+                    self.gl.TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::LINEAR_MIPMAP_LINEAR as i32);
+                    self.gl.TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::LINEAR as i32);
+
+                    println!("f32: {}", textures.len());
+
+                    self.gl.TexImage2D(gl::TEXTURE_2D, 0, gl::RGB as i32, texture.width, texture.height, 0, gl::RGB, gl::UNSIGNED_BYTE, texture.data.as_ptr() as *const _);
+                    self.gl.GenerateMipmap(gl::TEXTURE_2D);
+                }
+            }
+
+            if self.vetores_texture.len() >= vetores.len() { 
+                for i in 0..self.vetores_texture.len() {
+                    if i < vetores.len() {
+                        self.vetores_texture[i] = vetores[i];
+                        //println!("{}",vetores[i]);
+                    } else {
+                        self.vetores_texture[i] = 0.0;
+                    }
+                } // limpando o vetores
+                self.gl.BufferSubData(
+                    gl::ARRAY_BUFFER,
+                    0,
+                    (self.vetores_texture.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
+                    self.vetores_texture.as_ptr() as *const _,
+                );
+            } else {
+                self.vetores_texture = vetores.clone();
+                self.gl.BufferData(
+                    gl::ARRAY_BUFFER,
+                    (vetores.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
+                    self.vetores_texture.as_ptr() as *const _,
                     gl::STATIC_DRAW,
                 );
             }
@@ -219,17 +290,32 @@ impl Renderer {
     ) {
         unsafe {
             self.gl.Clear(gl::DEPTH_BUFFER_BIT);
-            
-            self.gl.UseProgram(self.program_solid);
-            
-            self.gl.BindVertexArray(self.vao_solid);
-            self.gl.BindBuffer(gl::ARRAY_BUFFER, self.vbo_solid);
 
-            self.gl.ClearColor(red, green, blue, alpha);
             self.gl.Clear(gl::COLOR_BUFFER_BIT);
-
-            self.gl.DrawArrays(gl::TRIANGLES, 0, self.vetores.len() as i32);
             
+            if self.vetores_solid.len() > 1 {
+                self.gl.UseProgram(self.program_solid);
+                
+                self.gl.BindVertexArray(self.vao_solid);
+                self.gl.BindBuffer(gl::ARRAY_BUFFER, self.vbo_solid);
+
+                self.gl.ClearColor(red, green, blue, alpha);
+
+                self.gl.DrawArrays(gl::TRIANGLES, 0, self.vetores_solid.len() as i32);
+            }
+
+            if self.vetores_texture.len() > 1 {
+                self.gl.UseProgram(self.program_texture);
+
+                self.gl.BindTexture(gl::TEXTURE_2D, *(self.textures.as_mut().expect("AAAAAAAA")[0].as_mut().expect("Jesus amado").get_id()));
+
+                self.gl.BindVertexArray(self.vao_texture);
+                self.gl.BindBuffer(gl::ARRAY_BUFFER, self.vbo_texture);
+
+                self.gl.ClearColor(red, green, blue, alpha);
+
+                self.gl.DrawArrays(gl::TRIANGLES, 0, self.vetores_texture.len() as i32);
+            }
         }
     }
 
@@ -306,33 +392,30 @@ const VERTEX_SHADER_SOURCE_TEXTURE: &[u8] = b"
 #version 330
 precision mediump float;
 
-layout (location = 0) in vec4 position;
-layout (location = 1) in vec3 aColor;
-layout (location = 2) in vec2 aTexCoord;
+attribute vec4 position;
+attribute vec3 color;
+attribute vec2 aTexCoord;
 
-out vec3 ourColor;
-out vec2 TexCoord;
-
+varying vec2 TexCoord;
 varying vec3 v_color;
 
 void main() {
     gl_Position = position;
-    ourColor = aColor;
+    v_color = color;
     TexCoord = aTexCoord;
 }
 \0";
 
 const FRAGMENT_SHADER_SOURCE_TEXTURE: &[u8] = b"
 #version 330
-out vec4 FragColor
 
-in vec3 ourColor;
-in vec2 TexCoord;
+varying vec3 v_color;
+varying vec2 TexCoord;
 
 uniform sampler2D ourTexture;
 
 void main() {
-    FragColor = texture(ourTexture, TexCoord) * vec4(ourColor, 1.0);
+    gl_FragColor = texture(ourTexture, TexCoord) * vec4(v_color, 1.0);
 }
 \0";
 

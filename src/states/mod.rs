@@ -14,7 +14,7 @@ use crate::graphic::texture::Texture;
 pub trait State {
     
     fn get_vertices (&self) -> &Vec<f32>;
-    fn get_textures (&self) -> (bool, Option<Texture>);
+    fn get_textures (&mut self) -> (bool, Option<&mut Vec<*mut Texture>>, Option<& Vec<f32>>);
 
     fn update(&mut self);
     fn manage_keyboard_input(&mut self, event: KeyEvent);

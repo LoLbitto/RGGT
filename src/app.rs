@@ -62,7 +62,19 @@ impl App {
     pub fn update(&mut self) {
         let state = self.game_state.as_mut().unwrap();
         state.update();
-        self.renderer.as_mut().unwrap().update(state.get_vertices());
+        self.renderer.as_mut().unwrap().update_solid(state.get_vertices());
+
+        let (has_texture, mut textures, vertices_textura) = state.get_textures();
+        
+        if has_texture {       
+
+            // Só queria expressar aqui, a minha RAIVA por borrows, que palhaçada, eu sei o que eu
+            // to fazendo, me explica por que caramba eu não posso acessar uma borrom mutavel e
+            // imutal ao mesmo tempo sendo que uma não tem relação com a outra??????????
+
+            self.renderer.as_mut().unwrap().update_texture(vertices_textura.as_ref().unwrap(), &mut textures.as_mut().unwrap());
+            //println!("entrou aqui");
+        }
     }
 }
 
