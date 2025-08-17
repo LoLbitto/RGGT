@@ -281,6 +281,12 @@ impl Renderer {
         }
     }
 
+    pub fn clear_textures (&mut self) {
+        if self.vetores_texture.len() > 0 {
+            self.vetores_texture = Vec::<f32>::new();
+        }
+    }
+
     pub fn draw_with_clear_color(
         &self,
         red: GLfloat,
@@ -378,7 +384,7 @@ void main() {
 \0";
 
 const FRAGMENT_SHADER_SOURCE: &[u8] = b"
-#version 330
+#version 100
 precision mediump float;
 
 varying vec3 v_color;

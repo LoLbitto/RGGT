@@ -74,6 +74,8 @@ impl App {
 
             self.renderer.as_mut().unwrap().update_texture(vertices_textura.as_ref().unwrap(), &mut textures.as_mut().unwrap());
             //println!("entrou aqui");
+        } else {
+            self.renderer.as_mut().unwrap().clear_textures();
         }
     }
 }
