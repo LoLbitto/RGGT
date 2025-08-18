@@ -18,6 +18,7 @@ pub struct MainMenuState {
     vertices: Vec<f32>,
     vertices_textura: Vec<f32>, // 2 vetores de vertices pq podem ter ambos, solido e com textura
     texturas: Vec<*mut Texture>,
+    tex_map: Vec<u32>,
     app: *mut App
 }
 
@@ -42,6 +43,7 @@ impl MainMenuState {
         let mut vertices = Vec::<f32>::new();
         let mut vertices_textura = Vec::<f32>::new();
         let mut texturas = Vec::<*mut Texture>::new();
+        let mut tex_map = Vec::<u32>::new();
         // NOTE: Como não estou considerando que o idiota do usuário pode DELETAR os jpg dos
         // botões, estou considerando que nunca vai dar erro no loading da imagem, MAS isso deve
         // ser mudado futuramente. 
@@ -54,11 +56,13 @@ impl MainMenuState {
             }
 
             texturas.push(buttons[i].get_texture());
+            tex_map.push(i as u32);
+            tex_map.push(i as u32);
         }
 
         let mouse_position = PhysicalPosition::<f64>::new(0.0, 0.0); 
 
-        Box::new(Self {buttons, mouse_position, vertices, vertices_textura, texturas, app})
+        Box::new(Self {buttons, mouse_position, vertices, vertices_textura, texturas, tex_map, app})
     }
 }
 
@@ -67,8 +71,8 @@ impl State for MainMenuState {
         &self.vertices
     }
 
-    fn get_textures(&mut self) -> (bool, Option<&mut Vec<*mut Texture>>, Option<& Vec<f32>>) {
-        (true, Some(&mut self.texturas), Some(& self.vertices_textura)) // NOTE: Por enquanto só
+    fn get_textures(&mut self) -> (bool, Option<&mut Vec<*mut Texture>>, Option<& Vec<f32>>, Option<& Vec<u32>>) {
+        (true, Some(&mut self.texturas), Some(&self.vertices_textura), Some(&self.tex_map)) // NOTE: Por enquanto só
     }
 
     fn update(&mut self) {

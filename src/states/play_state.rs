@@ -44,8 +44,8 @@ impl State for PlayState {
         &self.vetores
     }
 
-    fn get_textures(&mut self) -> (bool, Option<&mut Vec<*mut Texture>>, Option<& Vec<f32>>) {
-        (false, None, None) // NOTE: Por enquanto só
+    fn get_textures(&mut self) -> (bool, Option<&mut Vec<*mut Texture>>, Option<& Vec<f32>>, Option<& Vec<u32>>) {
+        (false, None, None, None) // NOTE: Por enquanto só
     }
 
     fn update(&mut self) {

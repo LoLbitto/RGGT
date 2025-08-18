@@ -89,7 +89,7 @@ impl Button {
         let (red, green, blue) = (1.0, 1.0, 1.0);
 
         for i in 0..2 {
-            for j in i..points.len() / 2 - 1{
+            for j in i..points.len() / 2 - 1 + i{
                 let index = j * 2;
                 let (x, y) = (points[index], points[index+1]);
 
@@ -105,22 +105,22 @@ impl Button {
                     match j {
                         0 => {
                             vertices.push(0.0);
-                            vertices.push(0.0);
+                            vertices.push(1.0);
                         },
 
                         1 => {
                             vertices.push(0.0);
-                            vertices.push(1.0);
+                            vertices.push(0.0);
                         },
 
                         2 => {
                             vertices.push(1.0);
-                            vertices.push(0.0);
+                            vertices.push(1.0);
                         },
 
                         3 => {
                             vertices.push(1.0);
-                            vertices.push(1.0);
+                            vertices.push(0.0);
                         },
 
                         _ => {}

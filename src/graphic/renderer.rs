@@ -32,6 +32,8 @@ pub struct Renderer {
 
     vetores_texture: Vec<f32>,
 
+    texture_map: Vec<u32>,
+
     textures: *mut Vec<*mut Texture>
 }
 
@@ -177,8 +179,9 @@ impl Renderer {
             let textures = &mut Vec::<*mut Texture>::new();
             let vetores_solid = vec![0.0];
             let vetores_texture = vec![0.0];
+            let texture_map = vec![0];
             
-            Self { program_solid, program_texture, vao_solid, vao_texture, vbo_solid, vbo_texture, gl, vetores_solid, vetores_texture, textures}
+            Self { program_solid, program_texture, vao_solid, vao_texture, vbo_solid, vbo_texture, gl, vetores_solid, vetores_texture, texture_map, textures}
         }
     }
 
@@ -220,7 +223,7 @@ impl Renderer {
         }
     }
 
-    pub fn update_texture(&mut self, vetores: &Vec<f32>, textures: &mut Vec<*mut Texture>) { // Separando em 2 Métodos deixa mais organizado (eu acho)       
+    pub fn update_texture(&mut self, vetores: &Vec<f32>, textures: &mut Vec<*mut Texture>, texture_map: & Vec<u32>) { // Separando em 2 Métodos deixa mais organizado (eu acho)       
         unsafe {
 
             self.gl.UseProgram(self.program_texture);
@@ -231,6 +234,10 @@ impl Renderer {
             self.textures = textures;
 
             let textures: &mut Vec<*mut Texture> = textures.as_mut();
+
+            if self.texture_map.len() < texture_map.len() {
+                self.texture_map = texture_map.clone(); 
+            }
 
             for i in 0..textures.len() {
                 
@@ -247,10 +254,14 @@ impl Renderer {
                     self.gl.TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::LINEAR_MIPMAP_LINEAR as i32);
                     self.gl.TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::LINEAR as i32);
 
-                    println!("f32: {}", textures.len());
-
                     self.gl.TexImage2D(gl::TEXTURE_2D, 0, gl::RGB as i32, texture.width, texture.height, 0, gl::RGB, gl::UNSIGNED_BYTE, texture.data.as_ptr() as *const _);
                     self.gl.GenerateMipmap(gl::TEXTURE_2D);
+
+                    for j in 0..texture_map.len() {
+                        if texture_map[j] == i as u32 {
+                            self.texture_map[j] = *texture.get_id() as u32;
+                        }
+                    }
                 }
             }
 
@@ -313,14 +324,23 @@ impl Renderer {
             if self.vetores_texture.len() > 1 {
                 self.gl.UseProgram(self.program_texture);
 
-                self.gl.BindTexture(gl::TEXTURE_2D, *(self.textures.as_mut().expect("AAAAAAAA")[0].as_mut().expect("Jesus amado").get_id()));
-
                 self.gl.BindVertexArray(self.vao_texture);
                 self.gl.BindBuffer(gl::ARRAY_BUFFER, self.vbo_texture);
 
                 self.gl.ClearColor(red, green, blue, alpha);
 
-                self.gl.DrawArrays(gl::TRIANGLES, 0, self.vetores_texture.len() as i32);
+                println!("draw!: {}", self.vetores_texture.len());
+                for i in 0..self.vetores_texture.len() / 27 {
+                    let inicio_triangulo = i as i32 * 3;
+                    let numero_vertices = 3;
+                    let textura = self.texture_map[i];
+
+                    println!("Tex: {}", textura);
+
+                    self.gl.BindTexture(gl::TEXTURE_2D, textura);
+
+                    self.gl.DrawArrays(gl::TRIANGLES, inicio_triangulo, numero_vertices);
+                }
             }
         }
     }

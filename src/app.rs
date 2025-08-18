@@ -64,7 +64,7 @@ impl App {
         state.update();
         self.renderer.as_mut().unwrap().update_solid(state.get_vertices());
 
-        let (has_texture, mut textures, vertices_textura) = state.get_textures();
+        let (has_texture, mut textures, vertices_textura, tex_map) = state.get_textures();
         
         if has_texture {       
 
@@ -72,7 +72,7 @@ impl App {
             // to fazendo, me explica por que caramba eu não posso acessar uma borrom mutavel e
             // imutal ao mesmo tempo sendo que uma não tem relação com a outra??????????
 
-            self.renderer.as_mut().unwrap().update_texture(vertices_textura.as_ref().unwrap(), &mut textures.as_mut().unwrap());
+            self.renderer.as_mut().unwrap().update_texture(vertices_textura.as_ref().unwrap(), &mut textures.as_mut().unwrap(), tex_map.unwrap());
             //println!("entrou aqui");
         } else {
             self.renderer.as_mut().unwrap().clear_textures();
