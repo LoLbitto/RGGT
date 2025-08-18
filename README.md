@@ -77,3 +77,19 @@
    Além disso, eu criei arquivos RGL e RGM - Rust Game Level e Rust Game Model respectivamente - que são arquivos que vão armazenar informações dos mapas e dos modelos, fazendo com que eu possa editar ambos sem ter que recompilar o programa toda vez. E isso também prepara o terreno para o futuro modelador e criador de mapas que irá ser implementado na engine. Para ler esses arquivos eu tive que criar um interpretador de uma linguagem super simples que eu acabei criando.
    
    Além do mais, eu organizei melhor a estrutura de arquivos.
+
+## 30-18/07-08/2025
+    
+   Muita coisa mudou de lá para cá:
+
+   Basicamente, foquei no desenvolvimento de um menu principal (o que me deu certa dor de cabeça, irei desenvolver em breve), correção de matemática e inicio de desenvolvimento de um seletor de mapas.
+
+   Para fazer o menu principal, eu tive que importar no programa imagens, e, para renderizar, tive que transforma-las em texturas do opengl, o que exigiu grande modificação do código das states, app e do renderizador em si, tive que aprender bastante coisa e exigiu certo tempo. Além disso tive que fazer um hitbox 2D para verificar os clicks, isso foi, de certa forma, fácil, mas mesmo assim exigiu um tempo. Essa foi a adição mais complexa desse update.
+
+   Também iniciei um desenvolvimento de um seletor de mapas, que não está funcionando ainda, mas a parte lógica da programação está feita, falta implementar uma fonte para poder escrever na tela, fato que se mostrou meio complicado e eu acabei deixando para depois.
+
+   Corrigi alguns bugs de perspectiva, que não estão 100% ainda.
+
+   Imagem do menu (os botões são de baixa qualidade mesmo, não é problema de renderização):
+
+   <img src = "assetsLog/menu.png">
