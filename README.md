@@ -6,8 +6,8 @@
 
     Caso tenha interesse, estou escrevendo um devlog, que está aqui na raiz do repositório.
 
-    Metas:
+## Metas:
 
-    -[] Programar um modelador 3D;
-    -[] Selecionador de mapas;
-    -[] Criador de mapas;
+- [ ] Programar um modelador 3D;
+- [ ] Selecionador de mapas;
+- [ ] Criador de mapas;
