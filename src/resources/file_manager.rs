@@ -51,10 +51,16 @@ pub mod listing {
 }
 
 pub mod assets {
+    extern crate freetype;
+
     use std::fs;
     use image::ImageReader;
     use image::error::ImageResult;
     use image::DynamicImage;
+
+    use freetype::Library;
+    use freetype::face::LoadFlag;
+    use freetype::face::Face;
 
     pub fn get_image(file_name: &str) -> ImageResult<DynamicImage> {
         let mut extension = "".to_owned();
@@ -86,6 +92,14 @@ pub mod assets {
 
         let img = ImageReader::open(folder.to_owned() + file_name + "." + &extension)?.decode();
         img
+    }
+
+    pub fn get_font(font_name: &str) -> Face  {
+        let lib = Library::init().unwrap();
+
+        let face = lib.new_face("resources/assets/fonts/".to_owned() + font_name, 0).unwrap();
+
+        face
     }
 }
 

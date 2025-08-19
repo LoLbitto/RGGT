@@ -9,8 +9,7 @@ pub struct Texture {
     pub width: i32,
     pub height: i32,
     pub nr_channels: u8,
-    pub data: Vec<u8>,
-    
+    pub data: Vec<u8>,   
     gl_id: u32,
     pub has_id: bool,
 }
