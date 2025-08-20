@@ -2,14 +2,19 @@ use crate::states::State;
 use crate::resources::file_manager::listing;
 use crate::graphic::texture::Texture;
 
+use crate::ui::text::Text;
+use crate::ui::text::TextFabric;
+
 use winit::event::KeyEvent;
 use winit::keyboard::{PhysicalKey, KeyCode};
 use winit::event::ElementState;
 use winit::event::MouseButton;
 use winit::dpi::{PhysicalPosition, PhysicalSize};
 
-struct MapSelectorState {
+struct MapSelectorState<'a> {
     maps: Vec<String>,
+    maps_text: Vec<Text<'a>>,
+    text_fabric: TextFabric,
     selector: u32,
     key_manager: KeyManager,
     vertices: Vec<f32>
@@ -20,18 +25,22 @@ struct KeyManager {
     pub down: bool
 }
 
-impl MapSelectorState {
+impl MapSelectorState<'_> {
     pub fn new() -> Self {
         let maps = listing::get_resource_list(listing::Resource::Map);
         let selector = 0;
         let key_manager = KeyManager {up: false, down: false};
         let vertices = vec![0.0];
 
-        Self{maps, selector, key_manager, vertices}
+        let mut text_fabric = TextFabric::new("MxPlus_IBM_MDA".to_owned());
+
+        let mut maps_text = Vec::<Text>::new();
+
+        Self{maps, maps_text, text_fabric, selector, key_manager, vertices}
     }
 }
 
-impl State for MapSelectorState {
+impl State for MapSelectorState<'_> {
     
     fn get_vertices (&self) -> &Vec<f32> {
         &self.vertices

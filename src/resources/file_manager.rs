@@ -97,7 +97,7 @@ pub mod assets {
     pub fn get_font(font_name: &str) -> Face  {
         let lib = Library::init().unwrap();
 
-        let face = lib.new_face("resources/assets/fonts/".to_owned() + font_name, 0).unwrap();
+        let face = lib.new_face("resources/assets/fonts/".to_owned() + font_name + ".ttf", 0).unwrap();
 
         face
     }
