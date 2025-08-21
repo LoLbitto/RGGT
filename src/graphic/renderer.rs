@@ -278,45 +278,58 @@ impl Renderer {
             self.gl.Clear(gl::DEPTH_BUFFER_BIT);
             self.gl.Clear(gl::COLOR_BUFFER_BIT);
             
-            self.gl.UseProgram(self.program_solid);
-            self.gl.BindVertexArray(self.vao_solid);
-            self.gl.BindBuffer(gl::ARRAY_BUFFER, self.vbo_solid);
+            self.gl.ClearColor(red, green, blue, alpha);
+            
+            unsafe{
+                self.draw_solid();
 
-            let mut solid_size: GLint = 0;
-            self.gl.GetBufferParameteriv(gl::ARRAY_BUFFER,gl::BUFFER_SIZE, &mut solid_size);
-            solid_size = solid_size / 4;
-
-            if solid_size > 1 {
-                println!("Solid size: {}", solid_size);
-                self.gl.ClearColor(red, green, blue, alpha);
-
-                self.gl.DrawArrays(gl::TRIANGLES, 0, solid_size);
-            }
-
-            self.gl.UseProgram(self.program_texture);
-            self.gl.BindVertexArray(self.vao_texture);
-            self.gl.BindBuffer(gl::ARRAY_BUFFER, self.vbo_texture);
-
-            let mut texture_size: GLint = 0;
-            self.gl.GetBufferParameteriv(gl::ARRAY_BUFFER,gl::BUFFER_SIZE, &mut texture_size);
-            texture_size = texture_size / 4;
-
-            if self.texture_map.len() > 1 {
-                self.gl.ClearColor(red, green, blue, alpha);
-                println!("text size: {}", texture_size);
-                for i in 0..texture_size / 27 {
-                    let inicio_triangulo = i as i32 * 3;
-                    let numero_vertices = 3;
-                    let textura = self.texture_map[i as usize];
-
-                    println!("Tex: {}", textura);
-
-                    self.gl.BindTexture(gl::TEXTURE_2D, textura);
-
-                    self.gl.DrawArrays(gl::TRIANGLES, inicio_triangulo, numero_vertices);
-                }
+                self.draw_texture();    
             }
         }
+    }
+
+    pub unsafe fn draw_solid(&self) {
+        self.gl.UseProgram(self.program_solid);
+        self.gl.BindVertexArray(self.vao_solid);
+        self.gl.BindBuffer(gl::ARRAY_BUFFER, self.vbo_solid);
+
+        let mut solid_size: GLint = 0;
+        self.gl.GetBufferParameteriv(gl::ARRAY_BUFFER,gl::BUFFER_SIZE, &mut solid_size);
+        solid_size = solid_size / 4;
+
+        if solid_size > 1 {
+
+            self.gl.DrawArrays(gl::TRIANGLES, 0, solid_size);
+        }
+    }
+
+    pub unsafe fn draw_texture(&self) {
+        self.gl.UseProgram(self.program_texture);
+        self.gl.BindVertexArray(self.vao_texture);
+        self.gl.BindBuffer(gl::ARRAY_BUFFER, self.vbo_texture);
+
+        let mut texture_size: GLint = 0;
+        self.gl.GetBufferParameteriv(gl::ARRAY_BUFFER,gl::BUFFER_SIZE, &mut texture_size);
+        texture_size = texture_size / 4;
+
+        if self.texture_map.len() > 1 {
+            println!("text size: {}", texture_size);
+            for i in 0..texture_size / 27 {
+                let inicio_triangulo = i as i32 * 3;
+                let numero_vertices = 3;
+                let textura = self.texture_map[i as usize];
+
+                println!("Tex: {}", textura);
+
+                self.gl.BindTexture(gl::TEXTURE_2D, textura);
+
+                self.gl.DrawArrays(gl::TRIANGLES, inicio_triangulo, numero_vertices);
+            }
+        }
+    }
+
+    pub unsafe fn draw_text(&self) {
+        
     }
 
     pub fn resize(&self, width: i32, height: i32) {
