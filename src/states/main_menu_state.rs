@@ -1,4 +1,6 @@
 use crate::ui::menu::button::Button;
+use crate::ui::text::Text;
+
 use crate::app::App;
 use crate::states::State;
 use crate::states::play_state::PlayState;
@@ -75,6 +77,10 @@ impl State for MainMenuState {
         (true, Some(&mut self.texturas), Some(&self.vertices_textura), Some(&self.tex_map)) // NOTE: Por enquanto só
     }
 
+    fn get_text(&self) -> (bool, Option<&Vec<Text>>) {
+        (false, None)
+    }
+
     fn update(&mut self) {
         
     }
@@ -102,7 +108,7 @@ impl State for MainMenuState {
             PLAY_BUTTON => {
                 unsafe{
                     let state = PlayState::new("teste".to_string(), &mut *self.app) as Box<dyn State>;
-                    (*self.app).game_state.replace(state);
+                    (*self.app).change_state(state);
                 }
             },
 

@@ -50,6 +50,10 @@ impl State for MapSelectorState<'_> {
         (false, None, None, None) // NOTE: Por enquanto só
     }
 
+    fn get_text(&self) -> (bool, Option<&Vec<Text>>) {
+        (true, Some(&self.maps_text))
+    }
+
     fn update(&mut self) {
         let down = self.key_manager.down;
         let up = self.key_manager.up ;

@@ -20,6 +20,7 @@ pub struct Renderer {
     // armazena o vbo e outros atributos do objeto
     vao_solid: gl::types::GLuint,
     vao_texture: gl::types::GLuint,
+    //vao_text: gl::types::GLuint,
 
     // armazena os vértices brutos de algo
     vbo_solid: gl::types::GLuint,
@@ -28,13 +29,8 @@ pub struct Renderer {
     // comunicador com o opengl ou coisa parecida
     gl: gl::Gl,
 
-    vetores_solid: Vec<f32>,
-
-    vetores_texture: Vec<f32>,
-
     texture_map: Vec<u32>,
 
-    textures: *mut Vec<*mut Texture>
 }
 
 impl Renderer {
@@ -175,13 +171,10 @@ impl Renderer {
             // Definições finais
 
             gl.Enable(gl::DEPTH_TEST);
-            
-            let textures = &mut Vec::<*mut Texture>::new();
-            let vetores_solid = vec![0.0];
-            let vetores_texture = vec![0.0];
+        
             let texture_map = vec![0];
             
-            Self { program_solid, program_texture, vao_solid, vao_texture, vbo_solid, vbo_texture, gl, vetores_solid, vetores_texture, texture_map, textures}
+            Self { program_solid, program_texture, vao_solid, vao_texture, vbo_solid, vbo_texture, gl, texture_map}
         }
     }
 
@@ -196,30 +189,13 @@ impl Renderer {
             
             self.gl.BindVertexArray(self.vao_solid);
             self.gl.BindBuffer(gl::ARRAY_BUFFER, self.vbo_solid);
-            
-            if self.vetores_solid.len() >= vetores.len() { 
-                for i in 0..self.vetores_solid.len() {
-                    if i < vetores.len() {
-                        self.vetores_solid[i] = vetores[i];
-                    } else {
-                        self.vetores_solid[i] = 0.0;
-                    }
-                } // limpando o vetores
-                self.gl.BufferSubData(
-                    gl::ARRAY_BUFFER,
-                    0,
-                    (self.vetores_solid.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
-                    self.vetores_solid.as_ptr() as *const _,
-                );
-            } else {
-                self.vetores_solid = vetores.clone();
-                self.gl.BufferData(
-                    gl::ARRAY_BUFFER,
-                    (vetores.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
-                    self.vetores_solid.as_ptr() as *const _,
-                    gl::STATIC_DRAW,
-                );
-            }
+
+            self.gl.BufferData(
+                gl::ARRAY_BUFFER,
+                (vetores.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
+                vetores.as_ptr() as *const _,
+                gl::STATIC_DRAW,
+            );
         }
     }
 
@@ -230,8 +206,6 @@ impl Renderer {
             
             self.gl.BindVertexArray(self.vao_texture);
             self.gl.BindBuffer(gl::ARRAY_BUFFER, self.vbo_texture);
-            
-            self.textures = textures;
 
             let textures: &mut Vec<*mut Texture> = textures.as_mut();
 
@@ -265,36 +239,31 @@ impl Renderer {
                 }
             }
 
-            if self.vetores_texture.len() >= vetores.len() { 
-                for i in 0..self.vetores_texture.len() {
-                    if i < vetores.len() {
-                        self.vetores_texture[i] = vetores[i];
-                        //println!("{}",vetores[i]);
-                    } else {
-                        self.vetores_texture[i] = 0.0;
-                    }
-                } // limpando o vetores
-                self.gl.BufferSubData(
-                    gl::ARRAY_BUFFER,
-                    0,
-                    (self.vetores_texture.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
-                    self.vetores_texture.as_ptr() as *const _,
-                );
-            } else {
-                self.vetores_texture = vetores.clone();
-                self.gl.BufferData(
-                    gl::ARRAY_BUFFER,
-                    (vetores.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
-                    self.vetores_texture.as_ptr() as *const _,
-                    gl::STATIC_DRAW,
-                );
-            }
+            self.gl.BufferData(
+                gl::ARRAY_BUFFER,
+                (vetores.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
+                vetores.as_ptr() as *const _,
+                gl::STATIC_DRAW,
+            );
         }
     }
 
     pub fn clear_textures (&mut self) {
-        if self.vetores_texture.len() > 0 {
-            self.vetores_texture = Vec::<f32>::new();
+        if self.texture_map.len() > 0 {
+            self.texture_map = Vec::<u32>::new();
+            println!("eita abriu aqui heim");
+            unsafe {
+                self.gl.UseProgram(self.program_texture);
+                self.gl.BindVertexArray(self.vao_texture);
+                self.gl.BindBuffer(gl::ARRAY_BUFFER, self.vbo_texture);
+
+                self.gl.BufferData(
+                    gl::ARRAY_BUFFER,
+                    0 as gl::types::GLsizeiptr,
+                    0 as *const _,
+                    gl::STATIC_DRAW,
+                );
+            }
         }
     }
 
@@ -307,33 +276,38 @@ impl Renderer {
     ) {
         unsafe {
             self.gl.Clear(gl::DEPTH_BUFFER_BIT);
-
             self.gl.Clear(gl::COLOR_BUFFER_BIT);
             
-            if self.vetores_solid.len() > 1 {
-                self.gl.UseProgram(self.program_solid);
-                
-                self.gl.BindVertexArray(self.vao_solid);
-                self.gl.BindBuffer(gl::ARRAY_BUFFER, self.vbo_solid);
+            self.gl.UseProgram(self.program_solid);
+            self.gl.BindVertexArray(self.vao_solid);
+            self.gl.BindBuffer(gl::ARRAY_BUFFER, self.vbo_solid);
 
+            let mut solid_size: GLint = 0;
+            self.gl.GetBufferParameteriv(gl::ARRAY_BUFFER,gl::BUFFER_SIZE, &mut solid_size);
+            solid_size = solid_size / 4;
+
+            if solid_size > 1 {
+                println!("Solid size: {}", solid_size);
                 self.gl.ClearColor(red, green, blue, alpha);
 
-                self.gl.DrawArrays(gl::TRIANGLES, 0, self.vetores_solid.len() as i32);
+                self.gl.DrawArrays(gl::TRIANGLES, 0, solid_size);
             }
 
-            if self.vetores_texture.len() > 1 {
-                self.gl.UseProgram(self.program_texture);
+            self.gl.UseProgram(self.program_texture);
+            self.gl.BindVertexArray(self.vao_texture);
+            self.gl.BindBuffer(gl::ARRAY_BUFFER, self.vbo_texture);
 
-                self.gl.BindVertexArray(self.vao_texture);
-                self.gl.BindBuffer(gl::ARRAY_BUFFER, self.vbo_texture);
+            let mut texture_size: GLint = 0;
+            self.gl.GetBufferParameteriv(gl::ARRAY_BUFFER,gl::BUFFER_SIZE, &mut texture_size);
+            texture_size = texture_size / 4;
 
+            if self.texture_map.len() > 1 {
                 self.gl.ClearColor(red, green, blue, alpha);
-
-                println!("draw!: {}", self.vetores_texture.len());
-                for i in 0..self.vetores_texture.len() / 27 {
+                println!("text size: {}", texture_size);
+                for i in 0..texture_size / 27 {
                     let inicio_triangulo = i as i32 * 3;
                     let numero_vertices = 3;
-                    let textura = self.texture_map[i];
+                    let textura = self.texture_map[i as usize];
 
                     println!("Tex: {}", textura);
 

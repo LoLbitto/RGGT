@@ -74,9 +74,12 @@ impl App {
 
             self.renderer.as_mut().unwrap().update_texture(vertices_textura.as_ref().unwrap(), &mut textures.as_mut().unwrap(), tex_map.unwrap());
             //println!("entrou aqui");
-        } else {
-            self.renderer.as_mut().unwrap().clear_textures();
         }
+    }
+
+    pub fn change_state(&mut self, state: Box<dyn State>) {
+        self.renderer.as_mut().unwrap().clear_textures();
+        self.game_state.replace(state);
     }
 }
 
