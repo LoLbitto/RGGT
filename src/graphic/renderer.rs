@@ -5,6 +5,7 @@ use std::ops::Deref;
 use std::ffi::CStr;
 
 use crate::graphic::texture::Texture;
+use crate::ui::text::Text;
 
 pub mod gl {
     #![allow(clippy::all)]
@@ -16,15 +17,17 @@ pub mod gl {
 pub struct Renderer {
     program_solid: gl::types::GLuint,
     program_texture: gl::types::GLuint,
+    program_text: gl::types::GLuint,
     
     // armazena o vbo e outros atributos do objeto
     vao_solid: gl::types::GLuint,
     vao_texture: gl::types::GLuint,
-    //vao_text: gl::types::GLuint,
+    vao_text: gl::types::GLuint,
 
     // armazena os vértices brutos de algo
     vbo_solid: gl::types::GLuint,
     vbo_texture: gl::types::GLuint,
+    vbo_text: gl::types::GLuint,
 
     // comunicador com o opengl ou coisa parecida
     gl: gl::Gl,
@@ -168,13 +171,50 @@ impl Renderer {
             gl.EnableVertexAttribArray(color_attrib as gl::types::GLuint);
             gl.EnableVertexAttribArray(tex_attrib as gl::types::GLuint);
 
+            // CRIAÇÃO E MANEJAMENTO DE OBJETOS GRÁFICOS DE TEXTO
+            let vertex_shader_text = create_shader(&gl, gl::VERTEX_SHADER, VERTEX_SHADER_SOURCE_TEXT);
+            let fragment_shader_text = create_shader(&gl, gl::FRAGMENT_SHADER, FRAGMENT_SHADER_SOURCE_TEXT);
+
+            let program_text = gl.CreateProgram();
+
+            gl.AttachShader(program_text, vertex_shader_text);
+            gl.AttachShader(program_text, fragment_shader_text);
+
+            gl.LinkProgram(program_text);
+
+            gl.UseProgram(program_text);
+
+            gl.DeleteShader(vertex_shader_text);
+            gl.DeleteShader(fragment_shader_text);
+
+            let mut vao_text = std::mem::zeroed();
+            gl.GenVertexArrays(1, &mut vao_text);
+            gl.BindVertexArray(vao_text);
+
+            let mut vbo_text = std::mem::zeroed();
+            gl.GenBuffers(1, &mut vbo_text);
+            gl.BindBuffer(gl::ARRAY_BUFFER, vbo_text);
+
+            let pos_attrib = gl.GetAttribLocation(program_solid, b"vertex\0".as_ptr() as *const _);
+                        
+            gl.VertexAttribPointer(
+                pos_attrib as gl::types::GLuint,
+                4,
+                gl::FLOAT,
+                0,
+                4 * std::mem::size_of::<f32>() as gl::types::GLsizei,
+                std::ptr::null(),
+            );
+
+            gl.EnableVertexAttribArray(pos_attrib as gl::types::GLuint);
+
             // Definições finais
 
             gl.Enable(gl::DEPTH_TEST);
         
             let texture_map = vec![0];
             
-            Self { program_solid, program_texture, vao_solid, vao_texture, vbo_solid, vbo_texture, gl, texture_map}
+            Self { program_solid, program_texture, program_text, vao_solid, vao_texture, vao_text, vbo_solid, vbo_texture, vbo_text, gl, texture_map}
         }
     }
 
@@ -328,8 +368,13 @@ impl Renderer {
         }
     }
 
-    pub unsafe fn draw_text(&self) {
-        
+    pub unsafe fn draw_text(&self, texts: &mut Vec<Text>) {
+        self.gl.UseProgram(self.program_texture);
+        self.gl.BindVertexArray(self.vao_texture);
+        self.gl.BindBuffer(gl::ARRAY_BUFFER, self.vbo_texture);
+    
+        let vectors = Vec::<f32>::new();
+
     }
 
     pub fn resize(&self, width: i32, height: i32) {
@@ -432,4 +477,31 @@ void main() {
 }
 \0";
 
+const VERTEX_SHADER_SOURCE_TEXT: &[u8] = b"
+#version 330 core
+layout (location = 0) in vec4 vertex; // <vec2 pos, vec2 tex>
+out vec2 TexCoords;
 
+uniform mat4 projection;
+
+void main()
+{
+    gl_Position = projection * vec4(vertex.xy, 0.0, 1.0);
+    TexCoords = vertex.zw;
+} 
+\0";
+
+const FRAGMENT_SHADER_SOURCE_TEXT: &[u8] = b"
+#version 330 core
+in vec2 TexCoords;
+out vec4 color;
+
+uniform sampler2D text;
+uniform vec3 textColor;
+
+void main()
+{    
+    vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r);
+    color = vec4(textColor, 1.0) * sampled;
+} 
+\0";

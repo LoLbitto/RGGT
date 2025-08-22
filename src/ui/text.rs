@@ -9,7 +9,8 @@ use freetype::glyph_slot::GlyphSlot;
 use crate::resources::file_manager::assets;
 
 pub struct Text<'a> {
-    pub chars: Vec<&'a Char>,
+    pub text: String,
+    pub char_array: &'a mut HashMap<char, Char>
 }
 
 pub struct Char {
@@ -46,7 +47,6 @@ impl TextFabric {
     }
 
     pub fn gen_text(&mut self, text: String) -> Text {
-        let mut text_vec = Vec::<&Char>::new();
 
         for caractere in text.chars() {
 
@@ -55,11 +55,7 @@ impl TextFabric {
             } 
         } 
 
-        for caractere in text.chars() {
-            text_vec.push(self.chars.get(&caractere).unwrap());
-        } // NOTE: Rust bobão kkkkkkkk, n da pra fazer no mesmo for
-
-        Text{chars: text_vec}
+        Text{text, char_array: &mut self.chars}
     }
 
     pub fn create_char(&mut self, char: char) {

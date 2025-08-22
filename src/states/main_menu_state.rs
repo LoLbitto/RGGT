@@ -32,9 +32,6 @@ impl MainMenuState {
         let width = 0.3;
         let height = 0.2;
 
-        let img_play = assets::get_image("play.jpg");
-        let img_exit = assets::get_image("exit.jpg");
-        
         // NOTE: fazer assim deixa muito estático, o certo é ler de algum lugar
             //  Concordo plenamente
         let button_play = Button::new(cords_play, width, height, "play", PLAY_BUTTON as u32);
