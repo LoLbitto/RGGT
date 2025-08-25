@@ -1,6 +1,5 @@
 use glutin::prelude::GlDisplay;
-use ::gl::types::*;
-use std::ffi::CString;
+use ::gl::types::*; use std::ffi::CString;
 use std::ops::Deref;
 use std::ffi::CStr;
 
@@ -368,13 +367,80 @@ impl Renderer {
         }
     }
 
-    pub unsafe fn draw_text(&self, texts: &mut Vec<Text>) {
+    pub unsafe fn draw_text(&mut self, texts: &mut Vec<Text>) {
         self.gl.UseProgram(self.program_texture);
         self.gl.BindVertexArray(self.vao_texture);
         self.gl.BindBuffer(gl::ARRAY_BUFFER, self.vbo_texture);
-    
-        let vectors = Vec::<f32>::new();
+        
+        self.gl.PixelStorei(gl::UNPACK_ALIGNMENT, 1);
 
+        self.gl.Enable(gl::BLEND);
+        self.gl.BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);  
+
+        for i in 0..texts.len() {
+            let mut x = texts[i].x;
+            let y = texts[i].y;
+
+            let text = texts[i].text.clone();
+
+            for char in text.chars() {
+                let char_object = texts[i].char_array.get_mut(&char).unwrap();
+                if  char_object.tex_id == -1 {
+                    let mut texture: u32 = 0;
+                    self.gl.GenTextures(1, &mut texture);
+                    self.gl.BindTexture(gl::TEXTURE_2D, texture);
+                    
+                    self.gl.TexImage2D(
+                        gl::TEXTURE_2D,
+                        0,
+                        gl::RED as i32,
+                        char_object.width,
+                        char_object.height,
+                        0,
+                        gl::RED as u32,
+                        gl::UNSIGNED_BYTE,
+                        char_object.buffer.as_ptr() as *const _
+                    );
+
+                    self.gl.TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_S, gl::CLAMP_TO_EDGE as i32);
+                    self.gl.TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_T, gl::CLAMP_TO_EDGE as i32);
+                    self.gl.TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::LINEAR as i32);
+                    self.gl.TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::LINEAR as i32);
+
+                    char_object.tex_id = texture as i32;
+                }
+
+                let pos_x = x + char_object.bearing_x as f32;
+                let pos_y = y + (char_object.height - char_object.bearing_y) as f32;
+
+                let width = char_object.width as f32;
+                let height = char_object.height as f32;
+
+                let vertices: [[f32; 4]; 6] = 
+                [
+                    [pos_x,         pos_y + height, 0.0, 0.0],
+                    [pos_x,         pos_y,          0.0, 1.0],
+                    [pos_x + width, pos_y,          1.0, 1.0],
+
+                    [pos_x,         pos_y + height, 0.0, 0.0],
+                    [pos_x + width, pos_y,          1.0, 1.0],
+                    [pos_x + width, pos_y + height, 1.0, 0.0],
+                ];
+
+                self.gl.BindTexture(gl::TEXTURE_2D, char_object.tex_id as u32);
+                
+                self.gl.BufferData(
+                    gl::ARRAY_BUFFER,
+                    (vertices.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
+                    vertices.as_ptr() as *const _,
+                    gl::STATIC_DRAW,
+                );
+
+                self.gl.DrawArrays(gl::TRIANGLES, 0, vertices.len() as i32);
+
+                x += 64.0;
+            }
+        }
     }
 
     pub fn resize(&self, width: i32, height: i32) {

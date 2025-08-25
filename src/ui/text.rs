@@ -9,17 +9,19 @@ use freetype::glyph_slot::GlyphSlot;
 use crate::resources::file_manager::assets;
 
 pub struct Text<'a> {
+    pub x: f32,
+    pub y: f32,
     pub text: String,
     pub char_array: &'a mut HashMap<char, Char>
 }
 
 pub struct Char {
-    tex_id: i32,
-    width: i32,
-    height: i32,
-    bearing_x: i32,
-    bearing_y: i32,
-    buffer: Vec<u8>
+    pub tex_id: i32,
+    pub width: i32,
+    pub height: i32,
+    pub bearing_x: i32,
+    pub bearing_y: i32,
+    pub buffer: Vec<u8>
 }
 
 pub struct TextFabric {
@@ -46,7 +48,7 @@ impl TextFabric {
         Self {font, chars}
     }
 
-    pub fn gen_text(&mut self, text: String) -> Text {
+    pub fn gen_text(&mut self, text: String, x: f32, y: f32) -> Text {
 
         for caractere in text.chars() {
 
@@ -55,7 +57,7 @@ impl TextFabric {
             } 
         } 
 
-        Text{text, char_array: &mut self.chars}
+        Text{x, y, text, char_array: &mut self.chars}
     }
 
     pub fn create_char(&mut self, char: char) {
