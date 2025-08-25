@@ -367,7 +367,8 @@ impl Renderer {
         }
     }
 
-    pub unsafe fn draw_text(&mut self, texts: &mut Vec<Text>) {
+    pub unsafe fn draw_text(&mut self, texts: *mut Vec<Text>) {
+        let mut texts = texts.as_mut().unwrap();
         self.gl.UseProgram(self.program_texture);
         self.gl.BindVertexArray(self.vao_texture);
         self.gl.BindBuffer(gl::ARRAY_BUFFER, self.vbo_texture);

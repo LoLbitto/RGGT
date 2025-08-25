@@ -4,6 +4,7 @@ use crate::ui::text::Text;
 use crate::app::App;
 use crate::states::State;
 use crate::states::play_state::PlayState;
+use crate::states::map_selector_state::MapSelectorState;
 use crate::resources::file_manager::assets;
 use crate::graphic::texture::Texture;
 
@@ -65,7 +66,7 @@ impl MainMenuState {
     }
 }
 
-impl State for MainMenuState {
+impl<'a> State<'a> for MainMenuState {
     fn get_vertices (&self) -> &Vec<f32> {
         &self.vertices
     }
@@ -74,7 +75,7 @@ impl State for MainMenuState {
         (true, Some(&mut self.texturas), Some(&self.vertices_textura), Some(&self.tex_map)) // NOTE: Por enquanto só
     }
 
-    fn get_text(&self) -> (bool, Option<&Vec<Text>>) {
+    fn get_text(&mut self) -> (bool, Option<&mut Vec<Text<'a>>>) {
         (false, None)
     }
 
@@ -104,7 +105,11 @@ impl State for MainMenuState {
         match id {
             PLAY_BUTTON => {
                 unsafe{
+                    /*
                     let state = PlayState::new("teste".to_string(), &mut *self.app) as Box<dyn State>;
+                    */
+
+                    let state = MapSelectorState::new(/*&mut *self.app*/) as Box<dyn for <'b> State<'b>>;
                     (*self.app).change_state(state);
                 }
             },

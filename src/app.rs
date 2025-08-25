@@ -42,7 +42,7 @@ pub struct App {
     
     last_update: Instant,
 
-    pub game_state: Option<Box<dyn State>>
+    pub game_state: Option<Box<dyn for <'a> State<'a>>>
 }
 
 impl App {
@@ -64,6 +64,14 @@ impl App {
         state.update();
         self.renderer.as_mut().unwrap().update_solid(state.get_vertices());
 
+        let (has_text, texts) = state.get_text();
+
+        if has_text {
+            unsafe{
+                self.renderer.as_mut().unwrap().draw_text(texts.unwrap());
+            }
+        }
+
         let (has_texture, mut textures, vertices_textura, tex_map) = state.get_textures();
         
         if has_texture {       
@@ -77,7 +85,7 @@ impl App {
         }
     }
 
-    pub fn change_state(&mut self, state: Box<dyn State>) {
+    pub fn change_state(&mut self, state: Box<dyn for <'a> State<'a>>) {
         self.renderer.as_mut().unwrap().clear_textures();
         self.game_state.replace(state);
     }
@@ -171,7 +179,7 @@ impl ApplicationHandler for App {
         // retornará "false" e o programa soltará um erro
         assert!(self.state.replace(AppState { gl_surface, window}).is_none());
         
-        let state = MainMenuState::new(self) as Box<dyn State>;
+        let state = MainMenuState::new(self) as Box<dyn for <'a> State<'a>>;
 
         self.game_state.replace(state);
     }

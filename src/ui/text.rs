@@ -31,7 +31,7 @@ pub struct TextFabric {
 
 impl TextFabric {
     pub fn new(font_name: String) -> Self {
-        let font = assets::get_font(& font_name);
+        let font = assets::get_font(&font_name);
         let mut chars = HashMap::<char, Char>::new();
 
         for i in 0..128 { // carrega os 128 caracteres da tabela ascii

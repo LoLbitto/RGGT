@@ -11,10 +11,10 @@ use winit::event::ElementState;
 use winit::event::MouseButton;
 use winit::dpi::{PhysicalPosition, PhysicalSize};
 
-struct MapSelectorState<'a> {
+pub struct MapSelectorState<'a> {
     maps: Vec<String>,
-    maps_text: Vec<Text<'a>>,
     text_fabric: TextFabric,
+    maps_text: Vec<Text<'a>>,
     selector: u32,
     key_manager: KeyManager,
     vertices: Vec<f32>
@@ -25,8 +25,8 @@ struct KeyManager {
     pub down: bool
 }
 
-impl MapSelectorState<'_> {
-    pub fn new() -> Self {
+impl<'a> MapSelectorState<'a> {
+    pub fn new() -> Box<Self> {
         let maps = listing::get_resource_list(listing::Resource::Map);
         let selector = 0;
         let key_manager = KeyManager {up: false, down: false};
@@ -36,11 +36,15 @@ impl MapSelectorState<'_> {
 
         let mut maps_text = Vec::<Text>::new();
 
-        Self{maps, maps_text, text_fabric, selector, key_manager, vertices}
+        Box::new(Self{maps, text_fabric, maps_text, selector, key_manager, vertices})
+    }
+
+    fn get_text2(&mut self) -> (bool, Option<&mut Vec<Text<'a>>>) {
+        (true, Some(&mut self.maps_text))
     }
 }
 
-impl State for MapSelectorState<'_> {
+impl<'a> State<'a> for MapSelectorState<'_> {
     
     fn get_vertices (&self) -> &Vec<f32> {
         &self.vertices
@@ -50,11 +54,12 @@ impl State for MapSelectorState<'_> {
         (false, None, None, None) // NOTE: Por enquanto só
     }
 
-    fn get_text(&self) -> (bool, Option<&Vec<Text>>) {
-        (true, Some(&self.maps_text))
+    fn get_text(&mut self) -> (bool, Option<&mut Vec<Text<'a>>>) {
+        (true, Some(&mut self.maps_text))
     }
 
     fn update(&mut self) {
+
         let down = self.key_manager.down;
         let up = self.key_manager.up ;
         match true {
