@@ -12,11 +12,11 @@ use crate::app::AppState;
 use crate::graphic::texture::Texture;
 use crate::ui::text::Text;
 
-pub trait State<'a> {
+pub trait State {
     
     fn get_vertices (&self) -> &Vec<f32>;
     fn get_textures (&mut self) -> (bool, Option<&mut Vec<*mut Texture>>, Option<& Vec<f32>>, Option<& Vec<u32>>);
-    fn get_text(&mut self) -> (bool, Option<&mut Vec<Text<'a>>>);
+    fn get_text(&mut self) -> (bool, Option<&mut Vec<Text>>);
 
     fn update(&mut self);
     fn manage_keyboard_input(&mut self, event: KeyEvent);

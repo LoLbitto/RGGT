@@ -42,7 +42,7 @@ pub struct App {
     
     last_update: Instant,
 
-    pub game_state: Option<Box<dyn for <'a> State<'a>>>
+    pub game_state: Option<Box<dyn State>>
 }
 
 impl App {
@@ -85,7 +85,7 @@ impl App {
         }
     }
 
-    pub fn change_state(&mut self, state: Box<dyn for <'a> State<'a>>) {
+    pub fn change_state(&mut self, state: Box<dyn State>) {
         self.renderer.as_mut().unwrap().clear_textures();
         self.game_state.replace(state);
     }
@@ -179,7 +179,7 @@ impl ApplicationHandler for App {
         // retornará "false" e o programa soltará um erro
         assert!(self.state.replace(AppState { gl_surface, window}).is_none());
         
-        let state = MainMenuState::new(self) as Box<dyn for <'a> State<'a>>;
+        let state = MainMenuState::new(self) as Box<dyn State>;
 
         self.game_state.replace(state);
     }

@@ -19,6 +19,8 @@ use winit::event_loop::ControlFlow;
 
 use glutin::config::ConfigTemplateBuilder;
 
+extern crate nalgebra_glm as glm;
+
 fn main() {
 
     let template = ConfigTemplateBuilder::new().with_alpha_size(8).with_transparency(cfg!(cgl_backend));

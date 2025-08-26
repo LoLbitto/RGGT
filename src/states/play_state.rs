@@ -39,7 +39,7 @@ impl PlayState {
 
 }
 
-impl<'a> State<'a> for PlayState {
+impl State for PlayState {
 
     fn get_vertices(&self) -> &Vec<f32> {
         &self.vetores
@@ -49,7 +49,7 @@ impl<'a> State<'a> for PlayState {
         (false, None, None, None) // NOTE: Por enquanto só
     }
 
-    fn get_text(&mut self) -> (bool, Option<&mut Vec<Text<'a>>>) {
+    fn get_text(&mut self) -> (bool, Option<&mut Vec<Text>>) {
         (false, None)
     }
 

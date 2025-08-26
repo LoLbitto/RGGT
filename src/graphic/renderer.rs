@@ -5,6 +5,7 @@ use std::ffi::CStr;
 
 use crate::graphic::texture::Texture;
 use crate::ui::text::Text;
+use crate::ui::text::TextFabric;
 
 pub mod gl {
     #![allow(clippy::all)]
@@ -109,10 +110,6 @@ impl Renderer {
 
             let mut comp_stt: i32 = 1000;
 
-            gl.GetShaderiv(fragment_shader_texture, gl::COMPILE_STATUS, &mut comp_stt);
-
-            println!("compiled stt: {}", comp_stt);
-
             let program_texture = gl.CreateProgram();
 
             gl.AttachShader(program_texture, vertex_shader_texture);
@@ -173,6 +170,12 @@ impl Renderer {
             // CRIAÇÃO E MANEJAMENTO DE OBJETOS GRÁFICOS DE TEXTO
             let vertex_shader_text = create_shader(&gl, gl::VERTEX_SHADER, VERTEX_SHADER_SOURCE_TEXT);
             let fragment_shader_text = create_shader(&gl, gl::FRAGMENT_SHADER, FRAGMENT_SHADER_SOURCE_TEXT);
+
+            let mut comp_stt = 0;
+
+            gl.GetShaderiv(vertex_shader_text, gl::COMPILE_STATUS, &mut comp_stt);
+
+            println!("compiled stt: {}", comp_stt);
 
             let program_text = gl.CreateProgram();
 
@@ -352,13 +355,10 @@ impl Renderer {
         texture_size = texture_size / 4;
 
         if self.texture_map.len() > 1 {
-            println!("text size: {}", texture_size);
             for i in 0..texture_size / 27 {
                 let inicio_triangulo = i as i32 * 3;
                 let numero_vertices = 3;
                 let textura = self.texture_map[i as usize];
-
-                println!("Tex: {}", textura);
 
                 self.gl.BindTexture(gl::TEXTURE_2D, textura);
 
@@ -367,11 +367,20 @@ impl Renderer {
         }
     }
 
-    pub unsafe fn draw_text(&mut self, texts: *mut Vec<Text>) {
-        let mut texts = texts.as_mut().unwrap();
-        self.gl.UseProgram(self.program_texture);
-        self.gl.BindVertexArray(self.vao_texture);
-        self.gl.BindBuffer(gl::ARRAY_BUFFER, self.vbo_texture);
+    pub unsafe fn draw_text(&mut self, texts: &mut Vec<Text>) {
+        
+        // let mut texts = texts.as_mut().unwrap();
+        
+        self.gl.UseProgram(self.program_text);
+
+        let projection = glm::ortho(0.0, 400.0, 0.0, 200.0, -1.0, 1.0);
+
+        self.gl.UniformMatrix4fv(self.gl.GetUniformLocation(self.program_text, "projection".as_ptr() as *const i8), 1, gl::FALSE, glm::value_ptr(&projection).as_ptr());
+
+        self.gl.Uniform3f(self.gl.GetUniformLocation(self.program_text, "textColor".as_ptr() as *const i8), 1.0, 1.0, 1.0);
+
+        self.gl.BindVertexArray(self.vao_text);
+        self.gl.BindBuffer(gl::ARRAY_BUFFER, self.vbo_text);
         
         self.gl.PixelStorei(gl::UNPACK_ALIGNMENT, 1);
 
@@ -384,8 +393,10 @@ impl Renderer {
 
             let text = texts[i].text.clone();
 
+            let mut text_fabric = TextFabric::new(texts[i].font.clone());
+
             for char in text.chars() {
-                let char_object = texts[i].char_array.get_mut(&char).unwrap();
+                let char_object = text_fabric.chars.get_mut(&char).unwrap();
                 if  char_object.tex_id == -1 {
                     let mut texture: u32 = 0;
                     self.gl.GenTextures(1, &mut texture);
@@ -411,11 +422,11 @@ impl Renderer {
                     char_object.tex_id = texture as i32;
                 }
 
-                let pos_x = x + char_object.bearing_x as f32;
-                let pos_y = y + (char_object.height - char_object.bearing_y) as f32;
+                let pos_x = x + char_object.bearing_x as f32 * texts[i].size;
+                let pos_y = y + (char_object.height - char_object.bearing_y) as f32 * texts[i].size;
 
-                let width = char_object.width as f32;
-                let height = char_object.height as f32;
+                let width = char_object.width as f32 * texts[i].size;
+                let height = char_object.height as f32 * texts[i].size;
 
                 let vertices: [[f32; 4]; 6] = 
                 [
@@ -428,8 +439,10 @@ impl Renderer {
                     [pos_x + width, pos_y + height, 1.0, 0.0],
                 ];
 
-                self.gl.BindTexture(gl::TEXTURE_2D, char_object.tex_id as u32);
+                self.gl.BindTexture(gl::TEXTURE_2D, 1 as u32);
                 
+                println!("Char text: {}", char_object.tex_id);
+
                 self.gl.BufferData(
                     gl::ARRAY_BUFFER,
                     (vertices.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr,
@@ -437,7 +450,7 @@ impl Renderer {
                     gl::STATIC_DRAW,
                 );
 
-                self.gl.DrawArrays(gl::TRIANGLES, 0, vertices.len() as i32);
+                self.gl.DrawArrays(gl::TRIANGLES, 0, vertices.len() as i32 * 4);
 
                 x += 64.0;
             }

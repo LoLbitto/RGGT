@@ -3,7 +3,6 @@ use crate::resources::file_manager::listing;
 use crate::graphic::texture::Texture;
 
 use crate::ui::text::Text;
-use crate::ui::text::TextFabric;
 
 use winit::event::KeyEvent;
 use winit::keyboard::{PhysicalKey, KeyCode};
@@ -11,10 +10,9 @@ use winit::event::ElementState;
 use winit::event::MouseButton;
 use winit::dpi::{PhysicalPosition, PhysicalSize};
 
-pub struct MapSelectorState<'a> {
+pub struct MapSelectorState {
     maps: Vec<String>,
-    text_fabric: TextFabric,
-    maps_text: Vec<Text<'a>>,
+    maps_text: Vec<Text>,
     selector: u32,
     key_manager: KeyManager,
     vertices: Vec<f32>
@@ -25,26 +23,24 @@ struct KeyManager {
     pub down: bool
 }
 
-impl<'a> MapSelectorState<'a> {
+impl MapSelectorState {
     pub fn new() -> Box<Self> {
         let maps = listing::get_resource_list(listing::Resource::Map);
         let selector = 0;
         let key_manager = KeyManager {up: false, down: false};
         let vertices = vec![0.0];
 
-        let mut text_fabric = TextFabric::new("MxPlus_IBM_MDA".to_owned());
-
         let mut maps_text = Vec::<Text>::new();
 
-        Box::new(Self{maps, text_fabric, maps_text, selector, key_manager, vertices})
-    }
+        for i in 0..maps.len() {
+            maps_text.push(Text::new(maps[i].clone(), 10.0, 20.0 * i as f32 + 20.0, 2.0, "MxPlus_IBM_MDA".to_owned()));
+        }
 
-    fn get_text2(&mut self) -> (bool, Option<&mut Vec<Text<'a>>>) {
-        (true, Some(&mut self.maps_text))
+        Box::new(Self{maps, maps_text, selector, key_manager, vertices})
     }
 }
 
-impl<'a> State<'a> for MapSelectorState<'_> {
+impl State for MapSelectorState {
     
     fn get_vertices (&self) -> &Vec<f32> {
         &self.vertices
@@ -54,7 +50,7 @@ impl<'a> State<'a> for MapSelectorState<'_> {
         (false, None, None, None) // NOTE: Por enquanto só
     }
 
-    fn get_text(&mut self) -> (bool, Option<&mut Vec<Text<'a>>>) {
+    fn get_text(&mut self) -> (bool, Option<&mut Vec<Text>>) {
         (true, Some(&mut self.maps_text))
     }
 

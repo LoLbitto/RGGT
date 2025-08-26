@@ -8,11 +8,18 @@ use freetype::glyph_slot::GlyphSlot;
 
 use crate::resources::file_manager::assets;
 
-pub struct Text<'a> {
+pub struct Text {
+    pub text: String,
     pub x: f32,
     pub y: f32,
-    pub text: String,
-    pub char_array: &'a mut HashMap<char, Char>
+    pub size: f32,
+    pub font: String,
+}
+
+impl Text {
+    pub fn new(text: String, x: f32, y:f32, size:f32, font: String) -> Self {
+        Self{text, x, y, size, font}
+    }
 }
 
 pub struct Char {
@@ -26,7 +33,8 @@ pub struct Char {
 
 pub struct TextFabric {
     font: Face,
-    chars: HashMap<char, Char>
+    pub font_name: String,
+    pub chars: HashMap<char, Char>
 }
 
 impl TextFabric {
@@ -34,8 +42,10 @@ impl TextFabric {
         let font = assets::get_font(&font_name);
         let mut chars = HashMap::<char, Char>::new();
 
-        for i in 0..128 { // carrega os 128 caracteres da tabela ascii
-            
+       for i in 0..128 { // carrega os 128 caracteres da tabela ascii
+
+            font.set_char_size(40 * 64, 0, 50, 0).unwrap();
+
             font.load_char(i, LoadFlag::RENDER).unwrap();
 
             let glyph = font.glyph();
@@ -45,19 +55,7 @@ impl TextFabric {
             chars.insert(i as u8 as char, char);
         }
 
-        Self {font, chars}
-    }
-
-    pub fn gen_text(&mut self, text: String, x: f32, y: f32) -> Text {
-
-        for caractere in text.chars() {
-
-            if !self.chars.contains_key(&caractere) {
-                self.create_char(caractere);
-            } 
-        } 
-
-        Text{x, y, text, char_array: &mut self.chars}
+        Self {font, font_name, chars}
     }
 
     pub fn create_char(&mut self, char: char) {

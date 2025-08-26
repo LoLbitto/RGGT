@@ -66,7 +66,7 @@ impl MainMenuState {
     }
 }
 
-impl<'a> State<'a> for MainMenuState {
+impl State for MainMenuState {
     fn get_vertices (&self) -> &Vec<f32> {
         &self.vertices
     }
@@ -75,7 +75,7 @@ impl<'a> State<'a> for MainMenuState {
         (true, Some(&mut self.texturas), Some(&self.vertices_textura), Some(&self.tex_map)) // NOTE: Por enquanto só
     }
 
-    fn get_text(&mut self) -> (bool, Option<&mut Vec<Text<'a>>>) {
+    fn get_text(&mut self) -> (bool, Option<&mut Vec<Text>>) {
         (false, None)
     }
 
@@ -109,7 +109,7 @@ impl<'a> State<'a> for MainMenuState {
                     let state = PlayState::new("teste".to_string(), &mut *self.app) as Box<dyn State>;
                     */
 
-                    let state = MapSelectorState::new(/*&mut *self.app*/) as Box<dyn for <'b> State<'b>>;
+                    let state = MapSelectorState::new(/*&mut *self.app*/) as Box<dyn State>;
                     (*self.app).change_state(state);
                 }
             },
