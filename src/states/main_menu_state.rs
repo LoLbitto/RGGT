@@ -1,5 +1,6 @@
 use crate::ui::menu::button::Button;
 use crate::ui::text::Text;
+use crate::ui::text::TextFabric;
 
 use crate::app::App;
 use crate::states::State;
@@ -75,8 +76,16 @@ impl State for MainMenuState {
         (true, Some(&mut self.texturas), Some(&self.vertices_textura), Some(&self.tex_map)) // NOTE: Por enquanto só
     }
 
-    fn get_text(&mut self) -> (bool, Option<&mut Vec<Text>>) {
-        (false, None)
+    fn get_text(&mut self) -> (bool, Option<&mut Vec<Text>>, Option<&mut TextFabric>) {
+        (false, None, None)
+    }
+
+    fn has_draw_ui(&self) -> bool {
+        true
+    }
+
+    fn set_draw_ui(&mut self) {
+
     }
 
     fn update(&mut self) {

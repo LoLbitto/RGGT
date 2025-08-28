@@ -3,6 +3,7 @@ use crate::resources::file_manager::listing;
 use crate::graphic::texture::Texture;
 
 use crate::ui::text::Text;
+use crate::ui::text::TextFabric;
 
 use winit::event::KeyEvent;
 use winit::keyboard::{PhysicalKey, KeyCode};
@@ -13,9 +14,12 @@ use winit::dpi::{PhysicalPosition, PhysicalSize};
 pub struct MapSelectorState {
     maps: Vec<String>,
     maps_text: Vec<Text>,
+    text_fabric: TextFabric,
     selector: u32,
     key_manager: KeyManager,
-    vertices: Vec<f32>
+    vertices: Vec<f32>,
+
+    pub has_draw: bool
 }
 
 struct KeyManager {
@@ -33,10 +37,14 @@ impl MapSelectorState {
         let mut maps_text = Vec::<Text>::new();
 
         for i in 0..maps.len() {
-            maps_text.push(Text::new(maps[i].clone(), 10.0, 20.0 * i as f32 + 20.0, 2.0, "MxPlus_IBM_MDA".to_owned()));
+            maps_text.push(Text::new(maps[i].clone(), 10.0, 500.0 - 30.0 * i as f32, 2.0, "MxPlus_IBM_MDA".to_owned()));
         }
 
-        Box::new(Self{maps, maps_text, selector, key_manager, vertices})
+        let text_fabric = TextFabric::new("MxPlus_IBM_MDA".to_owned());
+
+        let has_draw = false;
+
+        Box::new(Self{maps, maps_text, text_fabric, selector, key_manager, vertices, has_draw})
     }
 }
 
@@ -50,8 +58,16 @@ impl State for MapSelectorState {
         (false, None, None, None) // NOTE: Por enquanto só
     }
 
-    fn get_text(&mut self) -> (bool, Option<&mut Vec<Text>>) {
-        (true, Some(&mut self.maps_text))
+    fn get_text(&mut self) -> (bool, Option<&mut Vec<Text>>, Option<&mut TextFabric>) {
+        (true, Some(&mut self.maps_text), Some(&mut self.text_fabric))
+    }
+
+    fn has_draw_ui(&self) -> bool {
+        self.has_draw
+    }
+
+    fn set_draw_ui(&mut self) {
+        self.has_draw = true;
     }
 
     fn update(&mut self) {

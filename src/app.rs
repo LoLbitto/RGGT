@@ -64,14 +64,6 @@ impl App {
         state.update();
         self.renderer.as_mut().unwrap().update_solid(state.get_vertices());
 
-        let (has_text, texts) = state.get_text();
-
-        if has_text {
-            unsafe{
-                self.renderer.as_mut().unwrap().draw_text(texts.unwrap());
-            }
-        }
-
         let (has_texture, mut textures, vertices_textura, tex_map) = state.get_textures();
         
         if has_texture {       
@@ -82,6 +74,19 @@ impl App {
 
             self.renderer.as_mut().unwrap().update_texture(vertices_textura.as_ref().unwrap(), &mut textures.as_mut().unwrap(), tex_map.unwrap());
             //println!("entrou aqui");
+        } else {
+            self.renderer.as_mut().unwrap().clear_textures();
+        }
+
+        let has_draw_ui = state.has_draw_ui();
+
+        let (has_text, texts, text_fabric) = state.get_text();
+
+        if has_text{
+            unsafe{
+                self.renderer.as_mut().unwrap().draw_text(texts.unwrap(), text_fabric.unwrap());
+            }
+            state.set_draw_ui();
         }
     }
 

@@ -7,6 +7,7 @@ use crate::states::State;
 use crate::logical::mapa;
 use crate::graphic::texture::Texture;
 use crate::ui::text::Text;
+use crate::ui::text::TextFabric;
 
 use winit::dpi::{PhysicalPosition, PhysicalSize};
 use winit::event::KeyEvent;
@@ -49,8 +50,16 @@ impl State for PlayState {
         (false, None, None, None) // NOTE: Por enquanto só
     }
 
-    fn get_text(&mut self) -> (bool, Option<&mut Vec<Text>>) {
-        (false, None)
+    fn get_text(&mut self) -> (bool, Option<&mut Vec<Text>>, Option<&mut TextFabric>) {
+        (false, None, None)
+    }
+
+    fn has_draw_ui(&self) -> bool {
+        true
+    }
+
+    fn set_draw_ui(&mut self) {
+
     }
 
     fn update(&mut self) {
