@@ -4,12 +4,17 @@ use crate::graphic::texture::Texture;
 
 use crate::ui::text::Text;
 use crate::ui::text::TextFabric;
+use crate::app::App;
+use crate::states::play_state::PlayState;
 
 use winit::event::KeyEvent;
 use winit::keyboard::{PhysicalKey, KeyCode};
 use winit::event::ElementState;
 use winit::event::MouseButton;
 use winit::dpi::{PhysicalPosition, PhysicalSize};
+
+const COR_BRANCA : [f32;3] = [1.0, 1.0, 1.0];
+const COR_PRETA : [f32;3] = [0.0, 0.0, 0.0];
 
 pub struct MapSelectorState {
     maps: Vec<String>,
@@ -18,6 +23,7 @@ pub struct MapSelectorState {
     selector: u32,
     key_manager: KeyManager,
     vertices: Vec<f32>,
+    app: *mut App,
 
     pub has_draw: bool
 }
@@ -28,7 +34,7 @@ struct KeyManager {
 }
 
 impl MapSelectorState {
-    pub fn new() -> Box<Self> {
+    pub fn new(app: &mut App) -> Box<Self> {
         let maps = listing::get_resource_list(listing::Resource::Map);
         let selector = 0;
         let key_manager = KeyManager {up: false, down: false};
@@ -37,14 +43,14 @@ impl MapSelectorState {
         let mut maps_text = Vec::<Text>::new();
 
         for i in 0..maps.len() {
-            maps_text.push(Text::new(maps[i].clone(), 10.0, 500.0 - 30.0 * i as f32, 2.0, "MxPlus_IBM_MDA".to_owned()));
+            maps_text.push(Text::new(maps[i].clone(), 10.0, 500.0 - 30.0 * i as f32, 2.0, "MxPlus_IBM_MDA".to_owned(), COR_BRANCA));
         }
 
         let text_fabric = TextFabric::new("MxPlus_IBM_MDA".to_owned());
 
         let has_draw = false;
 
-        Box::new(Self{maps, maps_text, text_fabric, selector, key_manager, vertices, has_draw})
+        Box::new(Self{maps, maps_text, text_fabric, selector, key_manager, vertices, app, has_draw})
     }
 }
 
@@ -62,18 +68,11 @@ impl State for MapSelectorState {
         (true, Some(&mut self.maps_text), Some(&mut self.text_fabric))
     }
 
-    fn has_draw_ui(&self) -> bool {
-        self.has_draw
-    }
-
-    fn set_draw_ui(&mut self) {
-        self.has_draw = true;
-    }
-
     fn update(&mut self) {
 
         let down = self.key_manager.down;
         let up = self.key_manager.up ;
+
         match true {
             up => {
                 if self.selector == self.maps.len() as u32 - 1 {
@@ -115,6 +114,13 @@ impl State for MapSelectorState {
                                 self.key_manager.down = false;
                             }
                         },
+
+                        KeyCode::Enter => {
+                            unsafe {
+                                let state = PlayState::new(self.maps[self.selector as usize].clone(), &mut *self.app) as Box<dyn State>;
+                                (*self.app).change_state(state);
+                            }
+                        }
 
                         _ => {}
                     }

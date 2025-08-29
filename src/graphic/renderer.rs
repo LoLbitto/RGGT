@@ -463,7 +463,9 @@ impl Renderer {
 
                 self.gl.DrawArrays(gl::TRIANGLES, 0, vertices.len() as i32 * 4);
 
-                x += 64.0;
+                x += (char_object.advance >> 6) as f32 + 10.0;
+
+                println!("x: {}", x);
             }
         }
     }

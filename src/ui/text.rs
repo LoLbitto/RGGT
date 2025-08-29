@@ -14,11 +14,12 @@ pub struct Text {
     pub y: f32,
     pub size: f32,
     pub font: String,
+    pub color: [f32; 3]
 }
 
 impl Text {
-    pub fn new(text: String, x: f32, y:f32, size:f32, font: String) -> Self {
-        Self{text, x, y, size, font}
+    pub fn new(text: String, x: f32, y:f32, size:f32, font: String, color: [f32; 3]) -> Self {
+        Self{text, x, y, size, font, color}
     }
 }
 
@@ -28,7 +29,8 @@ pub struct Char {
     pub height: i32,
     pub bearing_x: i32,
     pub bearing_y: i32,
-    pub buffer: Vec<u8>
+    pub buffer: Vec<u8>,
+    pub advance: u32
 }
 
 pub struct TextFabric {
@@ -76,6 +78,7 @@ impl TextFabric {
         let bearing_x = glyph.bitmap_left();
         let bearing_y = glyph.bitmap_top();
         let buffer = glyph.bitmap().buffer().to_vec();
+        let advance = glyph.advance().x as u32;
 
         let char = Char {
             tex_id,
@@ -83,7 +86,8 @@ impl TextFabric {
             height,
             bearing_x,
             bearing_y,
-            buffer
+            buffer,
+            advance
         };
         
         char

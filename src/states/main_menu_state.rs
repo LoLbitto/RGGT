@@ -80,14 +80,6 @@ impl State for MainMenuState {
         (false, None, None)
     }
 
-    fn has_draw_ui(&self) -> bool {
-        true
-    }
-
-    fn set_draw_ui(&mut self) {
-
-    }
-
     fn update(&mut self) {
         
     }
@@ -118,7 +110,7 @@ impl State for MainMenuState {
                     let state = PlayState::new("teste".to_string(), &mut *self.app) as Box<dyn State>;
                     */
 
-                    let state = MapSelectorState::new(/*&mut *self.app*/) as Box<dyn State>;
+                    let state = MapSelectorState::new(&mut *self.app) as Box<dyn State>;
                     (*self.app).change_state(state);
                 }
             },

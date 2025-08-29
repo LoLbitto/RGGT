@@ -19,9 +19,6 @@ pub trait State {
     fn get_textures (&mut self) -> (bool, Option<&mut Vec<*mut Texture>>, Option<& Vec<f32>>, Option<& Vec<u32>>);
     fn get_text(&mut self) -> (bool, Option<&mut Vec<Text>>, Option<&mut TextFabric>);
 
-    fn has_draw_ui(&self) -> bool;
-    fn set_draw_ui(&mut self);
-
     fn update(&mut self);
     fn manage_keyboard_input(&mut self, event: KeyEvent);
     fn manage_mouse_input(&mut self, button: MouseButton);

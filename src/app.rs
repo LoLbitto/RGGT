@@ -73,12 +73,9 @@ impl App {
             // imutal ao mesmo tempo sendo que uma não tem relação com a outra??????????
 
             self.renderer.as_mut().unwrap().update_texture(vertices_textura.as_ref().unwrap(), &mut textures.as_mut().unwrap(), tex_map.unwrap());
-            //println!("entrou aqui");
         } else {
             self.renderer.as_mut().unwrap().clear_textures();
         }
-
-        let has_draw_ui = state.has_draw_ui();
 
         let (has_text, texts, text_fabric) = state.get_text();
 
@@ -86,7 +83,6 @@ impl App {
             unsafe{
                 self.renderer.as_mut().unwrap().draw_text(texts.unwrap(), text_fabric.unwrap());
             }
-            state.set_draw_ui();
         }
     }
 

@@ -26,7 +26,7 @@ pub struct PlayState {
 
 impl PlayState {
     pub fn new(data: String, app: &mut App ) -> Box<Self> {
-        let mapa: Box<dyn Mapa> = Box::new(mapa::DefaultMap::new("main".to_string()));
+        let mapa: Box<dyn Mapa> = Box::new(mapa::DefaultMap::new(data));
         let (player_pos, mira) = mapa.get_start_position();
         let player = Player::new(*player_pos, *mira);                 
         let vetores = vec![0.0];                             // futuramente vai ter q adicionar a GUI
@@ -54,14 +54,6 @@ impl State for PlayState {
         (false, None, None)
     }
 
-    fn has_draw_ui(&self) -> bool {
-        true
-    }
-
-    fn set_draw_ui(&mut self) {
-
-    }
-
     fn update(&mut self) {
         let mut vetores = Vec::<f32>::new();
 
@@ -72,6 +64,8 @@ impl State for PlayState {
                 vetores.extend(grap_rep.vertex.iter().cloned());
             }
         }
+
+        println!("Ta updateando!");
 
         self.vetores = vetores;
         self.player.update();
