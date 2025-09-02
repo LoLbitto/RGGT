@@ -24,6 +24,7 @@ pub struct MapSelectorState {
     key_manager: KeyManager,
     vertices: Vec<f32>,
     app: *mut App,
+    
 
     pub has_draw: bool
 }
