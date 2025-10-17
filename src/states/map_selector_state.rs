@@ -39,12 +39,14 @@ impl MapSelectorState {
         let maps = listing::get_resource_list(listing::Resource::Map);
         let selector = 0;
         let key_manager = KeyManager {up: false, down: false};
-        let vertices = vec![0.0];
+        let vertices = vec![-1.0, 0.8, 0.0, 1.0, 1.0, 1.0, 1.0,
+                            -1.0, 0.6, 0.0, 1.0, 1.0, 1.0, 1.0,
+                            -0.8, 0.7, 0.0, 1.0, 1.0, 1.0, 1.0,];
 
         let mut maps_text = Vec::<Text>::new();
 
         for i in 0..maps.len() {
-            maps_text.push(Text::new(maps[i].clone(), 10.0, 500.0 - 30.0 * i as f32, 2.0, "MxPlus_IBM_MDA".to_owned(), COR_BRANCA));
+            maps_text.push(Text::new(maps[i].clone(), 100.0, 500.0 - 100.0 * i as f32, 2.0, "MxPlus_IBM_MDA".to_owned(), COR_BRANCA));
         }
 
         let text_fabric = TextFabric::new("MxPlus_IBM_MDA".to_owned());
@@ -74,21 +76,33 @@ impl State for MapSelectorState {
         let down = self.key_manager.down;
         let up = self.key_manager.up ;
 
-        match true {
-            up => {
-                if self.selector == self.maps.len() as u32 - 1 {
-                    self.selector = 0;
-                } else {
-                    self.selector += 1;
-                }
-            },
+        if up {
+            if self.selector == self.maps.len() as u32 - 1 {
+                self.selector = 0;
 
-            down => {
-                if self.selector == 0 {
-                    self.selector = self.maps.len() as u32 - 1;
-                } else {
-                    self.selector -= 1;
-                }
+                self.vertices[1] += 0.3;
+                self.vertices[8] += 0.3;
+                self.vertices[15] += 0.3;
+            } else {
+                self.selector += 1;
+
+                self.vertices[1] -= 0.3;
+                self.vertices[8] -= 0.3;
+                self.vertices[15] -= 0.3;
+            }
+        } else if down {
+            if self.selector == 0 {
+                self.selector = self.maps.len() as u32 - 1;
+
+                self.vertices[1] -= 0.3;
+                self.vertices[8] -= 0.3;
+                self.vertices[15] -= 0.3;
+            } else {
+                self.selector -= 1;
+
+                self.vertices[1] += 0.3;
+                self.vertices[8] += 0.3;
+                self.vertices[15] += 0.3;
             }
         }
     }

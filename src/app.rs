@@ -62,7 +62,17 @@ impl App {
     pub fn update(&mut self) {
         let state = self.game_state.as_mut().unwrap();
         state.update();
+        
         self.renderer.as_mut().unwrap().update_solid(state.get_vertices());
+
+    }
+
+    pub fn draw(&mut self) {
+        let state = self.game_state.as_mut().unwrap();
+
+        unsafe{
+            self.renderer.as_mut().unwrap().clear_buffer();
+        }
 
         let (has_texture, mut textures, vertices_textura, tex_map) = state.get_textures();
         
@@ -73,8 +83,6 @@ impl App {
             // imutal ao mesmo tempo sendo que uma não tem relação com a outra??????????
 
             self.renderer.as_mut().unwrap().update_texture(vertices_textura.as_ref().unwrap(), &mut textures.as_mut().unwrap(), tex_map.unwrap());
-        } else {
-            self.renderer.as_mut().unwrap().clear_textures();
         }
 
         let (has_text, texts, text_fabric) = state.get_text();
@@ -84,6 +92,11 @@ impl App {
                 self.renderer.as_mut().unwrap().draw_text(texts.unwrap(), text_fabric.unwrap());
             }
         }
+
+        unsafe {
+            self.renderer.as_mut().unwrap().draw_solid();
+        }
+
     }
 
     pub fn change_state(&mut self, state: Box<dyn State>) {
@@ -230,7 +243,7 @@ impl ApplicationHandler for App {
             },
 
             WindowEvent::RedrawRequested => { 
-                self.renderer.as_ref().unwrap().draw();
+                self.draw();
             }
             _ => (),
         }
