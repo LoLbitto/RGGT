@@ -73,7 +73,7 @@ impl State for MainMenuState {
     }
 
     fn get_textures(&mut self) -> (bool, Option<&mut Vec<*mut Texture>>, Option<& Vec<f32>>, Option<& Vec<u32>>) {
-        (true, Some(&mut self.texturas), Some(&self.vertices_textura), Some(&self.tex_map)) // NOTE: Por enquanto só
+        (true, Some(&mut self.texturas), Some(&self.vertices_textura), Some(&self.tex_map))
     }
 
     fn get_text(&mut self) -> (bool, Option<&mut Vec<Text>>, Option<&mut TextFabric>) {

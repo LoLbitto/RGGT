@@ -78,10 +78,6 @@ impl App {
         
         if has_texture {       
 
-            // Só queria expressar aqui, a minha RAIVA por borrows, que palhaçada, eu sei o que eu
-            // to fazendo, me explica por que caramba eu não posso acessar uma borrom mutavel e
-            // imutal ao mesmo tempo sendo que uma não tem relação com a outra??????????
-
             self.renderer.as_mut().unwrap().update_texture(vertices_textura.as_ref().unwrap(), &mut textures.as_mut().unwrap(), tex_map.unwrap());
         }
 
@@ -95,6 +91,7 @@ impl App {
 
         unsafe {
             self.renderer.as_mut().unwrap().draw_solid();
+            self.renderer.as_mut().unwrap().draw_texture();
         }
 
     }
