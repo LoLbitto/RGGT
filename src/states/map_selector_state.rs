@@ -13,6 +13,8 @@ use winit::event::ElementState;
 use winit::event::MouseButton;
 use winit::dpi::{PhysicalPosition, PhysicalSize};
 
+use std::time::{Duration, Instant}; 
+
 const COR_BRANCA : [f32;3] = [1.0, 1.0, 1.0];
 const COR_PRETA : [f32;3] = [0.0, 0.0, 0.0];
 
@@ -25,6 +27,7 @@ pub struct MapSelectorState {
     vertices: Vec<f32>,
     app: *mut App,
     
+    last_scrolled: Instant,
 
     pub has_draw: bool
 }
@@ -51,9 +54,11 @@ impl MapSelectorState {
 
         let text_fabric = TextFabric::new("MxPlus_IBM_MDA".to_owned());
 
+        let last_scrolled = Instant::now();
+
         let has_draw = false;
 
-        Box::new(Self{maps, maps_text, text_fabric, selector, key_manager, vertices, app, has_draw})
+        Box::new(Self{maps, maps_text, text_fabric, selector, key_manager, vertices, app, last_scrolled, has_draw})
     }
 }
 
@@ -74,35 +79,43 @@ impl State for MapSelectorState {
     fn update(&mut self) {
 
         let down = self.key_manager.down;
-        let up = self.key_manager.up ;
+        let up = self.key_manager.up;
 
-        if up {
-            if self.selector == self.maps.len() as u32 - 1 {
-                self.selector = 0;
+        let agora = Instant::now();
 
-                self.vertices[1] += 0.3;
-                self.vertices[8] += 0.3;
-                self.vertices[15] += 0.3;
-            } else {
-                self.selector += 1;
+        let diff = agora - self.last_scrolled >= Duration::from_secs_f64(0.5);
 
-                self.vertices[1] -= 0.3;
-                self.vertices[8] -= 0.3;
-                self.vertices[15] -= 0.3;
-            }
-        } else if down {
-            if self.selector == 0 {
-                self.selector = self.maps.len() as u32 - 1;
+        if diff {
+            if up {
+                self.last_scrolled = agora;
+                if self.selector == self.maps.len() as u32 - 1 {
+                    self.selector = 0;
 
-                self.vertices[1] -= 0.3;
-                self.vertices[8] -= 0.3;
-                self.vertices[15] -= 0.3;
-            } else {
-                self.selector -= 1;
+                    self.vertices[1] += 0.3;
+                    self.vertices[8] += 0.3;
+                    self.vertices[15] += 0.3;
+                } else {
+                    self.selector += 1;
 
-                self.vertices[1] += 0.3;
-                self.vertices[8] += 0.3;
-                self.vertices[15] += 0.3;
+                    self.vertices[1] -= 0.3;
+                    self.vertices[8] -= 0.3;
+                    self.vertices[15] -= 0.3;
+                }
+            } else if down {
+                self.last_scrolled = agora;
+                if self.selector == 0 {
+                    self.selector = self.maps.len() as u32 - 1;
+
+                    self.vertices[1] -= 0.3;
+                    self.vertices[8] -= 0.3;
+                    self.vertices[15] -= 0.3;
+                } else {
+                    self.selector -= 1;
+
+                    self.vertices[1] += 0.3;
+                    self.vertices[8] += 0.3;
+                    self.vertices[15] += 0.3;
+                }
             }
         }
     }
