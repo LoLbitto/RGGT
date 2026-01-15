@@ -9,18 +9,18 @@ pub struct PauseSubState {
     background_vec: Vec<f32>,
     buttons: Vec<Button>,
     mouse_position: PhysicalPosition<f64>, 
-
+    state: &State
 }
 
 impl PauseSubState {
-    pub fn new(background_vec: Vec<f32>, mouse_position: PhysicalPosition<f64>) -> Box<Self> {
+    pub fn new(background_vec: Vec<f32>, mouse_position: PhysicalPosition<f64>, state: &State) -> Box<Self> {
         let buttons = [
                    Button::new([0.4, 0.1], 0.2, 0.1, "", 0),
-                   Button::new([0.4, 0.3], 0.2, 0.1, "", 0), 
-                   Button::new([0.4, 0.5], 0.2, 0.1, "", 0)
+                   Button::new([0.4, 0.3], 0.2, 0.1, "", 1), 
+                   Button::new([0.4, 0.5], 0.2, 0.1, "", 2)
                   ];
         
-        Box::new(Self{background_vec, buttons, mouse_position})
+        Box::new(Self{background_vec, buttons, mouse_position, state})
     }
 }
 
@@ -38,7 +38,7 @@ impl State for PauseSubState {
     }
 
     fn update(&mut self) {
-
+        
     }
 
     fn manage_keyboard_input(&mut self, event: KeyEvent) {
@@ -46,14 +46,30 @@ impl State for PauseSubState {
     }
 
     fn manage_mouse_input(&mut self, button: MouseButton) {
+        for button in self.buttons {
+            if (button.verify_inside(self.mouse_position)) {
+                match button.id {
+                    0 => {
+                        
+                    },
 
+                    1 => {
+                        
+                    },
+
+                    2 => {
+                            
+                    }
+                }
+            }
+        }
     }
 
     fn manage_mouse_movement(&mut self, position: PhysicalPosition<f64>) {
-
+        self.mouse_position = position;
     }
 
     fn manage_window_resize(&mut self, size: PhysicalSize<u32>) {
-
+        
     }
 }
