@@ -24,6 +24,8 @@ pub trait State {
     fn manage_mouse_input(&mut self, button: MouseButton);
     fn manage_mouse_movement(&mut self, position: PhysicalPosition<f64>);
     fn manage_window_resize(&mut self, size: PhysicalSize<u32>);
+    
+    fn close_substate(&mut self);
 
     // fn set_app_state(&mut self, appstate: AppState);   
 }

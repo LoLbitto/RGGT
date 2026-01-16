@@ -128,4 +128,8 @@ impl State for MainMenuState {
             self.buttons[i].update_screen_size(size);
         }
     }
+
+    fn close_substate(&mut self) {
+
+    }
 }

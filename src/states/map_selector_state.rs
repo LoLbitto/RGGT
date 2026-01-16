@@ -170,5 +170,8 @@ impl State for MapSelectorState {
     fn manage_window_resize(&mut self, size: PhysicalSize<u32>) {
 
     }
+    
+    fn close_substate(&mut self) {
 
+    }
 }

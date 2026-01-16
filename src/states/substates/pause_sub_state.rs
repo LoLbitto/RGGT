@@ -50,7 +50,7 @@ impl State for PauseSubState {
             if (button.verify_inside(self.mouse_position)) {
                 match button.id {
                     0 => {
-                        
+                        self.state.close_substate();       
                     },
 
                     1 => {
@@ -71,5 +71,9 @@ impl State for PauseSubState {
 
     fn manage_window_resize(&mut self, size: PhysicalSize<u32>) {
         
+    }
+
+    fn close_substate(&mut self) {
+
     }
 }

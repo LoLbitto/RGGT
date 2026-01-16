@@ -21,7 +21,8 @@ pub struct PlayState {
     player: Player,
     vetores: Vec<f32>,
     app: *const App,
-    cursor_grab: CursorGrabber
+    cursor_grab: CursorGrabber,
+    substate: Option<*mut dyn State>
 }
 
 impl PlayState {
@@ -35,7 +36,7 @@ impl PlayState {
 
         app.state.as_ref().unwrap().window.set_cursor_visible(false);
 
-        Box::new(Self{mapa, player, vetores, app, cursor_grab})
+        Box::new(Self{mapa, player, vetores, app, cursor_grab, substate: None})
     }
 
 }
@@ -43,108 +44,144 @@ impl PlayState {
 impl State for PlayState {
 
     fn get_vertices(&self) -> &Vec<f32> {
-        &self.vetores
+        match self.substate {
+            None => &self.vetores,
+            Some(_) => unsafe { (*self.substate.unwrap()).get_vertices() }
+        }
     }
 
     fn get_textures(&mut self) -> (bool, Option<&mut Vec<*mut Texture>>, Option<& Vec<f32>>, Option<& Vec<u32>>) {
-        (false, None, None, None) // NOTE: Por enquanto só
+        match self.substate {
+            None => (false, None, None, None), // NOTE: Por enquanto só
+
+            Some(_) => unsafe { (*self.substate.unwrap()).get_textures() }
+        }
     }
 
     fn get_text(&mut self) -> (bool, Option<&mut Vec<Text>>, Option<&mut TextFabric>) {
-        (false, None, None)
+        match self.substate {
+            None => (false, None, None), // NOTE: Por enquanto só
+
+            Some(_) => unsafe { (*self.substate.unwrap()).get_text() }
+        }
     }
 
     fn update(&mut self) {
-        let mut vetores = Vec::<f32>::new();
+        match self.substate {
+            None => {
+                let mut vetores = Vec::<f32>::new();
 
-        for i in 0..self.mapa.get_objects().len() {
-             
-            if self.mapa.get_objects()[i].verify_on_screen(self.player.position, self.player.mira) {
-                let grap_rep = self.mapa.get_objects()[i].visual.as_ref().unwrap();
-                vetores.extend(grap_rep.vertex.iter().cloned());
-            }
+                for i in 0..self.mapa.get_objects().len() {
+                     
+                    if self.mapa.get_objects()[i].verify_on_screen(self.player.position, self.player.mira) {
+                        let grap_rep = self.mapa.get_objects()[i].visual.as_ref().unwrap();
+                        vetores.extend(grap_rep.vertex.iter().cloned());
+                    }
+                }
+
+                println!("Ta updateando!");
+
+                self.vetores = vetores;
+                self.player.update();
+            },
+            Some(_) => unsafe { (*self.substate.unwrap()).update() }
         }
-
-        println!("Ta updateando!");
-
-        self.vetores = vetores;
-        self.player.update();
-
     }
 
     fn manage_keyboard_input(&mut self, event: KeyEvent) {
-        if !event.repeat {
-            let char = event.logical_key.to_text();
+        match self.substate {
+            None => {
+                if !event.repeat {
+                    let char = event.logical_key.to_text();
 
-            if char != None {
-                match char.unwrap() {
-                    "w" => {
-                        if event.state == ElementState::Pressed {
-                            self.player.w = true;
-                        } else if event.state == ElementState::Released {
-                            self.player.w = false;
-                        }
-                    },
+                    if char != None {
+                        match char.unwrap() {
+                            "w" => {
+                                if event.state == ElementState::Pressed {
+                                    self.player.w = true;
+                                } else if event.state == ElementState::Released {
+                                    self.player.w = false;
+                                }
+                            },
 
-                    "a" => {
-                        if event.state == ElementState::Pressed {
-                            self.player.a = true;
-                        } else if event.state == ElementState::Released {
-                            self.player.a = false;
-                        }
-                    },
-                    
-                    "s" => {
-                        if event.state == ElementState::Pressed {
-                            self.player.s = true;
-                        } else if event.state == ElementState::Released {
-                            self.player.s = false;
-                        }
-                    },
+                            "a" => {
+                                if event.state == ElementState::Pressed {
+                                    self.player.a = true;
+                                } else if event.state == ElementState::Released {
+                                    self.player.a = false;
+                                }
+                            },
+                            
+                            "s" => {
+                                if event.state == ElementState::Pressed {
+                                    self.player.s = true;
+                                } else if event.state == ElementState::Released {
+                                    self.player.s = false;
+                                }
+                            },
 
-                    "d" => {
-                        if event.state == ElementState::Pressed {
-                            self.player.d = true;
-                        } else if event.state == ElementState::Released {
-                            self.player.d = false;
-                        }
-                    },
-                    
-                    "\x1b" => {
-                        self.cursor_grab.change_lock(false);
-                        unsafe {
-                            (*self.app).state.as_ref().unwrap().window.set_cursor_visible(true);
-                        }
-                    },
+                            "d" => {
+                                if event.state == ElementState::Pressed {
+                                    self.player.d = true;
+                                } else if event.state == ElementState::Released {
+                                    self.player.d = false;
+                                }
+                            },
+                            
+                            "\x1b" => {
+                                self.cursor_grab.change_lock(false);
+                                unsafe {
+                                    (*self.app).state.as_ref().unwrap().window.set_cursor_visible(true);
+                                }
+                            },
 
-                    &_ => {
-                    },
+                            &_ => {
+                            },
+                        }
+                    } 
                 }
-            } 
+            },
+
+            Some(_) => unsafe { (*self.substate.unwrap()).manage_keyboard_input(event) },
         }
     }
 
     fn manage_mouse_input(&mut self, button: MouseButton) {
-        if !self.cursor_grab.is_lock {
-            self.cursor_grab.change_lock(true);
-            unsafe {
-                (*self.app).state.as_ref().unwrap().window.set_cursor_visible(false);
-            }
+        match self.substate {
+            None => {
+                if !self.cursor_grab.is_lock {
+                    self.cursor_grab.change_lock(true);
+                    unsafe {
+                        (*self.app).state.as_ref().unwrap().window.set_cursor_visible(false);
+                    }
+                }
+            },
+
+            Some(_) => unsafe { (*self.substate.unwrap()).manage_mouse_input(button) },
         }
     }
 
     fn manage_mouse_movement(&mut self, position: PhysicalPosition<f64>) {
+        match self.substate {
+            None => {
+                if self.cursor_grab.is_lock {
+                    self.player.change_view(position, self.cursor_grab.position);
+                    unsafe {
+                        (*self.app).state.as_ref().unwrap().window.set_cursor_position(self.cursor_grab.position);
+                    }
+                }
+            },
 
-        if self.cursor_grab.is_lock {
-            self.player.change_view(position, self.cursor_grab.position);
-            unsafe {
-                (*self.app).state.as_ref().unwrap().window.set_cursor_position(self.cursor_grab.position);
-            }
+            Some(_) => unsafe { (*self.substate.unwrap()).manage_mouse_movement(position) },
         }
     }
 
     fn manage_window_resize(&mut self, size: PhysicalSize<u32>) {
         self.cursor_grab.window_resized(size);
+    }
+
+    fn close_substate(&mut self) {
+        self.substate = None;
     }
 }
 
